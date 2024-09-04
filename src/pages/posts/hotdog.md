@@ -1,8 +1,6 @@
-# My first post
+# Crafting Hot Dogs from Scratch
 
-## Crafting Hot Dogs from Scratch
-
-[hotdog](https://res.cloudinary.com/dvbyognrh/image/upload/v1725492273/github-blog/oojjbmjzexpjehrs7ubj.webp)
+![hotdog](https://res.cloudinary.com/dvbyognrh/image/upload/v1725492273/github-blog/oojjbmjzexpjehrs7ubj.webp)
 
 ### Ingredients:
 
