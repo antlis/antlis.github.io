@@ -1,0 +1,30 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import Card from '../../components/Card.astro'
+import { getCollection } from 'astro:content'
+
+const projects = await getCollection('portfolio')
+---
+
+<Layout title="Portfolio">
+  <h1>Portfolio</h1>
+  <div class="link-card-grid">
+    {projects.map(project => (
+      <Card
+        title={project.data.title}
+        body={project.data.description}
+        href={`/portfolio/${project.slug}`}
+        imgSrc={project.data.imgSrc || ''}
+        imgAlt={project.data.imgAlt || ''}
+      />
+    ))}
+  </div>
+</Layout>
+
+<style>
+  .link-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
+    gap: 2rem;
+  }
+</style>

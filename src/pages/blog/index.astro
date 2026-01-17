@@ -1,0 +1,35 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import Card from '../../components/Card.astro'
+import { getCollection } from 'astro:content'
+
+const posts = await getCollection('blog')
+---
+
+<Layout title="Blog">
+  <section class="blog">
+    <h1>Blog</h1>
+
+    <div class="link-card-grid">
+      {posts
+        .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+        .map((post) => (
+          <Card
+            title={post.data.title}
+            description={post.data.description}
+            href={`/blog/${post.slug}`}
+            imgSrc={post.data.imgSrc || ''}
+            imgAlt={post.data.imgAlt || ''}
+          />
+        ))}
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .link-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(24ch, 1fr));
+    gap: 2rem;
+  }
+</style>

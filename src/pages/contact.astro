@@ -1,0 +1,39 @@
+---
+import { CldImage } from 'astro-cloudinary'
+import FoxLogo from '/src/components/FoxLogo.astro'
+import Layout from '/src/layouts/Layout.astro'
+---
+
+<Layout title="About me">
+  <h1 class="text-gradient">Hello, I'm Anton</h1>
+  <FoxLogo size={64} className="logo" />
+
+  <!-- About Section -->
+  <section class="about">
+    <p>
+      I'm a developer passionate about building modern web apps. I love exploring new technologies,
+      learning, and sharing knowledge through writing and open source.
+    </p>
+    <!--<CldImage -->
+    <!--  alt="anton"-->
+    <!--  src="https://res.cloudinary.com/dvbyognrh/image/upload/v1767471285/photos/photo_2025-12-15_14-41-49.jpg"-->
+    <!--/>-->
+  </section>
+</Layout>
+
+<style>
+  h1 {
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 1em;
+  }
+
+  .text-gradient {
+    background-image: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 400%;
+    background-position: 0%;
+  }
+</style>

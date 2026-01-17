@@ -1,0 +1,75 @@
+---
+import FoxLogo from './FoxLogo.astro'
+import { Toggle } from 'astro-theme-toggle/components'
+
+const navItems = [
+  { label: 'About', href: '/about' },
+  { label: 'Blog', href: '/blog' },
+  { label: 'Portfolio', href: '/portfolio' },
+  { label: 'Contact', href: '/contact' },
+]
+---
+
+<header>
+  <nav class="main-nav">
+    <a href="/" class="logo">
+      <FoxLogo />
+    </a>
+
+    <div class="middle">
+      {navItems.map(item => (
+        <a href={item.href} class="nav-link">
+          {item.label}
+        </a>
+      ))}
+    </div>
+
+    <div class="right-side">
+      <Toggle style="width: 32px; height: 32px;" />
+    </div>
+  </nav>
+</header>
+
+<style>
+  .main-nav {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+  }
+
+  .logo {
+    justify-self: start;
+  }
+
+  .middle {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+  }
+
+  .right-side {
+    justify-self: end;
+  }
+
+  .nav-link {
+    font-weight: 500;
+    text-decoration: none;
+    color: inherit;
+    opacity: 0.85;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+
+  .nav-link:hover {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+
+  .theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem;
+  }
+</style>
