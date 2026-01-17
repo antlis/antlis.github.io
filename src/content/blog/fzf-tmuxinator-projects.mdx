@@ -1,0 +1,36 @@
+---
+title: "Tmuxinator Projects with fzf"
+description: "Interactively browse and launch tmuxinator projects from terminal using fzf"
+layout: "/src/layouts/Layout.astro"
+pubDate: 2026-01-06
+category: "Shell"
+tags: ["shell", "fzf", "tmuxinator", "tmux", "productivity"]
+imgSrc: "/blog/tmux.png"
+imgAlt: "tmuxinator projects fzf"
+---
+
+# Browse Tmuxinator Projects from Terminal
+
+I wrote a small shell function that lets me browse and launch `tmuxinator` projects directly from the terminal, using `fzf` for interactive selection with live previews of the project configuration. This eliminates the need to remember exact project names or manually list and start `tmuxinator` sessions.
+
+## The Function
+
+```bash
+mux-fzf() {
+  local workspace config_file
+  
+  config_file=$(find ~/.config/tmuxinator -name "*.yml" -o -name "*.yaml" 2>/dev/null | \
+    fzf \
+      --height=40% \
+      --reverse \
+      --prompt="Select tmuxinator config: " \
+      --preview="cat {}" \
+      --preview-window=right:60%)
+  
+  if [[ -n "$config_file" ]]; then
+    workspace=$(basename "$config_file" .yml)
+    workspace=$(basename "$workspace" .yaml)
+    echo "Starting: $workspace"
+    tmuxinator start "$workspace"
+  fi
+}

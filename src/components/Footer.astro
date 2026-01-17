@@ -1,0 +1,32 @@
+---
+import Socials from './Socials.astro'
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <Socials />
+
+  <p class="copyright">
+    <small>&copy; {currentYear} Antlis. All rights reserved.</small>
+  </p>
+</footer>
+
+<style>
+  .footer {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .footer-title {
+    text-align: center;
+    color: white;
+  }
+
+  .copyright {
+    text-align: center;
+    margin-top: 2rem;
+    color: #888;
+    font-size: 0.9rem;
+  }
+</style>

@@ -1,0 +1,81 @@
+---
+const socials = [
+  {
+    name: "GitHub",
+    url: "https://github.com/antlis",
+    icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg",
+  },
+  {
+    name: "LinkedIn",
+    url: "https://www.linkedin.com/in/antlis/",
+    icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg",
+  },
+  {
+    name: "GitLab",
+    url: "https://gitlab.com/antlis",
+    icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/gitlab.svg",
+  },
+  {
+    name: "StackOverflow",
+    url: "https://stackoverflow.com/users/2983061/antlis",
+    icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/stackoverflow.svg",
+  },
+  {
+    name: "Telegram",
+    url: "https://t.me/Balkon1111",
+    icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg",
+  },
+  {
+    name: "Email",
+    url: "mailto:antlis@protonmail.com",
+    icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/protonmail.svg",
+  },
+  //{
+  //  name: "CodePen",
+  //  url: "https://codepen.io/antlis", // adjust if needed
+  //  icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/codepen.svg",
+  //},
+  //{
+  //  name: "LeetCode",
+  //  url: "https://leetcode.com/antlis/",
+  //  icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/leetcode.svg",
+  //},
+];
+---
+
+<div class="social-icons">
+  {socials.map(social => (
+    <a href={social.url} target="_blank" aria-label={social.name}>
+      <img src={social.icon} alt={social.name} />
+    </a>
+  ))}
+</div>
+
+<style>
+  .social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .social-icons a {
+    color: var(--icon-color);
+  }
+
+  .social-icons img {
+    width: 40px;
+    height: 40px;
+    transition: transform 0.2s, filter 0.2s;
+    filter: brightness(0);
+  }
+
+  :root[data-theme='dark'] .social-icons img {
+    filter: brightness(0) invert(1);
+  }
+
+  .social-icons img:hover {
+    transform: scale(1.2);
+  }
+</style>

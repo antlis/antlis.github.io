@@ -1,0 +1,118 @@
+---
+const GITHUB_USERNAME = import.meta.env.GITHUB_USERNAME
+const GITHUB_TOKEN = import.meta.env.GITHUB_TOKEN
+
+const query = `
+query ($login: String!) {
+  user(login: $login) {
+    contributionsCollection {
+      totalCommitContributions
+    }
+    repositories(
+      first: 5
+      orderBy: { field: UPDATED_AT, direction: DESC }
+      ownerAffiliations: OWNER
+    ) {
+      nodes {
+        name
+        description
+        url
+        stargazerCount
+        primaryLanguage {
+          name
+          color
+        }
+      }
+    }
+  }
+}
+`
+
+const res = await fetch('https://api.github.com/graphql', {
+  method: 'POST',
+  headers: {
+    Authorization: `Bearer ${GITHUB_TOKEN}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    query,
+    variables: { login: GITHUB_USERNAME },
+  }),
+})
+
+const { data } = await res.json()
+const user = data.user
+---
+
+<section class="github">
+  <h2>GitHub Activity</h2>
+
+  <p class="stats">
+    💻 {user.contributionsCollection.totalCommitContributions} commits this year
+  </p>
+
+  <ul class="repo-list">
+    {user.repositories.nodes.map((repo) => (
+      <li>
+        <a href={repo.url} target="_blank" rel="noopener">
+          <strong>{repo.name}</strong>
+        </a>
+        {repo.description && <p>{repo.description}</p>}
+
+        <div class="meta">
+          {repo.primaryLanguage && (
+            <span
+              class="lang"
+              style={`--color: ${repo.primaryLanguage.color}`}
+            >
+              ● {repo.primaryLanguage.name}
+            </span>
+          )}
+          ⭐ {repo.stargazerCount}
+        </div>
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  .github {
+    margin-bottom: 3rem;
+  }
+
+  .stats {
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+  }
+
+  .repo-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .repo-list li {
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    background: var(--card-bg);
+  }
+
+  .repo-list a {
+    font-size: 1.2rem;
+    color: var(--accent-light);
+  }
+
+  .meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+    opacity: 0.8;
+  }
+
+  .lang::before {
+    content: "●";
+    color: var(--color);
+    margin-right: 0.25rem;
+  }
+</style>
