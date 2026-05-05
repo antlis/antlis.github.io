@@ -1,0 +1,51 @@
+---
+import { getLocaleFromUrl, switchLocalePath } from '../i18n/utils';
+
+const locale = getLocaleFromUrl(Astro.url);
+const currentPath = Astro.url.pathname;
+---
+
+<div class="lang-switcher">
+  <a
+    href={switchLocalePath(currentPath, 'en')}
+    class:list={{ active: locale === 'en' }}
+    aria-label="English"
+  >EN</a>
+  <span class="sep">/</span>
+  <a
+    href={switchLocalePath(currentPath, 'ru')}
+    class:list={{ active: locale === 'ru' }}
+    aria-label="Русский"
+  >RU</a>
+</div>
+
+<style>
+  .lang-switcher {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .lang-switcher a {
+    color: var(--text-secondary);
+    transition: color 0.2s;
+  }
+
+  .lang-switcher a:hover {
+    color: var(--text);
+  }
+
+  .lang-switcher a.active {
+    color: var(--text);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .sep {
+    color: var(--border);
+    user-select: none;
+  }
+</style>

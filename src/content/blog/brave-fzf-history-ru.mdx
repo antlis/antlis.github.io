@@ -1,18 +1,19 @@
 ---
-title: "Browse Brave Browser History"
-description: "Interactively browse Brave Beta history from terminal using fzf"
+title: "Просмотр истории Brave браузера"
+description: "Интерактивный просмотр истории Brave Beta из терминала с помощью fzf"
 pubDate: 2026-01-03
+locale: "ru"
 category: "Shell"
 tags: ["shell", "fzf", "brave"]
 imgSrc: "/blog/fzf-color.png"
 imgAlt: "fzf brave history"
 ---
 
-# Browse Brave Browser History from Terminal
+# Просмотр истории Brave браузера из терминала
 
-I wrote a small shell function that lets me **browse my Brave Browser (Beta) history directly from the terminal**, using `fzf` for interactive searching. This is similar to browsing Chrome history, but for Brave Beta.
+Я написал небольшую shell-функцию, которая позволяет **просматривать историю Brave Browser (Beta) прямо из терминала**, используя `fzf` для интерактивного поиска. Это аналогично просмотру истории Chrome, но для Brave Beta.
 
-## The Function
+## Функция
 
 ```bash
 brave-beta-history() {
@@ -35,3 +36,4 @@ brave-beta-history() {
   awk -F $sep '{printf "%-'$cols's  \x1b[36m%s\x1b[m\n", $1, $2}' |
   fzf --ansi --multi | sed 's#.*\(https*://\)#\1#' | xargs $open > /dev/null 2> /dev/null
 }
+```

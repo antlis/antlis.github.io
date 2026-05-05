@@ -5,10 +5,10 @@ import GithubActivity from '/src/components/GithubActivity.astro'
 import { getCollection } from 'astro:content'
 import { t, localePath } from '/src/i18n/utils'
 
-const locale = 'en'
+const locale = 'ru'
 const i = t(locale)
 
-const posts = await getCollection('blog', ({ data }) => (data.locale ?? 'en') === 'en')
+const posts = await getCollection('blog', ({ data }) => data.locale === 'ru')
 const recentPosts = posts
   .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
   .slice(0, 3)

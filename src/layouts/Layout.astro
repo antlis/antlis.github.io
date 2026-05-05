@@ -3,28 +3,30 @@ import "modern-css-reset"
 import Footer from '../components/Footer.astro'
 import Header from '../components/Header.astro'
 import { ThemeScript } from 'astro-theme-toggle/components';
+import { getLocaleFromUrl, t } from '../i18n/utils'
 
 interface Props {
 	title: string;
 }
 
 const { title } = Astro.props
+const locale = getLocaleFromUrl(Astro.url)
+const i = t(locale)
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={locale}>
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content="Astro description" />
+		<meta name="description" content={locale === 'ru' ? 'Антон Л — Веб-разработчик' : 'Anton L — Web Developer'} />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
-    <link href="https://fonts.cdnfonts.com/css/canela" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-      href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet">
     <ThemeScript />
 	</head>
@@ -42,72 +44,78 @@ const { title } = Astro.props
 
 <style is:global>
 	:root {
-    --bg: #ffffff;
-    --text: #0f172a;
-    --nav-text: #0f172a;
-
-		--accent: 136, 58, 234;
-		--accent-light: 224, 204, 250;
-		--accent-dark: 49, 10, 101;
-		--accent-gradient: linear-gradient(
-			45deg,
-			rgb(var(--accent)),
-			rgb(var(--accent-light)) 30%,
-			white 60%
-		);
-    --icon-color: #0f172a;
+    --bg: #fafafa;
+    --text: #1a1a1a;
+    --text-secondary: #666;
+    --border: #e5e5e5;
+    --card-bg: #fff;
+    --card-hover: #f5f5f5;
+    --accent: #3b82f6;
+    --accent-hover: #2563eb;
+    --icon-color: #1a1a1a;
 	}
 
   :root[data-theme='dark'] {
-    --bg: #0b0f14;
-    --text: #e5e7eb;
-    --nav-text: #e5e7eb;
-    --icon-color: #e5e7eb;
+    --bg: #0a0a0a;
+    --text: #e5e5e5;
+    --text-secondary: #999;
+    --border: #222;
+    --card-bg: #111;
+    --card-hover: #1a1a1a;
+    --accent: #60a5fa;
+    --accent-hover: #93bbfd;
+    --icon-color: #e5e5e5;
+  }
+
+  html {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
   body {
     background: var(--bg);
     color: var(--text);
-    height: 100%;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-
-	html {
-    font-family: 'Canela', serif;
-		background: #13151a;
-    height: 100%;
-	}
 
   main {
     flex: 1;
-    margin: auto;
-    margin: auto;
-    padding: 1rem;
-    width: 800px;
-    max-width: calc(100% - 2rem);
-    color: white;
-    font-size: 20px;
-    line-height: 1.6;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 2rem;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.2s;
+  }
+
+  h1, h2, h3, h4 {
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--text);
+  }
+
+  h1 { font-size: 2.25rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+
+  p {
+    line-height: 1.7;
+    color: var(--text-secondary);
   }
 
 	code {
-    font-size: 0.8rem;
-    padding: 0.5rem;
-		font-family:
-			Menlo,
-			Monaco,
-			Lucida Console,
-			Liberation Mono,
-			DejaVu Sans Mono,
-			Bitstream Vera Sans Mono,
-			Courier New,
-			monospace;
+    font-size: 0.875rem;
+    padding: 0.2rem 0.4rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+		font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, monospace;
 	}
-
-  h1, h2, h3, .heading {
-    font-family: 'Lato', sans-serif;
-    font-weight: 700; /* bold headings */
-  }
 </style>

@@ -1,4 +1,9 @@
 ---
+import { getLocaleFromUrl, t } from '../i18n/utils'
+
+const locale = getLocaleFromUrl(Astro.url)
+const i = t(locale)
+
 const GITHUB_USERNAME = import.meta.env.GITHUB_USERNAME
 const GITHUB_TOKEN = import.meta.env.GITHUB_TOKEN
 
@@ -28,91 +33,136 @@ query ($login: String!) {
 }
 `
 
-const res = await fetch('https://api.github.com/graphql', {
-  method: 'POST',
-  headers: {
-    Authorization: `Bearer ${GITHUB_TOKEN}`,
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    query,
-    variables: { login: GITHUB_USERNAME },
-  }),
-})
+let user = null
 
-const { data } = await res.json()
-const user = data.user
+try {
+  const res = await fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query,
+      variables: { login: GITHUB_USERNAME },
+    }),
+  })
+
+  const json = await res.json()
+  user = json.data?.user
+} catch {}
 ---
 
-<section class="github">
-  <h2>GitHub Activity</h2>
+{user ? (
+  <section class="github">
+    <h2>{i.github.heading}</h2>
 
-  <p class="stats">
-    💻 {user.contributionsCollection.totalCommitContributions} commits this year
-  </p>
+    <p class="commit-count">
+      {user.contributionsCollection.totalCommitContributions} {i.github.commitsThisYear}
+    </p>
 
-  <ul class="repo-list">
-    {user.repositories.nodes.map((repo) => (
-      <li>
-        <a href={repo.url} target="_blank" rel="noopener">
-          <strong>{repo.name}</strong>
-        </a>
-        {repo.description && <p>{repo.description}</p>}
-
-        <div class="meta">
+    <div class="repos">
+      {user.repositories.nodes.map((repo) => (
+        <a href={repo.url} target="_blank" rel="noopener" class="repo">
+          <div class="repo-header">
+            <strong>{repo.name}</strong>
+            {repo.stargazerCount > 0 && (
+              <span class="stars">{repo.stargazerCount}</span>
+            )}
+          </div>
+          {repo.description && <p>{repo.description}</p>}
           {repo.primaryLanguage && (
-            <span
-              class="lang"
-              style={`--color: ${repo.primaryLanguage.color}`}
-            >
-              ● {repo.primaryLanguage.name}
+            <span class="lang">
+              <span class="dot" style={`background: ${repo.primaryLanguage.color}`} />
+              {repo.primaryLanguage.name}
             </span>
           )}
-          ⭐ {repo.stargazerCount}
-        </div>
-      </li>
-    ))}
-  </ul>
-</section>
+        </a>
+      ))}
+    </div>
+  </section>
+) : (
+  <section class="github">
+    <h2>{i.github.heading}</h2>
+    <p>{i.github.error}</p>
+  </section>
+)}
 
 <style>
   .github {
-    margin-bottom: 3rem;
+    margin-top: 3rem;
   }
 
-  .stats {
-    margin-bottom: 1.5rem;
-    opacity: 0.9;
+  .github h2 {
+    margin-bottom: 0.5rem;
   }
 
-  .repo-list {
-    list-style: none;
-    padding: 0;
-    display: grid;
-    gap: 1.5rem;
-  }
-
-  .repo-list li {
-    padding: 1.5rem;
-    border-radius: 0.75rem;
-    background: var(--card-bg);
-  }
-
-  .repo-list a {
-    font-size: 1.2rem;
-    color: var(--accent-light);
-  }
-
-  .meta {
-    display: flex;
-    gap: 1rem;
+  .commit-count {
     font-size: 0.9rem;
-    opacity: 0.8;
+    margin-bottom: 1.5rem;
   }
 
-  .lang::before {
-    content: "●";
-    color: var(--color);
-    margin-right: 0.25rem;
+  .repos {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .repo {
+    display: block;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .repo:hover {
+    background: var(--card-hover);
+    border-color: var(--text-secondary);
+  }
+
+  .repo-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+  }
+
+  .repo strong {
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  .stars {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .stars::before {
+    content: "\2605 ";
+  }
+
+  .repo p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: var(--text-secondary);
+  }
+
+  .lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
   }
 </style>

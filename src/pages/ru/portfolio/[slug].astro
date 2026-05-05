@@ -3,7 +3,7 @@ import Layout from '/src/layouts/Layout.astro'
 import { getCollection, getEntryBySlug } from 'astro:content'
 
 export async function getStaticPaths() {
-  const posts = await getCollection('portfolio', ({ data }) => (data.locale ?? 'en') === 'en')
+  const posts = await getCollection('portfolio', ({ data }) => data.locale === 'ru')
 
   return posts.map((post) => ({
     params: { slug: post.slug },
@@ -20,12 +20,12 @@ if (!post) {
 const { Content } = await post.render()
 ---
 
-<Layout title={`${post.data.title} — Portfolio`}>
+<Layout title={`${post.data.title} — Портфолио`}>
   <article class="project">
     <h1>{post.data.title}</h1>
     {post.data.href && (
       <a href={post.data.href} target="_blank" rel="noopener" class="link">
-        Visit project
+        Перейти к проекту
       </a>
     )}
     <div class="content">

@@ -1,32 +1,37 @@
 ---
 import Socials from './Socials.astro'
+import { getLocaleFromUrl, t } from '../i18n/utils'
 
+const locale = getLocaleFromUrl(Astro.url)
+const i = t(locale)
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="footer">
-  <Socials />
-
-  <p class="copyright">
-    <small>&copy; {currentYear} Antlis. All rights reserved.</small>
-  </p>
+<footer>
+  <div class="footer-inner">
+    <Socials />
+    <p class="copyright">&copy; {currentYear} {i.footer.copyright}</p>
+  </div>
 </footer>
 
 <style>
-  .footer {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
+  footer {
+    border-top: 1px solid var(--border);
+    margin-top: 4rem;
   }
 
-  .footer-title {
-    text-align: center;
-    color: white;
+  .footer-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
   }
 
   .copyright {
-    text-align: center;
-    margin-top: 2rem;
-    color: #888;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
   }
 </style>

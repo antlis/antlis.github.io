@@ -4,9 +4,9 @@ import { CldImage } from 'astro-cloudinary'
 import { getCollection } from 'astro:content'
 import { t, localePath } from '/src/i18n/utils'
 
-const locale = 'en'
+const locale = 'ru'
 const i = t(locale)
-const projects = await getCollection('portfolio', ({ data }) => (data.locale ?? 'en') === 'en')
+const projects = await getCollection('portfolio', ({ data }) => data.locale === 'ru')
 ---
 
 <Layout title={i.portfolio.title}>
