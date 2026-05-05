@@ -30,52 +30,44 @@ const socials = [
     url: "mailto:antlis@protonmail.com",
     icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/protonmail.svg",
   },
-  //{
-  //  name: "CodePen",
-  //  url: "https://codepen.io/antlis", // adjust if needed
-  //  icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/codepen.svg",
-  //},
-  //{
-  //  name: "LeetCode",
-  //  url: "https://leetcode.com/antlis/",
-  //  icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/leetcode.svg",
-  //},
 ];
 ---
 
-<div class="social-icons">
+<div class="socials">
   {socials.map(social => (
-    <a href={social.url} target="_blank" aria-label={social.name}>
-      <img src={social.icon} alt={social.name} />
+    <a href={social.url} target="_blank" rel="noopener" aria-label={social.name}>
+      <img src={social.icon} alt={social.name} width="20" height="20" />
     </a>
   ))}
 </div>
 
 <style>
-  .social-icons {
+  .socials {
     display: flex;
-    justify-content: center;
-    gap: 2rem;
+    gap: 1.25rem;
     flex-wrap: wrap;
-    margin-top: 1rem;
+    justify-content: center;
   }
 
-  .social-icons a {
-    color: var(--icon-color);
+  .socials a {
+    display: flex;
+    opacity: 0.5;
+    transition: opacity 0.2s;
   }
 
-  .social-icons img {
-    width: 40px;
-    height: 40px;
-    transition: transform 0.2s, filter 0.2s;
+  .socials a:hover {
+    opacity: 0.8;
+  }
+
+  .socials img {
+    width: 20px;
+    height: 20px;
+    max-width: 20px;
+    max-height: 20px;
     filter: brightness(0);
   }
 
-  :root[data-theme='dark'] .social-icons img {
+  :global([data-theme='dark']) .socials img {
     filter: brightness(0) invert(1);
-  }
-
-  .social-icons img:hover {
-    transform: scale(1.2);
   }
 </style>

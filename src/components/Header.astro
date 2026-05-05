@@ -1,75 +1,85 @@
 ---
 import FoxLogo from './FoxLogo.astro'
+import LanguageSwitcher from './LanguageSwitcher.astro'
 import { Toggle } from 'astro-theme-toggle/components'
+import { getLocaleFromUrl, t, localePath } from '../i18n/utils'
+
+const locale = getLocaleFromUrl(Astro.url)
+const i = t(locale)
 
 const navItems = [
-  { label: 'About', href: '/about' },
-  { label: 'Blog', href: '/blog' },
-  { label: 'Portfolio', href: '/portfolio' },
-  { label: 'Contact', href: '/contact' },
+  { label: i.nav.about, href: localePath('/about', locale) },
+  { label: i.nav.blog, href: localePath('/blog', locale) },
+  { label: i.nav.portfolio, href: localePath('/portfolio', locale) },
 ]
+
+const currentPath = Astro.url.pathname
 ---
 
 <header>
-  <nav class="main-nav">
-    <a href="/" class="logo">
-      <FoxLogo />
+  <nav>
+    <a href={localePath('/', locale)} class="logo" aria-label="Home">
+      <FoxLogo size={36} />
     </a>
 
-    <div class="middle">
+    <div class="nav-links">
       {navItems.map(item => (
-        <a href={item.href} class="nav-link">
+        <a
+          href={item.href}
+          class:list={['nav-link', { active: currentPath === item.href }]}
+        >
           {item.label}
         </a>
       ))}
     </div>
 
-    <div class="right-side">
-      <Toggle style="width: 32px; height: 32px;" />
+    <div class="nav-end">
+      <LanguageSwitcher />
+      <Toggle style="width: 24px; height: 24px;" />
     </div>
   </nav>
 </header>
 
 <style>
-  .main-nav {
-    padding: 1.5rem;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
+  header {
+    border-bottom: 1px solid var(--border);
+  }
+
+  nav {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
   }
 
   .logo {
-    justify-self: start;
+    display: flex;
+    align-items: center;
   }
 
-  .middle {
+  .nav-links {
     display: flex;
-    justify-content: center;
     gap: 2rem;
   }
 
-  .right-side {
-    justify-self: end;
-  }
-
   .nav-link {
+    font-size: 0.9rem;
     font-weight: 500;
+    color: var(--text-secondary);
     text-decoration: none;
-    color: inherit;
-    opacity: 0.85;
-    transition: opacity 0.2s, transform 0.2s;
+    transition: color 0.2s;
   }
 
-  .nav-link:hover {
-    opacity: 1;
-    transform: translateY(-1px);
+  .nav-link:hover,
+  .nav-link.active {
+    color: var(--text);
   }
 
-  .theme-toggle {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    padding: 0.25rem;
+  .nav-end {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
 </style>

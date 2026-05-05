@@ -4,9 +4,9 @@ import Card from '/src/components/Card.astro'
 import { getCollection } from 'astro:content'
 import { t, localePath } from '/src/i18n/utils'
 
-const locale = 'en'
+const locale = 'ru'
 const i = t(locale)
-const posts = await getCollection('blog', ({ data }) => (data.locale ?? 'en') === 'en')
+const posts = await getCollection('blog', ({ data }) => data.locale === 'ru')
 ---
 
 <Layout title={i.blog.title}>
