@@ -9,8 +9,8 @@ const currentYear = new Date().getFullYear();
 
 <footer>
   <div class="footer-inner">
-    <Socials />
     <p class="copyright">&copy; {currentYear} {i.footer.copyright}</p>
+    <Socials />
   </div>
 </footer>
 
@@ -25,8 +25,9 @@ const currentYear = new Date().getFullYear();
     margin: 0 auto;
     padding: 2rem 2rem;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
+    justify-content: space-between;
     gap: 1rem;
   }
 
