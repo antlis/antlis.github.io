@@ -3,10 +3,12 @@ title: "Browse Brave Browser History"
 description: "Interactively browse Brave Beta history from terminal using fzf"
 pubDate: 2026-01-03
 category: "Shell"
-tags: ["shell", "fzf", "brave"]
+tags: ["shell", "fzf", "brave", "gist"]
 imgSrc: "/blog/fzf-color.png"
 imgAlt: "fzf brave history"
 ---
+
+import GistEmbed from '../../components/GistEmbed.astro'
 
 # Browse Brave Browser History from Terminal
 
@@ -14,24 +16,4 @@ I wrote a small shell function that lets me **browse my Brave Browser (Beta) his
 
 ## The Function
 
-```bash
-brave-beta-history() {
-  local cols sep brave_history open
-  cols=$(( COLUMNS / 3 ))
-  sep='{::}'
-
-  if [ "$(uname)" = "Darwin" ]; then
-    brave_history="$HOME/Library/Application Support/BraveSoftware/Brave-Browser-Beta/Default/History"
-    open=open
-  else
-    brave_history="$HOME/.config/BraveSoftware/Brave-Browser-Beta/Default/History"
-    open=xdg-open
-  fi
-
-  cp -f "$brave_history" /tmp/bh
-  sqlite3 -separator $sep /tmp/bh \
-    "select substr(title, 1, $cols), url
-     from urls order by last_visit_time desc" |
-  awk -F $sep '{printf "%-'$cols's  \x1b[36m%s\x1b[m\n", $1, $2}' |
-  fzf --ansi --multi | sed 's#.*\(https*://\)#\1#' | xargs $open > /dev/null 2> /dev/null
-}
+<GistEmbed id="c951b16302c7519d61ddb1249368d353" />

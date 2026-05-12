@@ -1,0 +1,91 @@
+/* Base styles */
+body {
+  background: transparent !important;
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, monospace !important;
+  overflow: hidden !important;
+}
+
+/* Hide gist meta footer */
+body .gist .gist-meta {
+  display: none !important;
+}
+
+body .gist .gist-file {
+  margin-bottom: 0 !important;
+  border: 0 !important;
+}
+
+/* Light theme (default) */
+body .gist .gist-data {
+  background: #fff !important;
+  border-color: #e5e5e5 !important;
+  border-bottom: 0 !important;
+  border-radius: 8px !important;
+  scrollbar-color: #ccc #fff;
+}
+
+body .gist .gist-data::-webkit-scrollbar {
+  height: 8px;
+}
+
+body .gist .gist-data::-webkit-scrollbar-track {
+  background: #fff;
+  border-radius: 0 0 8px 8px;
+}
+
+body .gist .gist-data::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+body .gist .blob-code,
+body .gist .blob-num {
+  background: #fff !important;
+}
+
+body .gist .blob-num {
+  color: #999 !important;
+  font-size: 0.95rem !important;
+}
+
+body .gist .blob-code-inner {
+  color: #1a1a1a !important;
+  font-size: 0.95rem !important;
+  line-height: 1.6 !important;
+}
+
+/* Dark theme */
+body.dark .gist .gist-data {
+  background: #111 !important;
+  border-color: #222 !important;
+  scrollbar-color: #444 #111;
+}
+
+body.dark .gist .gist-data::-webkit-scrollbar-track {
+  background: #111;
+}
+
+body.dark .gist .gist-data::-webkit-scrollbar-thumb {
+  background: #444;
+}
+
+body.dark .gist .blob-code,
+body.dark .gist .blob-num {
+  background: #111 !important;
+}
+
+body.dark .gist .blob-num {
+  color: #666 !important;
+}
+
+body.dark .gist .blob-code-inner {
+  color: #e5e5e5 !important;
+}
+
+/* Syntax highlighting - dark */
+body.dark .gist .pl-c { color: #6a737d !important; }
+body.dark .gist .pl-k { color: #f97583 !important; }
+body.dark .gist .pl-s { color: #9ecbff !important; }
+body.dark .gist .pl-en { color: #b392f0 !important; }
+body.dark .gist .pl-smi { color: #e1e4e8 !important; }
+body.dark .gist .pl-pds { color: #9ecbff !important; }

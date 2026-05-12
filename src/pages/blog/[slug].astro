@@ -1,5 +1,6 @@
 ---
 import Layout from '/src/layouts/Layout.astro'
+import { CldImage } from 'astro-cloudinary'
 import { getCollection, getEntryBySlug } from 'astro:content'
 
 export async function getStaticPaths() {
@@ -24,6 +25,25 @@ const { Content } = await post.render()
   <article class="post">
     <h1>{post.data.title}</h1>
     <time>{post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+    {post.data.tags && post.data.tags.length > 0 && (
+      <div class="tags">
+        {post.data.tags.map((tag: string) => (
+          <span class="tag">{tag}</span>
+        ))}
+      </div>
+    )}
+    {post.data.imgSrc && (
+      <div class="hero-img">
+        <CldImage
+          src={post.data.imgSrc}
+          alt={post.data.imgAlt || post.data.title}
+          width={720}
+          height={360}
+          crop="fill"
+          gravity="auto"
+        />
+      </div>
+    )}
     <div class="content">
       <Content />
     </div>
@@ -36,6 +56,18 @@ const { Content } = await post.render()
     padding-top: 2rem;
   }
 
+  .hero-img {
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-img :global(img) {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
   .post h1 {
     margin-bottom: 0.5rem;
   }
@@ -44,7 +76,23 @@ const { Content } = await post.render()
     display: block;
     font-size: 0.875rem;
     color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     margin-bottom: 2rem;
+  }
+
+  .tag {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    background: var(--card-hover);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 999px;
   }
 
   .content {

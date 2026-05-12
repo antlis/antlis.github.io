@@ -3,10 +3,12 @@ title: "Tmuxinator Projects with fzf"
 description: "Interactively browse and launch tmuxinator projects from terminal using fzf"
 pubDate: 2026-01-06
 category: "Shell"
-tags: ["shell", "fzf", "tmuxinator", "tmux", "productivity"]
+tags: ["shell", "fzf", "tmuxinator", "tmux", "productivity", "gist"]
 imgSrc: "/blog/tmux.png"
 imgAlt: "tmuxinator projects fzf"
 ---
+
+import GistEmbed from '../../components/GistEmbed.astro'
 
 # Browse Tmuxinator Projects from Terminal
 
@@ -14,22 +16,4 @@ I wrote a small shell function that lets me browse and launch `tmuxinator` proje
 
 ## The Function
 
-```bash
-mux-fzf() {
-  local workspace config_file
-  
-  config_file=$(find ~/.config/tmuxinator -name "*.yml" -o -name "*.yaml" 2>/dev/null | \
-    fzf \
-      --height=40% \
-      --reverse \
-      --prompt="Select tmuxinator config: " \
-      --preview="cat {}" \
-      --preview-window=right:60%)
-  
-  if [[ -n "$config_file" ]]; then
-    workspace=$(basename "$config_file" .yml)
-    workspace=$(basename "$workspace" .yaml)
-    echo "Starting: $workspace"
-    tmuxinator start "$workspace"
-  fi
-}
+<GistEmbed id="f560af2881a32e09b6021011d12f7a25" />

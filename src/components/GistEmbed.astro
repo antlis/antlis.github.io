@@ -1,0 +1,146 @@
+---
+import Gist from '@kotosha/astro-gist'
+
+interface Props {
+  id: string
+  file?: string
+  caption?: string
+}
+
+const { id, file, caption } = Astro.props
+---
+
+<div class="gist-wrapper">
+  <button class="copy-gist-btn" data-gist-id={id} data-gist-file={file} aria-label="Copy code">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+    </svg>
+    <span>Copy</span>
+  </button>
+  <Gist id={id} file={file} caption={caption} gistStylesUrl="/gist-theme.css" />
+</div>
+
+<style>
+  .gist-wrapper {
+    margin: 1.5rem 0;
+    position: relative;
+  }
+
+  .gist-wrapper :global(figure) {
+    margin: 0;
+  }
+
+  .gist-wrapper :global(iframe) {
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .copy-gist-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    font-family: inherit;
+    color: var(--text-secondary);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s, border-color 0.2s;
+  }
+
+  .gist-wrapper:hover .copy-gist-btn {
+    opacity: 1;
+  }
+
+  .copy-gist-btn:hover {
+    color: var(--text);
+    border-color: var(--text-secondary);
+  }
+
+  .copy-gist-btn.copied {
+    color: #22c55e;
+    border-color: #22c55e;
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    function isDark() {
+      return document.documentElement.getAttribute('data-theme') === 'dark'
+    }
+
+    function syncThemeToGistIframes() {
+      var dark = isDark()
+      document.querySelectorAll('[data-astro-gist-iframe]').forEach(function(iframe) {
+        var body = iframe.contentDocument && iframe.contentDocument.body
+        if (body) {
+          body.classList.toggle('dark', dark)
+        }
+      })
+    }
+
+    function recalcHeight(id) {
+      var iframe = document.querySelector('#' + id)
+      if (iframe && iframe.contentDocument) {
+        var height = iframe.contentDocument.documentElement.scrollHeight
+        if (height) {
+          iframe.parentElement.style.paddingBlockEnd = height + 'px'
+        }
+      }
+    }
+
+    // Use a proxy so the library can set onLoad freely — we always wrap it
+    var realOnLoad = function() {}
+    window.AstroGist = window.AstroGist || {}
+    Object.defineProperty(window.AstroGist, 'onLoad', {
+      get: function() {
+        return function(id) {
+          realOnLoad(id)
+          syncThemeToGistIframes()
+          recalcHeight(id)
+        }
+      },
+      set: function(fn) {
+        realOnLoad = fn
+      },
+      configurable: true
+    })
+
+    // Watch for theme toggle changes
+    var observer = new MutationObserver(function() { syncThemeToGistIframes() })
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    })
+
+    // Copy button
+    document.querySelectorAll('.copy-gist-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var wrapper = btn.closest('.gist-wrapper')
+        var iframe = wrapper && wrapper.querySelector('[data-astro-gist-iframe]')
+        if (!iframe || !iframe.contentDocument) return
+
+        var lines = iframe.contentDocument.querySelectorAll('.blob-code-inner')
+        var text = Array.from(lines).map(function(el) { return el.textContent }).join('\n')
+
+        navigator.clipboard.writeText(text).then(function() {
+          var span = btn.querySelector('span')
+          btn.classList.add('copied')
+          span.textContent = 'Copied!'
+          setTimeout(function() {
+            btn.classList.remove('copied')
+            span.textContent = 'Copy'
+          }, 2000)
+        })
+      })
+    })
+  })()
+</script>
