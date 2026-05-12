@@ -2,6 +2,7 @@
 import "modern-css-reset"
 import Footer from '../components/Footer.astro'
 import Header from '../components/Header.astro'
+import Socials from '../components/Socials.astro'
 import { ThemeScript } from 'astro-theme-toggle/components';
 import { getLocaleFromUrl, t } from '../i18n/utils'
 
@@ -12,6 +13,8 @@ interface Props {
 const { title } = Astro.props
 const locale = getLocaleFromUrl(Astro.url)
 const i = t(locale)
+const wip = import.meta.env.PUBLIC_WIP === 'true'
+const wipTitle = locale === 'ru' ? 'Антон Л — Скоро' : 'Anton L — Coming Soon'
 ---
 
 <!doctype html>
@@ -22,7 +25,7 @@ const i = t(locale)
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
+		<title>{wip ? wipTitle : title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -32,13 +35,24 @@ const i = t(locale)
 	</head>
 
 	<body>
-    <Header />
+		{!wip && <Header />}
 
-    <main>
-      <slot />
-    </main>
+		<main>
+			{wip ? (
+				<div class="wip">
+					<div class="wip-content">
+						<img src="/logo.svg" alt="Logo" class="wip-logo" />
+						<h1>{locale === 'ru' ? 'Сайт в разработке' : 'Work in progress'}</h1>
+						<p>{locale === 'ru' ? 'Сайт находится в процессе создания. Загляните позже.' : 'This site is currently being built. Check back soon.'}</p>
+						<Socials />
+					</div>
+				</div>
+			) : (
+				<slot />
+			)}
+		</main>
 
-    <Footer />
+		{!wip && <Footer />}
 	</body>
 </html>
 
@@ -118,4 +132,32 @@ const i = t(locale)
     border-radius: 4px;
 		font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, monospace;
 	}
+
+  .wip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 90vh;
+  }
+
+  .wip-content {
+    text-align: center;
+  }
+
+  .wip-logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 2rem;
+  }
+
+  .wip h1 {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .wip p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+  }
 </style>

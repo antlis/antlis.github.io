@@ -32,6 +32,9 @@ const recentPosts = posts
             title={post.data.title}
             description={post.data.description}
             href={localePath(`/blog/${post.slug}`, locale)}
+            imgSrc={post.data.imgSrc}
+            imgAlt={post.data.imgAlt}
+            tags={post.data.tags}
           />
         ))}
       </div>
