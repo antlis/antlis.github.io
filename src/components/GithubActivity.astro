@@ -4,8 +4,8 @@ import { getLocaleFromUrl, t } from '../i18n/utils'
 const locale = getLocaleFromUrl(Astro.url)
 const i = t(locale)
 
-const GITHUB_USERNAME = import.meta.env.GITHUB_USERNAME
-const GITHUB_TOKEN = import.meta.env.GITHUB_TOKEN
+const GH_USERNAME = import.meta.env.GH_USERNAME
+const GH_TOKEN = import.meta.env.GH_TOKEN
 
 const query = `
 query ($login: String!) {
@@ -39,12 +39,12 @@ try {
   const res = await fetch('https://api.github.com/graphql', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${GITHUB_TOKEN}`,
+      Authorization: `Bearer ${GH_TOKEN}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       query,
-      variables: { login: GITHUB_USERNAME },
+      variables: { login: GH_USERNAME },
     }),
   })
 
