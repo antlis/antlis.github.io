@@ -1,5 +1,6 @@
 ---
 import Layout from '/src/layouts/Layout.astro'
+import Comments from '/src/components/Comments.astro'
 import { CldImage } from 'astro-cloudinary'
 import { getCollection, getEntryBySlug } from 'astro:content'
 
@@ -47,6 +48,7 @@ const { Content } = await post.render()
     <div class="content">
       <Content />
     </div>
+    <Comments lang="en" />
   </article>
 </Layout>
 

@@ -1,0 +1,60 @@
+---
+interface Props {
+  lang?: string;
+}
+
+const { lang = 'en' } = Astro.props
+---
+
+<div class="comments">
+  <script
+    is:inline
+    src="https://giscus.app/client.js"
+    data-repo="antlis/antlis.github.io"
+    data-repo-id="R_kgDOMrXAEQ"
+    data-category="General"
+    data-category-id="DIC_kwDOMrXAEc4C87ly"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="top"
+    data-theme="preferred_color_scheme"
+    data-lang={lang}
+    data-loading="lazy"
+    crossorigin="anonymous"
+    async
+  ></script>
+</div>
+
+<style>
+  .comments {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+</style>
+
+<script is:inline>
+  (function() {
+    function getGiscusTheme() {
+      var theme = document.documentElement.getAttribute('data-theme')
+      return theme === 'dark' ? 'dark' : 'light'
+    }
+
+    function setGiscusTheme() {
+      var iframe = document.querySelector('iframe.giscus-frame')
+      if (!iframe) return
+      iframe.contentWindow.postMessage(
+        { giscus: { setConfig: { theme: getGiscusTheme() } } },
+        'https://giscus.app'
+      )
+    }
+
+    var observer = new MutationObserver(function() { setGiscusTheme() })
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    })
+  })()
+</script>
