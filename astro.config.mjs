@@ -1,11 +1,12 @@
 import { defineConfig } from 'astro/config';
 
 import mdx from '@astrojs/mdx';
-
+import sitemap from '@astrojs/sitemap';
 import expressiveCode from 'astro-expressive-code';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://antlis.is-a.dev',
   integrations: [
     expressiveCode({
       themes: ['github-dark', 'github-light'],
@@ -15,6 +16,12 @@ export default defineConfig({
       },
     }),
     mdx(),
+    sitemap({
+      i18n: {
+        defaultLocale: 'en',
+        locales: { en: 'en', ru: 'ru' },
+      },
+    }),
   ],
   output: 'static',
   i18n: {

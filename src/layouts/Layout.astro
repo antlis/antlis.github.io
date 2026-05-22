@@ -3,29 +3,42 @@ import "modern-css-reset"
 import Footer from '../components/Footer.astro'
 import Header from '../components/Header.astro'
 import Socials from '../components/Socials.astro'
+import SEO from '../components/SEO.astro'
 import { ThemeScript } from 'astro-theme-toggle/components';
 import { getLocaleFromUrl, t } from '../i18n/utils'
 
 interface Props {
 	title: string;
+	description?: string;
+	image?: string;
+	type?: 'website' | 'article';
+	publishedTime?: Date;
 }
 
-const { title } = Astro.props
+const { title, description, image, type, publishedTime } = Astro.props
 const locale = getLocaleFromUrl(Astro.url)
 const i = t(locale)
 const wip = import.meta.env.PUBLIC_WIP === 'true'
 const wipTitle = locale === 'ru' ? 'Антон Л — Скоро' : 'Anton L — Coming Soon'
+const metaDescription = description || i.home.description
 ---
 
 <!doctype html>
 <html lang={locale}>
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content={locale === 'ru' ? 'Антон Л — Веб-разработчик' : 'Anton L — Web Developer'} />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{wip ? wipTitle : title}</title>
+		<SEO
+			title={wip ? wipTitle : title}
+			description={metaDescription}
+			locale={locale}
+			image={image}
+			type={type}
+			publishedTime={publishedTime}
+		/>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link

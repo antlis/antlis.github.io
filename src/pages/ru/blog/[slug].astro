@@ -22,7 +22,7 @@ if (!post) {
 const { Content } = await post.render()
 ---
 
-<Layout title={`${post.data.title} — Блог`}>
+<Layout title={`${post.data.title} — Блог`} description={post.data.description} image={post.data.imgSrc} type="article" publishedTime={post.data.pubDate}>
   <article class="post">
     <h1>{post.data.title}</h1>
     <time>{post.data.pubDate.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' })}</time>

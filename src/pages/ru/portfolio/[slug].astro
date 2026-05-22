@@ -20,7 +20,7 @@ if (!post) {
 const { Content } = await post.render()
 ---
 
-<Layout title={`${post.data.title} — Портфолио`}>
+<Layout title={`${post.data.title} — Портфолио`} description={post.data.description} image={post.data.imgSrc}>
   <article class="project">
     <h1>{post.data.title}</h1>
     {post.data.href && (
