@@ -21,7 +21,8 @@ const i = t('ru')
 <style>
   .contact {
     max-width: 640px;
-    padding-top: 2rem;
+    margin: 0 auto;
+    padding-top: clamp(1rem, 3vw, 2rem);
   }
 
   .contact h1 {
@@ -29,7 +30,8 @@ const i = t('ru')
   }
 
   .contact p {
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.1rem);
+    line-height: 1.75;
     margin-bottom: 2rem;
   }
 
@@ -40,9 +42,10 @@ const i = t('ru')
   }
 
   .email {
-    font-size: 1.1rem;
+    font-size: clamp(0.95rem, 0.9rem + 0.25vw, 1.1rem);
     font-weight: 500;
     color: var(--accent);
+    word-break: break-all;
   }
 
   .email:hover {

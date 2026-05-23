@@ -37,8 +37,53 @@ const currentPath = Astro.url.pathname
       <LanguageSwitcher />
       <Toggle style="width: 24px; height: 24px;" />
     </div>
+
+    <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+      <span class="hamburger"></span>
+    </button>
+
+    <div class="mobile-menu">
+      <div class="mobile-links">
+        {navItems.map(item => (
+          <a
+            href={item.href}
+            class:list={['mobile-link', { active: currentPath === item.href }]}
+          >
+            {item.label}
+          </a>
+        ))}
+      </div>
+      <div class="mobile-end">
+        <LanguageSwitcher />
+        <Toggle style="width: 24px; height: 24px;" />
+      </div>
+    </div>
   </nav>
 </header>
+
+<script>
+  function initMenu() {
+    const toggle = document.querySelector('.menu-toggle')
+    const mobileMenu = document.querySelector('.mobile-menu')
+    if (!toggle || !mobileMenu) return
+
+    toggle.addEventListener('click', () => {
+      const expanded = toggle.getAttribute('aria-expanded') === 'true'
+      toggle.setAttribute('aria-expanded', String(!expanded))
+      mobileMenu.classList.toggle('open')
+    })
+
+    mobileMenu.querySelectorAll('.mobile-link').forEach((link) => {
+      link.addEventListener('click', () => {
+        toggle.setAttribute('aria-expanded', 'false')
+        mobileMenu.classList.remove('open')
+      })
+    })
+  }
+
+  initMenu()
+  document.addEventListener('astro:after-swap', initMenu)
+</script>
 
 <style>
   header {
@@ -81,5 +126,117 @@ const currentPath = Astro.url.pathname
     display: flex;
     align-items: center;
     gap: 1rem;
+  }
+
+  .menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 11;
+  }
+
+  .hamburger,
+  .hamburger::before,
+  .hamburger::after {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 1px;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+
+  .hamburger {
+    position: relative;
+  }
+
+  .hamburger::before,
+  .hamburger::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+
+  .hamburger::before {
+    top: -6px;
+  }
+
+  .hamburger::after {
+    top: 6px;
+  }
+
+  .menu-toggle[aria-expanded='true'] .hamburger {
+    background: transparent;
+  }
+
+  .menu-toggle[aria-expanded='true'] .hamburger::before {
+    top: 0;
+    transform: rotate(45deg);
+  }
+
+  .menu-toggle[aria-expanded='true'] .hamburger::after {
+    top: 0;
+    transform: rotate(-45deg);
+  }
+
+  .mobile-menu {
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    nav {
+      flex-wrap: wrap;
+      padding: 1rem;
+    }
+
+    .nav-links,
+    .nav-end {
+      display: none;
+    }
+
+    .menu-toggle {
+      display: flex;
+      align-items: center;
+    }
+
+    .mobile-menu {
+      display: none;
+      width: 100%;
+      padding-top: 0.75rem;
+    }
+
+    .mobile-menu.open {
+      display: block;
+    }
+
+    .mobile-links {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mobile-link {
+      display: block;
+      padding: 0.75rem 0;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      transition: color 0.2s;
+    }
+
+    .mobile-link:hover,
+    .mobile-link.active {
+      color: var(--text);
+    }
+
+    .mobile-end {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-top: 1rem;
+    }
   }
 </style>
