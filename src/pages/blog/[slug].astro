@@ -99,11 +99,8 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
 <style>
   .post-layout {
     display: grid;
-    grid-template-columns: minmax(0, 680px) 200px;
+    grid-template-columns: 1fr 200px;
     gap: 3rem;
-    max-width: 960px;
-    margin: 0 auto;
-    justify-content: center;
   }
 
   .post {
@@ -160,10 +157,9 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
     border-left-color: var(--accent);
   }
 
-  @media (max-width: 960px) {
+  @media (max-width: 768px) {
     .post-layout {
       grid-template-columns: 1fr;
-      max-width: 680px;
     }
 
     .sidebar {
