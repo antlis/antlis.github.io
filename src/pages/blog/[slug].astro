@@ -19,43 +19,156 @@ if (!post) {
   throw new Error(`Post not found: ${slug}`)
 }
 
-const { Content } = await post.render()
+const { Content, headings } = await post.render()
+const tocHeadings = headings.filter((h) => h.depth === 2)
 ---
 
 <Layout title={`${post.data.title} — Blog`} description={post.data.description} image={post.data.imgSrc} type="article" publishedTime={post.data.pubDate}>
-  <article class="post">
-    <h1>{post.data.title}</h1>
-    <time>{post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
-    {post.data.tags && post.data.tags.length > 0 && (
-      <div class="tags">
-        {post.data.tags.map((tag: string) => (
-          <span class="tag">{tag}</span>
-        ))}
+  <div class="post-layout">
+    <article class="post">
+      <h1>{post.data.title}</h1>
+      <time>{post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+      {post.data.tags && post.data.tags.length > 0 && (
+        <div class="tags">
+          {post.data.tags.map((tag: string) => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+      )}
+      {post.data.imgSrc && (
+        <div class="hero-img">
+          <CldImage
+            src={post.data.imgSrc}
+            alt={post.data.imgAlt || post.data.title}
+            width={720}
+            height={360}
+            crop="fill"
+            gravity="auto"
+          />
+        </div>
+      )}
+      <div class="content">
+        <Content />
       </div>
+      <Comments lang="en" />
+    </article>
+
+    {tocHeadings.length > 0 && (
+      <aside class="sidebar">
+        <nav class="toc">
+          <p class="toc-title">On this page</p>
+          <ul>
+            {tocHeadings.map((heading) => (
+              <li>
+                <a href={`#${heading.slug}`}>{heading.text}</a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
     )}
-    {post.data.imgSrc && (
-      <div class="hero-img">
-        <CldImage
-          src={post.data.imgSrc}
-          alt={post.data.imgAlt || post.data.title}
-          width={720}
-          height={360}
-          crop="fill"
-          gravity="auto"
-        />
-      </div>
-    )}
-    <div class="content">
-      <Content />
-    </div>
-    <Comments lang="en" />
-  </article>
+  </div>
 </Layout>
 
+<script>
+  function initToc() {
+    const links = document.querySelectorAll('.toc a')
+    const headings = document.querySelectorAll('.content h2')
+    if (!links.length || !headings.length) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            links.forEach((link) => link.classList.remove('active'))
+            const active = document.querySelector(`.toc a[href="#${entry.target.id}"]`)
+            active?.classList.add('active')
+          }
+        })
+      },
+      { rootMargin: '0px 0px -70% 0px', threshold: 0 }
+    )
+
+    headings.forEach((h) => observer.observe(h))
+  }
+
+  initToc()
+  document.addEventListener('astro:after-swap', initToc)
+</script>
+
 <style>
+  .post-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 680px) 200px;
+    gap: 3rem;
+    max-width: 960px;
+    margin: 0 auto;
+    justify-content: center;
+  }
+
   .post {
-    max-width: 860px;
     padding-top: 2rem;
+    min-width: 0;
+  }
+
+  .sidebar {
+    padding-top: 2rem;
+  }
+
+  .toc {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .toc-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+  }
+
+  .toc ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    border-left: 1px solid var(--border);
+  }
+
+  .toc li {
+    margin: 0;
+  }
+
+  .toc a {
+    display: block;
+    padding: 0.3rem 0 0.3rem 0.875rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    color: var(--text-secondary);
+    border-left: 2px solid transparent;
+    margin-left: -1px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+
+  .toc a:hover {
+    color: var(--text);
+  }
+
+  .toc a:global(.active) {
+    color: var(--accent);
+    border-left-color: var(--accent);
+  }
+
+  @media (max-width: 960px) {
+    .post-layout {
+      grid-template-columns: 1fr;
+      max-width: 680px;
+    }
+
+    .sidebar {
+      display: none;
+    }
   }
 
   .hero-img {
@@ -72,6 +185,7 @@ const { Content } = await post.render()
 
   .post h1 {
     margin-bottom: 0.5rem;
+    letter-spacing: -0.02em;
   }
 
   time {
@@ -98,31 +212,116 @@ const { Content } = await post.render()
   }
 
   .content {
-    line-height: 1.8;
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem);
+    line-height: 1.75;
   }
 
   .content :global(p) {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5em;
   }
 
   .content :global(h2) {
-    margin-top: 2rem;
-    margin-bottom: 0.75rem;
+    margin-top: 2.5em;
+    margin-bottom: 0.75em;
+    letter-spacing: -0.01em;
+  }
+
+  .content :global(h3) {
+    margin-top: 2em;
+    margin-bottom: 0.5em;
+  }
+
+  .content :global(strong) {
+    color: var(--text);
+    font-weight: 600;
   }
 
   .content :global(a) {
     color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    text-underline-offset: 2px;
+    transition: text-decoration-color 0.2s;
   }
 
   .content :global(a:hover) {
     color: var(--accent-hover);
+    text-decoration-color: var(--accent-hover);
+  }
+
+  .content :global(blockquote) {
+    margin: 1.5em 0;
+    padding: 0.75em 1.25em;
+    border-left: 3px solid var(--accent);
+    background: var(--card-hover);
+    border-radius: 0 6px 6px 0;
+  }
+
+  .content :global(blockquote p) {
+    margin-bottom: 0.5em;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  .content :global(blockquote p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .content :global(ul),
+  .content :global(ol) {
+    margin-bottom: 1.5em;
+    padding-left: 1.5em;
+  }
+
+  .content :global(li) {
+    margin-bottom: 0.5em;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .content :global(li strong) {
+    color: var(--text);
+  }
+
+  .content :global(ol) {
+    list-style-type: decimal;
+  }
+
+  .content :global(ul) {
+    list-style-type: disc;
+  }
+
+  .content :global(hr) {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5em 0;
   }
 
   .content :global(pre) {
     padding: 1rem;
     border-radius: 8px;
     overflow-x: auto;
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.5em;
     border: 1px solid var(--border);
+    font-size: 0.875em;
+  }
+
+  @media (max-width: 768px) {
+    .post h1 {
+      line-height: 1.25;
+    }
+
+    .content :global(blockquote) {
+      padding: 0.625em 1em;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .content :global(pre) {
+      border-radius: 0;
+      margin-left: calc(-1 * clamp(1rem, 3vw, 2rem));
+      margin-right: calc(-1 * clamp(1rem, 3vw, 2rem));
+      padding: 1rem clamp(1rem, 3vw, 2rem);
+    }
   }
 </style>
