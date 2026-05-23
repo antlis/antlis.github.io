@@ -21,6 +21,7 @@ const canonicalURL = new URL(Astro.url.pathname, site)
 const alternateLang = locale === 'en' ? 'ru' : 'en'
 const alternateURL = new URL(switchLocalePath(Astro.url.pathname, alternateLang as Locale), site)
 const ogImage = image || new URL('/og-default.png', site).toString()
+const langCode = locale === 'en' ? 'en-US' : 'ru-RU'
 
 const authorSchema = {
   '@type': 'Person',
@@ -32,6 +33,11 @@ const authorSchema = {
   ],
 }
 
+const breadcrumbLabels: Record<string, Record<string, string>> = {
+  en: { home: 'Home', blog: 'Blog', portfolio: 'Portfolio', about: 'About', contact: 'Contact' },
+  ru: { home: 'Главная', blog: 'Блог', portfolio: 'Портфолио', about: 'Обо мне', contact: 'Контакты' },
+}
+
 function buildJsonLd() {
   const schemas: Record<string, unknown>[] = []
 
@@ -41,7 +47,7 @@ function buildJsonLd() {
       '@type': 'WebSite',
       name: 'Anton L',
       url: siteUrl,
-      inLanguage: locale,
+      inLanguage: langCode,
       description,
       author: authorSchema,
     })
@@ -63,6 +69,7 @@ function buildJsonLd() {
       name: title,
       description,
       url: canonicalURL.toString(),
+      inLanguage: langCode,
       mainEntity: {
         '@type': 'Person',
         name: 'Anton L',
@@ -80,6 +87,7 @@ function buildJsonLd() {
       name: title,
       description,
       url: canonicalURL.toString(),
+      inLanguage: langCode,
     })
   }
 
@@ -90,7 +98,7 @@ function buildJsonLd() {
       name: title,
       description,
       url: canonicalURL.toString(),
-      inLanguage: locale,
+      inLanguage: langCode,
       author: authorSchema,
     })
   }
@@ -103,7 +111,7 @@ function buildJsonLd() {
       description,
       image: ogImage,
       url: canonicalURL.toString(),
-      inLanguage: locale,
+      inLanguage: langCode,
       ...(publishedTime && { datePublished: publishedTime.toISOString() }),
       ...(tags && tags.length > 0 && { keywords: tags.join(', ') }),
       author: authorSchema,
@@ -117,18 +125,24 @@ function buildJsonLd() {
 
   // Breadcrumb for all pages except home
   const pathSegments = Astro.url.pathname.replace(/\/$/, '').split('/').filter(Boolean)
-  if (pathSegments.length > 0) {
-    const items = [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+  // Skip "ru" prefix segment for Russian pages
+  const contentSegments = locale === 'ru' ? pathSegments.filter((s) => s !== 'ru') : pathSegments
+  const labels = breadcrumbLabels[locale]
+
+  if (contentSegments.length > 0) {
+    const homeUrl = locale === 'ru' ? `${siteUrl}/ru` : siteUrl
+    const items: Record<string, unknown>[] = [
+      { '@type': 'ListItem', position: 1, name: labels.home, item: homeUrl },
     ]
 
-    let currentPath = ''
-    pathSegments.forEach((segment, index) => {
+    let currentPath = locale === 'ru' ? '/ru' : ''
+    contentSegments.forEach((segment, index) => {
       currentPath += `/${segment}`
+      const label = labels[segment] || segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ')
       items.push({
         '@type': 'ListItem',
         position: index + 2,
-        name: segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' '),
+        name: label,
         item: `${siteUrl}${currentPath}`,
       })
     })
@@ -152,6 +166,7 @@ const schemas = buildJsonLd()
 <link rel="alternate" hreflang="x-default" href={locale === 'en' ? canonicalURL : alternateURL} />
 
 <meta name="description" content={description} />
+<meta http-equiv="content-language" content={langCode} />
 
 <meta property="og:type" content={type} />
 <meta property="og:url" content={canonicalURL} />
@@ -162,6 +177,7 @@ const schemas = buildJsonLd()
 <meta property="og:locale:alternate" content={locale === 'en' ? 'ru_RU' : 'en_US'} />
 <meta property="og:site_name" content="Anton L" />
 {publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
+{type === 'article' && <meta property="article:author" content={siteUrl} />}
 {tags && tags.length > 0 && tags.map((tag) => <meta property="article:tag" content={tag} />)}
 
 <meta name="twitter:card" content="summary_large_image" />
