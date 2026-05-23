@@ -11,7 +11,7 @@ const sortedPosts = posts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDa
 const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort()
 ---
 
-<Layout title={i.blog.title} description={i.blog.description}>
+<Layout title={i.blog.title} description={i.blog.description} pageType="blog-listing">
   <div class="blog-page">
     <h1>{i.blog.heading}</h1>
 

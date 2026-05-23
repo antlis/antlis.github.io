@@ -8,12 +8,12 @@ export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => data.locale === 'ru')
 
   return posts.map((post) => ({
-    params: { slug: post.slug },
+    params: { slug: post.slug.replace(/-ru$/, '') },
+    props: { post },
   }))
 }
 
-const { slug } = Astro.params
-const post = await getEntryBySlug('blog', slug)
+const { post } = Astro.props
 
 if (!post) {
   throw new Error(`Post not found: ${slug}`)
@@ -23,7 +23,7 @@ const { Content, headings } = await post.render()
 const tocHeadings = headings.filter((h) => h.depth === 2)
 ---
 
-<Layout title={`${post.data.title} — Блог`} description={post.data.description} image={post.data.imgSrc} type="article" publishedTime={post.data.pubDate}>
+<Layout title={`${post.data.title} — Блог`} description={post.data.description} image={post.data.imgSrc} type="article" publishedTime={post.data.pubDate} pageType="blog-post" tags={post.data.tags}>
   <div class="post-layout">
     <article class="post">
       <h1>{post.data.title}</h1>

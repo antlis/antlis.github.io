@@ -9,7 +9,7 @@ const i = t(locale)
 const projects = await getCollection('portfolio', ({ data }) => data.locale === 'ru')
 ---
 
-<Layout title={i.portfolio.title} description={i.portfolio.description}>
+<Layout title={i.portfolio.title} description={i.portfolio.description} pageType="portfolio-listing">
   <section>
     <h1>{i.portfolio.heading}</h1>
 

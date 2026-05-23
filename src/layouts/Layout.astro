@@ -13,9 +13,11 @@ interface Props {
 	image?: string;
 	type?: 'website' | 'article';
 	publishedTime?: Date;
+	pageType?: 'home' | 'about' | 'contact' | 'blog-listing' | 'portfolio-listing' | 'blog-post';
+	tags?: string[];
 }
 
-const { title, description, image, type, publishedTime } = Astro.props
+const { title, description, image, type, publishedTime, pageType, tags } = Astro.props
 const locale = getLocaleFromUrl(Astro.url)
 const i = t(locale)
 const wip = import.meta.env.PUBLIC_WIP === 'true'
@@ -38,6 +40,8 @@ const metaDescription = description || i.home.description
 			image={image}
 			type={type}
 			publishedTime={publishedTime}
+			pageType={pageType}
+			tags={tags}
 		/>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
