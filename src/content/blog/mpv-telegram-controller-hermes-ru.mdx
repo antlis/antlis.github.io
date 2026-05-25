@@ -14,7 +14,7 @@ tags: ["homelab", "mpv", "telegram", "hermes", "i3", "ipc", "nanogpt"]
 Поэтому я повесил всю эту конструкцию на Telegram. Теперь телевизор — это медиа-приставка, которой я управляю с телефона, то есть с той же поверхности, с которой делаю всё остальное. Над одним инстансом mpv живут два пути управления:
 
 - **Quick-команды** (`/mpv_pause`, `/mpv_play lain`) — мгновенные, без вызова LLM, ноль токенов.
-- **Естественный язык** («поставь на паузу», «включи что-нибудь про роботов») — идёт через [Hermes-агента](https://github.com/HermesGroup), на модели `hermes-medium` через [nanogpt](https://nano-gpt.com/). У меня подписка за **$12/мес**, чего для личного пульта от телевизора более чем достаточно — фактически безлимит.
+- **Естественный язык** («поставь на паузу», «включи что-нибудь про роботов») — идёт через [Hermes-агента](https://hermes-agent.nousresearch.com/) (Nous Research), на модели `hermes-medium` через [nanogpt](https://nano-gpt.com/). У меня подписка за **$12/мес** — для личного пульта от телевизора этого с запасом, но ниже есть важная оговорка.
 
 В этом посте я разбираю, как всё это собрано, какой IPC-фокус заставляет всё работать, и какие тонкие подводные камни сожрали мне несколько часов.
 
@@ -109,48 +109,50 @@ setsid /tmp/mpv-runner.sh \
 
 ## Связь с Telegram: Quick-команды
 
-В gateway Hermes есть фича `quick_commands` — это команды Telegram-бота, которые **полностью обходят LLM**. Gateway матчит команду по имени, запускает shell-exec и возвращает stdout в Telegram. **Ни одного вызова модели. Ни одного токена. Мгновенно.**
+Это было жёстким требованием на старте: повседневные глаголы — пауза, продолжить, перемотать, показать список — **не должны** дёргать LLM. Я нажимаю их десятки раз в день, и если бы каждый тап по `/mpv_pause` уходил в токены, я бы пялился на usage-панель nanogpt уже к среде. Поэтому нужен был маршрут полностью без LLM.
 
-Кусок из `~/.hermes/config.yaml`:
+Hermes ровно это поддерживает через top-level ключ конфига `quick_commands` в `~/.hermes/config.yaml`. Всё, что туда зарегистрировано, матчится Telegram-gateway *до* агентского цикла, диспатчится как обычный shell-exec, а stdout скрипта отправляется обратно в Telegram как ответ. **Ни одного вызова модели. Ни одного токена. Ноль в недельную квоту. Мгновенно.**
+
+Quick-команды не «включаются по умолчанию» в том смысле, что им нужны записи — нет автоматического моста из «эта операция повторяется» в «эта операция получит shell-шорткат». Каждую опт-инишь явно — добавляешь в блок `quick_commands:`. У меня он выглядит так:
 
 ```yaml
 quick_commands:
   mpv_pause:
     type: exec
-    command: /home/lad/.hermes/scripts/mpvctl.sh pause
+    command: /home/username/.hermes/scripts/mpvctl.sh pause
   mpv_unpause:
     type: exec
-    command: /home/lad/.hermes/scripts/mpvctl.sh unpause
+    command: /home/username/.hermes/scripts/mpvctl.sh unpause
   mpv_quit:
     type: exec
-    command: /home/lad/.hermes/scripts/mpvctl.sh quit
+    command: /home/username/.hermes/scripts/mpvctl.sh quit
   mpv_volup:
     type: exec
-    command: /home/lad/.hermes/scripts/mpvctl.sh volup
+    command: /home/username/.hermes/scripts/mpvctl.sh volup
   mpv_voldown:
     type: exec
-    command: /home/lad/.hermes/scripts/mpvctl.sh voldown
+    command: /home/username/.hermes/scripts/mpvctl.sh voldown
   mpv_mute:
     type: exec
-    command: /home/lad/.hermes/scripts/mpvctl.sh mute
+    command: /home/username/.hermes/scripts/mpvctl.sh mute
   mpv_list:
     type: exec
-    command: /home/lad/.hermes/scripts/mpvctl.sh list
+    command: /home/username/.hermes/scripts/mpvctl.sh list
   mpv_info:
     type: exec
-    command: /home/lad/.hermes/scripts/mpvctl.sh info
+    command: /home/username/.hermes/scripts/mpvctl.sh info
   mpv_fwd:
     type: exec
-    command: /home/lad/.hermes/scripts/mpvctl.sh fwd
+    command: /home/username/.hermes/scripts/mpvctl.sh fwd
   mpv_back:
     type: exec
-    command: /home/lad/.hermes/scripts/mpvctl.sh back
+    command: /home/username/.hermes/scripts/mpvctl.sh back
   mpv_play:
     type: exec
-    command: /bin/bash /home/lad/.hermes/scripts/mpvctl.sh play {{ARGS}}
+    command: /bin/bash /home/username/.hermes/scripts/mpvctl.sh play {{ARGS}}
   mpv:
     type: exec
-    command: /bin/bash /home/lad/.hermes/scripts/mpvctl.sh play {{ARGS}}
+    command: /bin/bash /home/username/.hermes/scripts/mpvctl.sh play {{ARGS}}
 ```
 
 Здесь две неочевидные штуки:
