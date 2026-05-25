@@ -1,0 +1,175 @@
+---
+title: "How Docker Silently Ate 105GB on My ThinkPad's Btrfs Root"
+description: "A homelab on an old ThinkPad T460 with a 217GB Btrfs root ran out of space. The culprit: unbounded Docker logs from a single GitLab container. Here's how I diagnosed it, fixed it, and hardened the setup."
+pubDate: 2026-05-26
+category: "Homelab"
+tags: ["homelab", "docker", "btrfs", "linux", "archlinux", "thinkpad"]
+---
+
+# How Docker Silently Ate 105GB on My ThinkPad's Btrfs Root
+
+I run a homelab on an old ThinkPad T460 — Arch Linux, Btrfs root on a 217GB `/dev/sda2`, external 3.7TB drive for media. It's not a rack, it's a laptop that sits on a shelf and does things. GitLab, Navidrome, Deluge, Audiobookshelf, Calibre-Web — the usual self-hosted stack.
+
+Over months I also accumulated services I tried once and forgot about: OpenWebUI, Stremio, TubeArchivist, WireGuard (wg-easy), Portainer, Agent-Zero. Each one left behind images, volumes, and containers that kept running long after I stopped caring.
+
+One day `btrfs balance` and `btrfs scrub` started failing with `No space left on device`. That's when things got interesting.
+
+## The Misleading Error
+
+The first confusing thing: `df -h` didn't show a full disk. I had what looked like free space. But Btrfs doesn't work like ext4 — it allocates space in chunks, and you can run out of *metadata* chunks while still having *data* space available. The filesystem reports free space, but operationally you're stuck.
+
+```bash
+btrfs filesystem usage /
+```
+
+This showed the real picture: metadata was nearly full, chunks were fragmented, and Docker was the biggest consumer of everything.
+
+## Finding the Real Problem
+
+```bash
+sudo du -h --max-depth=1 /var/lib/docker
+```
+
+Result:
+
+```
+105G    /var/lib/docker/containers
+15G     /var/lib/docker/volumes
+5.9G    /var/lib/docker/overlay2
+126G    /var/lib/docker
+```
+
+126GB. On a 217GB disk. Docker alone was eating 58% of the entire root filesystem.
+
+The breakdown was clear: `containers` at 105GB was the elephant. Not images, not volumes — *container writable layers*, which in practice means one thing: **logs**.
+
+```bash
+sudo du -sh /var/lib/docker/containers/*/
+```
+
+One directory stood out — a GitLab-related container (`2cb12163b9be...`) had been writing unbounded JSON logs for months. Docker's default logging driver is `json-file` with **no size limit**. Every stdout/stderr line from every container goes into a `-json.log` file that grows forever.
+
+A single container that logs liberally can produce gigabytes per week. Over months of uptime, this one had produced over 100GB of log files.
+
+## The Emergency Fix
+
+First priority: reclaim space immediately.
+
+```bash
+sudo sh -c 'truncate -s 0 /var/lib/docker/containers/*/*-json.log'
+```
+
+This truncates every container log to zero bytes without stopping any containers. It's safe — Docker will keep writing to the same file handle, and the file just starts fresh from zero.
+
+Result: `/var/lib/docker/containers` dropped from **105GB to 176KB**. Instant relief.
+
+## The Permanent Fix: Log Rotation
+
+The emergency fix buys time. The permanent fix is telling Docker to rotate its own logs:
+
+```json
+// /etc/docker/daemon.json
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3"
+  }
+}
+```
+
+```bash
+sudo systemctl restart docker
+```
+
+This caps each container to 3 log files of 10MB each — 30MB max per container. For a homelab with 10 running containers, that's 300MB worst case instead of 100GB+.
+
+**Important caveat:** this only applies to containers created *after* the config change. Existing containers keep their old logging config. If you want it applied everywhere, recreate your containers (`docker compose down && docker compose up -d`).
+
+## The Cleanup: Pruning Dead Weight
+
+With the log crisis handled, next was removing the services I'd accumulated and forgotten about:
+
+**Removed:**
+- OpenWebUI — tried it once, never opened again
+- Stremio — replaced by other things
+- TubeArchivist — fun idea, never actually used
+- wg-easy / WireGuard — moved to a different approach
+- Portainer — used the CLI directly anyway
+- Agent-Zero — experimental, abandoned
+
+**Kept:**
+- GitLab — actually use it daily
+- Navidrome — music server, essential
+- Deluge — torrent client
+- Audiobookshelf — on-demand only
+- Calibre-Web — on-demand only
+
+The cleanup commands:
+
+```bash
+# Stop and remove specific containers
+docker stop <container> && docker rm <container>
+
+# Remove all unused images, containers, networks, and volumes
+docker system prune -a --volumes
+
+# Remove specific orphaned volumes
+docker volume rm <volume_name>
+```
+
+`docker system prune -a --volumes` is aggressive — it removes everything that isn't attached to a running container. On a homelab where you've already decided what stays and what goes, that's exactly what you want.
+
+## Btrfs Recovery
+
+After Docker was cleaned up, Btrfs still needed attention. The chunk allocation was fragmented from months of large writes and deletes:
+
+```bash
+sudo btrfs balance start -dusage=50 /
+```
+
+This rebalances data chunks that are less than 50% utilized, consolidating fragmented free space into usable chunks. It takes a while on a spinning disk, but afterwards `btrfs balance` and `btrfs scrub` stopped complaining about space.
+
+## Final State
+
+```bash
+df -h /
+```
+
+```
+Filesystem      Size  Used  Avail  Use%
+/dev/sda2       217G  135G   78G    62%
+```
+
+From 126GB of Docker bloat to a comfortable 62% usage. The system breathes again.
+
+## What I Learned
+
+**1. Docker logs can silently consume 100GB+ if not limited.**
+There is no warning, no alert, no daemon notification. The log file just grows until your disk is full. This is Docker's default behavior. On a server with terabytes of storage you might not notice for years. On a 217GB laptop disk, it takes months.
+
+**2. `docker system prune` does NOT fix log explosions.**
+Prune removes unused images, stopped containers, dangling volumes. It does *not* touch the logs of running containers. You can prune all day and the 105GB log file won't shrink by a byte.
+
+**3. Btrfs "no space left" can happen when `df` shows free space.**
+Btrfs manages space in chunks. You can exhaust metadata chunks while having plenty of data space. The error is real even though the numbers look wrong. `btrfs filesystem usage /` is the command that tells the truth.
+
+**4. Always set log rotation in `daemon.json` on first Docker install.**
+This should be part of every Docker setup, right after `apt install` or `pacman -S`. The 10-line JSON file prevents a class of problems that are annoying to debug after the fact.
+
+**5. A homelab is not a production server — prune aggressively.**
+If you haven't opened a service in 2-4 weeks, remove it or convert it to an on-demand `docker compose up/down`. Dead containers cost disk space, memory, and mental overhead tracking what's actually running.
+
+## The Checklist
+
+For future reference (or if you're in the same situation):
+
+1. `df -h` + `docker system df` + `sudo du -sh /var/lib/docker` — understand where you are
+2. `sudo du -h --max-depth=1 /var/lib/docker | sort -h` — find the biggest offender
+3. `sudo sh -c 'truncate -s 0 /var/lib/docker/containers/*/*-json.log'` — emergency log cleanup
+4. Create `/etc/docker/daemon.json` with log rotation — permanent fix
+5. `docker system prune -a --volumes` — remove everything unused
+6. `sudo btrfs balance start -dusage=50 /` — reclaim Btrfs chunks (if on Btrfs)
+7. `df -h` + `docker system df` — verify the result
+
+Rule of thumb: if something's been unused for 2-4 weeks, remove it or convert to on-demand compose.
