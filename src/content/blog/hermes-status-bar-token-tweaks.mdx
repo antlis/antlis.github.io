@@ -8,7 +8,7 @@ tags: ["homelab", "hermes", "agents", "nanogpt", "tokens", "llm", "optimization"
 
 # Reading Hermes Agent's Status Bar and Cutting Token Usage on Long Sessions
 
-I wrote a [previous post](/blog/mpv-telegram-controller-hermes) about driving mpv from Telegram via the Hermes agent on a `$12/month` nanogpt subscription. The TL;DR there was: it's great, runs through nanogpt's `hermes-medium`, costs me roughly the price of a sandwich per month.
+I wrote a [previous post](/blog/tg-mpv-bot) about driving mpv from Telegram via the Hermes agent on a `$12/month` nanogpt subscription. The TL;DR there was: it's great, runs through nanogpt's `hermes-medium`, costs me roughly the price of a sandwich per month.
 
 What that post didn't say: under heavy use, that monthly subscription drains noticeably faster than you'd expect. Not catastrophically fast, but fast enough to be visible if you're using Hermes for anything beyond a TV remote — coding sessions, multi-step workflows, long debugging chats. The fix is partly **stop running unnecessarily long sessions**, and partly **learn what the status bar is telling you so you can intervene before it gets bad**.
 
@@ -65,7 +65,7 @@ nanogpt is generous for casual use. It is *not* generous for an agent that:
 - Re-reads the same file three times across a session because it forgot it already had it
 - Loads multiple skills' worth of system-prompt text on every turn
 
-If you only use Hermes as a Telegram remote (`/mpv_play lain`, `/mpv_pause` — the [zero-token quick commands](/blog/mpv-telegram-controller-hermes)), you'll never notice the weekly cap. The quick-command path skips the model entirely, so it contributes zero to the 60M counter.
+If you only use Hermes as a Telegram remote (`/mpv_play lain`, `/mpv_pause` — the [zero-token quick commands](/blog/tg-mpv-bot)), you'll never notice the weekly cap. The quick-command path skips the model entirely, so it contributes zero to the 60M counter.
 
 But the moment you do real agentic work — coding sessions, multi-file refactors, "go figure out why the gateway is restarting" — the cost shape changes fast. A 6-hour session with `🗜️ 4` compressions and `50K/256K` resident context means you're sending tens of thousands of tokens **per step**, dozens of times. A single afternoon of heavy use can eat 10–15M tokens — a quarter of the week — without anything looking obviously wrong.
 
@@ -130,7 +130,7 @@ This is the most common waste I see. The agent runs `ls`, prints 200 lines, then
 
 ### 4. Use quick commands wherever possible
 
-Anything that doesn't need natural language should be a quick command. They cost zero tokens. The mpv setup I wrote about uses [13 quick commands](/blog/mpv-telegram-controller-hermes#wiring-it-to-telegram-quick-commands) for things that would otherwise route through the model. If you're calling Hermes for the same operation more than 3 times, write a shell script and wire it as a `quick_commands:` entry.
+Anything that doesn't need natural language should be a quick command. They cost zero tokens. The mpv setup I wrote about uses [13 quick commands](/blog/tg-mpv-bot#wiring-it-to-telegram-quick-commands) for things that would otherwise route through the model. If you're calling Hermes for the same operation more than 3 times, write a shell script and wire it as a `quick_commands:` entry.
 
 ### 5. Watch `🗜️ N` and adjust when it climbs
 
@@ -164,4 +164,4 @@ The two most important corrected facts, in case you skip everything else:
 1. **`6h 35m` is how long you've been sitting in this session, not how long you have left.** If that number looks high, your weekly token use probably also does.
 2. **The nanogpt $12 plan is a 60M-token-per-week cap, not a monthly limit.** A heavy afternoon can eat a quarter of it. Reset comes every 7 days, no carry-over.
 
-If you want the bigger picture of where this sits — the [mpv Telegram controller post](/blog/mpv-telegram-controller-hermes) shows the whole setup the status bar is reporting on. The combination of those two articles is roughly the whole stack: how to drive a homeserver TV from your phone, and how to do it without setting fire to your weekly nanogpt allowance before the reset clock catches up.
+If you want the bigger picture of where this sits — the [mpv Telegram controller post](/blog/tg-mpv-bot) shows the whole setup the status bar is reporting on. The combination of those two articles is roughly the whole stack: how to drive a homeserver TV from your phone, and how to do it without setting fire to your weekly nanogpt allowance before the reset clock catches up.
