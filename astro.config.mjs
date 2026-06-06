@@ -7,6 +7,11 @@ import expressiveCode from 'astro-expressive-code';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://antlis.is-a.dev',
+  redirects: {
+    // the mpv controller article was renamed when the bot went standalone
+    '/blog/mpv-telegram-controller-hermes': '/blog/tg-mpv-bot',
+    '/ru/blog/mpv-telegram-controller-hermes': '/ru/blog/tg-mpv-bot',
+  },
   integrations: [
     expressiveCode({
       themes: ['github-dark', 'github-light'],
