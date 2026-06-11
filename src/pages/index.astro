@@ -35,6 +35,7 @@ const recentPosts = posts
             imgSrc={post.data.imgSrc}
             imgAlt={post.data.imgAlt}
             tags={post.data.tags}
+            date={post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           />
         ))}
       </div>

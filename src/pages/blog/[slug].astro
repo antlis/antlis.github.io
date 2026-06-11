@@ -1,7 +1,6 @@
 ---
 import Layout from '/src/layouts/Layout.astro'
 import Comments from '/src/components/Comments.astro'
-import { CldImage } from 'astro-cloudinary'
 import { getCollection, getEntryBySlug } from 'astro:content'
 
 export async function getStaticPaths() {
@@ -37,13 +36,12 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
       )}
       {post.data.imgSrc && (
         <div class="hero-img">
-          <CldImage
+          <img
             src={post.data.imgSrc}
             alt={post.data.imgAlt || post.data.title}
-            width={720}
-            height={360}
-            crop="fill"
-            gravity="auto"
+            width={1200}
+            height={760}
+            decoding="async"
           />
         </div>
       )}

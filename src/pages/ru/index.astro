@@ -31,10 +31,11 @@ const recentPosts = posts
           <Card
             title={post.data.title}
             description={post.data.description}
-            href={localePath(`/blog/${post.slug}`, locale)}
+            href={localePath(`/blog/${post.slug.replace(/-ru$/, '')}`, locale)}
             imgSrc={post.data.imgSrc}
             imgAlt={post.data.imgAlt}
             tags={post.data.tags}
+            date={post.data.pubDate.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' })}
           />
         ))}
       </div>

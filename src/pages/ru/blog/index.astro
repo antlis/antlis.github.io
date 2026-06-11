@@ -29,10 +29,11 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
         <Card
           title={post.data.title}
           description={post.data.description}
-          href={localePath(`/blog/${post.slug}`, locale)}
+          href={localePath(`/blog/${post.slug.replace(/-ru$/, '')}`, locale)}
           tags={post.data.tags}
           imgSrc={post.data.imgSrc}
           imgAlt={post.data.imgAlt}
+          date={post.data.pubDate.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' })}
         />
       ))}
     </div>

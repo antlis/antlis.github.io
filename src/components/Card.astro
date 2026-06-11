@@ -1,6 +1,4 @@
 ---
-import { CldImage } from 'astro-cloudinary'
-
 interface Props {
 	title: string;
 	body?: string;
@@ -9,15 +7,17 @@ interface Props {
   imgSrc?: string;
   imgAlt?: string;
   tags?: string[];
+  date?: string;
 }
 
-const { href, title, body, description, imgAlt, imgSrc, tags } = Astro.props;
+const { href, title, body, description, imgAlt, imgSrc, tags, date } = Astro.props;
 const displayText = body || description || '';
 ---
 
 <a href={href} class:list={["card", { "card-with-img": !!imgSrc }]} data-tags={tags?.join(',') || ''}>
   <div class="card-content">
     <h3>{title}</h3>
+    {date && <time class="card-date">{date}</time>}
     {displayText && <p>{displayText}</p>}
     {tags && tags.length > 0 && (
       <div class="card-tags">
@@ -29,13 +29,13 @@ const displayText = body || description || '';
   </div>
   {imgSrc && (
     <div class="card-img">
-      <CldImage
+      <img
         src={imgSrc}
         alt={imgAlt || title}
         width={200}
         height={200}
-        crop="fill"
-        gravity="auto"
+        loading="lazy"
+        decoding="async"
       />
     </div>
   )}
@@ -74,6 +74,13 @@ const displayText = body || description || '';
     margin: 0 0 0.5rem;
     font-size: 1rem;
     font-weight: 600;
+  }
+
+  .card-date {
+    display: block;
+    margin: -0.25rem 0 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
   }
 
   .card p {
