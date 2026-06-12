@@ -47,6 +47,12 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
     padding-top: 2rem;
   }
 
+  @media (max-width: 640px) {
+    .blog-page {
+      padding-top: 1rem;
+    }
+  }
+
   .blog-page h1 {
     margin: 0 0 1.5rem;
   }
@@ -84,6 +90,12 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
   .post-list {
     display: grid;
     gap: 0.75rem;
+  }
+
+  @media (max-width: 640px) {
+    .post-list {
+      gap: 2rem;
+    }
   }
 
   .empty {

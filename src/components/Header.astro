@@ -36,11 +36,10 @@ const currentPath = Astro.url.pathname
     <div class="nav-end">
       <LanguageSwitcher />
       <Toggle style="width: 24px; height: 24px;" />
+      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span class="hamburger"></span>
+      </button>
     </div>
-
-    <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
-      <span class="hamburger"></span>
-    </button>
 
     <div class="mobile-menu">
       <div class="mobile-links">
@@ -52,10 +51,6 @@ const currentPath = Astro.url.pathname
             {item.label}
           </a>
         ))}
-      </div>
-      <div class="mobile-end">
-        <LanguageSwitcher />
-        <Toggle style="width: 24px; height: 24px;" />
       </div>
     </div>
   </nav>
@@ -137,6 +132,7 @@ const currentPath = Astro.url.pathname
     border: none;
     cursor: pointer;
     padding: 0.5rem;
+    margin: -0.5rem -0.5rem -0.5rem 0;
     z-index: 11;
   }
 
@@ -195,11 +191,19 @@ const currentPath = Astro.url.pathname
     nav {
       flex-wrap: wrap;
       padding: 1rem;
+      justify-content: flex-start;
+      gap: 0;
     }
 
-    .nav-links,
-    .nav-end {
+    .nav-links {
       display: none;
+    }
+
+    .nav-end {
+      display: flex;
+      margin-left: auto;
+      gap: 0.75rem;
+      align-items: center;
     }
 
     .menu-toggle {
@@ -225,7 +229,7 @@ const currentPath = Astro.url.pathname
     .mobile-links {
       display: flex;
       flex-direction: column;
-      margin: 0 -1rem;
+      margin: 0 -1rem -1rem;
       border-top: 1px solid var(--border);
     }
 
@@ -240,6 +244,10 @@ const currentPath = Astro.url.pathname
       transition: color 0.2s;
     }
 
+    .mobile-link:last-child {
+      border-bottom: none;
+    }
+
   .mobile-link:hover {
     color: var(--text);
   }
@@ -248,11 +256,5 @@ const currentPath = Astro.url.pathname
     color: var(--text);
   }
 
-    .mobile-end {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding-top: 1rem;
-    }
   }
 </style>
