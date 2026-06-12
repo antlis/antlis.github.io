@@ -5,6 +5,7 @@ import Header from '../components/Header.astro'
 import Socials from '../components/Socials.astro'
 import SEO from '../components/SEO.astro'
 import { ThemeScript } from 'astro-theme-toggle/components';
+import { ViewTransitions } from 'astro:transitions';
 import { getLocaleFromUrl, t } from '../i18n/utils'
 
 interface Props {
@@ -13,11 +14,12 @@ interface Props {
 	image?: string;
 	type?: 'website' | 'article';
 	publishedTime?: Date;
+	modifiedTime?: Date;
 	pageType?: 'home' | 'about' | 'contact' | 'blog-listing' | 'portfolio-listing' | 'blog-post';
 	tags?: string[];
 }
 
-const { title, description, image, type, publishedTime, pageType, tags } = Astro.props
+const { title, description, image, type, publishedTime, modifiedTime, pageType, tags } = Astro.props
 const locale = getLocaleFromUrl(Astro.url)
 const i = t(locale)
 const wip = import.meta.env.PUBLIC_WIP === 'true'
@@ -32,6 +34,8 @@ const metaDescription = description || i.home.description
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
+		<meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)" />
+		<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
 		<title>{wip ? wipTitle : title}</title>
 		<SEO
 			title={wip ? wipTitle : title}
@@ -40,15 +44,18 @@ const metaDescription = description || i.home.description
 			image={image}
 			type={type}
 			publishedTime={publishedTime}
+			modifiedTime={modifiedTime}
 			pageType={pageType}
 			tags={tags}
 		/>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet">
     <ThemeScript />
+    <ViewTransitions />
 	</head>
 
 	<body>
@@ -124,6 +131,12 @@ const metaDescription = description || i.home.description
     text-decoration: none;
     color: inherit;
     transition: color 0.2s;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 
   h1, h2, h3, h4 {

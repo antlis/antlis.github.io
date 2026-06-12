@@ -22,7 +22,7 @@ const { Content, headings } = await post.render()
 const tocHeadings = headings.filter((h) => h.depth === 2)
 ---
 
-<Layout title={`${post.data.title} — Blog`} description={post.data.description} image={post.data.imgSrc} type="article" publishedTime={post.data.pubDate} pageType="blog-post" tags={post.data.tags}>
+<Layout title={`${post.data.title} | Antlis`} description={post.data.description} image={post.data.imgSrc} type="article" publishedTime={post.data.pubDate} modifiedTime={post.data.modifiedDate} pageType="blog-post" tags={post.data.tags}>
   <div class="post-layout">
     <article class="post">
       <h1>{post.data.title}</h1>
@@ -51,7 +51,7 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
       <Comments lang="en" />
     </article>
 
-    {tocHeadings.length > 0 && (
+    {tocHeadings.length > 1 && (
       <aside class="sidebar">
         <nav class="toc">
           <p class="toc-title">On this page</p>

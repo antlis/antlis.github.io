@@ -9,13 +9,33 @@ const i = t('ru')
   <section class="about">
     <h1>{i.about.heading}</h1>
     <p>{i.about.text}</p>
+
+    <h2>Чем я занимаюсь</h2>
+    <p>
+      Работаю на всём фронтенд-стеке — от архитектуры компонентов и управления состоянием
+      до оптимизации производительности и настройки сборки. В повседневной работе использую
+      Vue 3, Nuxt, React, Next.js и TypeScript, но так же легко разбираюсь в незнакомом
+      коде и нахожу нужное решение.
+    </p>
+    <p>
+      Мне важно писать поддерживаемый код, с которым удобно работать другим разработчикам.
+      Это значит чёткие абстекции, продуманное тестирование и документацию, которая реально
+      помогает. Я руководил фронтенд-разработкой на продакшн-приложениях с реальными
+      пользователями, включая работу над веб-платформами в медиа и финтехе.
+    </p>
+
+    <h2>Open Source</h2>
+    <p>
+      Участвую в open source, когда могу — создаю небольшие инструменты для решения
+      реальных задач, исправляю баги в проектах, которыми пользуюсь, и пишу о том, что
+      узнаю по пути. Мои работы можно найти на <a href="https://github.com/antlis">GitHub</a>.
+    </p>
   </section>
 </Layout>
 
 <style>
   .about {
     max-width: 640px;
-    margin: 0 auto;
     padding-top: 2rem;
   }
 
@@ -23,8 +43,24 @@ const i = t('ru')
     margin-bottom: 1.5rem;
   }
 
+  .about h2 {
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
   .about p {
     font-size: clamp(1rem, 0.95rem + 0.25vw, 1.1rem);
     line-height: 1.75;
+    margin-bottom: 1.25rem;
+  }
+
+  .about a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .about a:hover {
+    color: var(--accent-hover);
   }
 </style>

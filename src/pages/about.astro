@@ -9,13 +9,33 @@ const i = t('en')
   <section class="about">
     <h1>{i.about.heading}</h1>
     <p>{i.about.text}</p>
+
+    <h2>What I Do</h2>
+    <p>
+      I work across the full frontend stack — from component architecture and state management
+      to performance optimization and build tooling. My day-to-day involves Vue 3, Nuxt, React,
+      Next.js, and TypeScript, but I'm just as comfortable diving into a unfamiliar codebase
+      and figuring out how it works.
+    </p>
+    <p>
+      I care about shipping maintainable code that other developers can work with. That means
+      clear abstractions, thoughtful testing, and documentation that actually helps. I've led
+      frontend efforts on production applications serving real users, including work on
+      high-traffic web platforms in the media and fintech space.
+    </p>
+
+    <h2>Open Source</h2>
+    <p>
+      I contribute to open source when I can — whether it's building small tools that solve
+      real problems, fixing bugs in projects I use, or writing about the things I learn along
+      the way. You can find my work on <a href="https://github.com/antlis">GitHub</a>.
+    </p>
   </section>
 </Layout>
 
 <style>
   .about {
     max-width: 640px;
-    margin: 0 auto;
     padding-top: 2rem;
   }
 
@@ -23,8 +43,24 @@ const i = t('en')
     margin-bottom: 1.5rem;
   }
 
+  .about h2 {
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+
   .about p {
     font-size: clamp(1rem, 0.95rem + 0.25vw, 1.1rem);
     line-height: 1.75;
+    margin-bottom: 1.25rem;
+  }
+
+  .about a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .about a:hover {
+    color: var(--accent-hover);
   }
 </style>

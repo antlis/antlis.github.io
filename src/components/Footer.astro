@@ -9,7 +9,7 @@ const rssLabel = locale === 'ru' ? 'Подписаться на RSS' : 'Subscrib
 const currentYear = new Date().getFullYear();
 ---
 
-<footer>
+<footer transition:persist="footer">
   <div class="footer-inner">
     <small class="copyright">&copy; {currentYear} {i.footer.copyright}</small>
     <div class="footer-actions">
@@ -68,7 +68,7 @@ const currentYear = new Date().getFullYear();
 
   .rss-link:hover,
   .rss-link:focus-visible {
-    color: var(--text);
+    color: #EE802F;
   }
 
   .rss-link svg {

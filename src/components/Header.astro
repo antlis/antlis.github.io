@@ -16,7 +16,7 @@ const navItems = [
 const currentPath = Astro.url.pathname
 ---
 
-<header>
+<header transition:persist="header">
   <nav>
     <a href={localePath('/', locale)} class="logo" aria-label="Home">
       <FoxLogo size={48} />
@@ -117,7 +117,10 @@ const currentPath = Astro.url.pathname
     transition: color 0.2s;
   }
 
-  .nav-link:hover,
+  .nav-link:hover {
+    color: var(--text);
+  }
+
   .nav-link.active {
     color: var(--text);
   }
@@ -183,6 +186,9 @@ const currentPath = Astro.url.pathname
 
   .mobile-menu {
     display: none;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
   }
 
   @media (max-width: 640px) {
@@ -202,23 +208,30 @@ const currentPath = Astro.url.pathname
     }
 
     .mobile-menu {
-      display: none;
+      display: block;
       width: 100%;
-      padding-top: 0.75rem;
+      padding-top: 0;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.3s ease, opacity 0.3s ease, padding-top 0.3s ease;
     }
 
     .mobile-menu.open {
-      display: block;
+      max-height: 300px;
+      opacity: 1;
+      padding-top: 0.75rem;
     }
 
     .mobile-links {
       display: flex;
       flex-direction: column;
+      margin: 0 -1rem;
+      border-top: 1px solid var(--border);
     }
 
     .mobile-link {
       display: block;
-      padding: 0.75rem 0;
+      padding: 0.75rem 1rem;
       font-size: 1rem;
       font-weight: 500;
       color: var(--text-secondary);
@@ -227,10 +240,13 @@ const currentPath = Astro.url.pathname
       transition: color 0.2s;
     }
 
-    .mobile-link:hover,
-    .mobile-link.active {
-      color: var(--text);
-    }
+  .mobile-link:hover {
+    color: var(--text);
+  }
+
+  .mobile-link.active {
+    color: var(--text);
+  }
 
     .mobile-end {
       display: flex;
