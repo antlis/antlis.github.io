@@ -23,7 +23,7 @@ export const translations = {
       title: 'Contact — Anton L',
       heading: 'Contact',
       description: 'Get in touch with Anton L — frontend developer available for freelance and full-time opportunities. Reach out via email or social platforms.',
-      text: 'Feel free to reach out via email or find me on any of these platforms.',
+      text: 'The quickest way to reach me is via Telegram. You can also use the form below or find me on any of these platforms.',
     },
     blog: {
       title: 'Blog — Anton L | Web Development, Tools & Security',
@@ -65,7 +65,7 @@ export const translations = {
       title: 'Контакты — Антон Л',
       heading: 'Контакты',
       description: 'Свяжитесь с Антоном Л — фронтенд-разработчик, доступен для фриланса и постоянной работы. Напишите на email или через соцсети.',
-      text: 'Свяжитесь со мной по email или найдите меня на любой из этих платформ.',
+      text: 'Быстрее всего связаться со мной через Telegram. Можно также использовать форму ниже или найти меня на любой из этих платформ.',
     },
     blog: {
       title: 'Блог — Антон Л | Веб-разработка, инструменты и безопасность',

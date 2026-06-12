@@ -7,6 +7,9 @@ const { lang = 'en' } = Astro.props
 ---
 
 <div class="comments">
+  <div class="loading" id="giscus-loading">
+    <div class="spinner"></div>
+  </div>
   <script
     is:inline
     src="https://giscus.app/client.js"
@@ -33,6 +36,29 @@ const { lang = 'en' } = Astro.props
     padding-top: 2rem;
     border-top: 1px solid var(--border);
   }
+
+  .loading {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 0;
+  }
+
+  .loading.hidden {
+    display: none;
+  }
+
+  .spinner {
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--text-secondary);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
 </style>
 
 <script is:inline>
@@ -44,17 +70,48 @@ const { lang = 'en' } = Astro.props
 
     function setGiscusTheme() {
       var iframe = document.querySelector('iframe.giscus-frame')
-      if (!iframe) return
+      if (!iframe || !iframe.contentWindow) return
       iframe.contentWindow.postMessage(
         { giscus: { setConfig: { theme: getGiscusTheme() } } },
         'https://giscus.app'
       )
     }
 
-    var observer = new MutationObserver(function() { setGiscusTheme() })
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme']
-    })
+    function hideLoading() {
+      var loader = document.getElementById('giscus-loading')
+      if (loader) loader.classList.add('hidden')
+    }
+
+    function initGiscusTheme() {
+      var observer = new MutationObserver(function() { setGiscusTheme() })
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+      })
+
+      var iframe = document.querySelector('iframe.giscus-frame')
+      if (iframe) {
+        iframe.addEventListener('load', function() {
+          hideLoading()
+          setGiscusTheme()
+        })
+      } else {
+        var interval = setInterval(function() {
+          var iframe = document.querySelector('iframe.giscus-frame')
+          if (iframe) {
+            clearInterval(interval)
+            iframe.addEventListener('load', function() {
+              hideLoading()
+              setGiscusTheme()
+            })
+            setGiscusTheme()
+          }
+        }, 500)
+        setTimeout(function() { clearInterval(interval) }, 10000)
+      }
+    }
+
+    initGiscusTheme()
+    document.addEventListener('astro:after-swap', initGiscusTheme)
   })()
 </script>

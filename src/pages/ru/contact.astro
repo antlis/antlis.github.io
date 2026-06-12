@@ -10,18 +10,121 @@ const i = t('ru')
   <section class="contact">
     <h1>{i.contact.heading}</h1>
     <p>{i.contact.text}</p>
-
-    <div class="contact-links">
-      <a href="mailto:antlis@protonmail.com" class="email">antlis@protonmail.com</a>
+    <div class="socials-row">
       <Socials />
     </div>
+
+    <form class="contact-form" id="contact-form" novalidate>
+      <input type="hidden" name="access_key" value="7f6f4055-477c-4f69-a865-4f241ae4e828" />
+      <input type="hidden" name="subject" value="Новое сообщение с antlis.is-a.dev" />
+      <input type="checkbox" name="botcheck" class="hidden" style="display:none" />
+
+      <div class="field">
+        <label for="name">Имя</label>
+        <input type="text" id="name" name="name" required placeholder="Ваше имя" />
+        <span class="error"></span>
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="you@example.com" />
+        <span class="error"></span>
+      </div>
+
+      <div class="field">
+        <label for="message">Сообщение</label>
+        <textarea id="message" name="message" required placeholder="Ваше сообщение..." rows="5"></textarea>
+        <span class="error"></span>
+      </div>
+
+      <button type="submit">Отправить</button>
+    </form>
   </section>
 </Layout>
+
+<script>
+  function validateEmail(email: string) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  }
+
+  function validateField(input: HTMLInputElement | HTMLTextAreaElement) {
+    const error = input.parentElement?.querySelector('.error') as HTMLElement
+    if (!error) return true
+
+    error.textContent = ''
+
+    if (!input.value.trim()) {
+      error.textContent = 'Обязательное поле'
+      return false
+    }
+
+    if (input.type === 'email' && !validateEmail(input.value)) {
+      error.textContent = 'Введите корректный email'
+      return false
+    }
+
+    return true
+  }
+
+  function initForm() {
+    const form = document.getElementById('contact-form') as HTMLFormElement | null
+    if (!form) return
+
+    form.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]), textarea').forEach((input) => {
+      input.addEventListener('blur', () => validateField(input as HTMLInputElement | HTMLTextAreaElement))
+      input.addEventListener('input', () => {
+        const error = input.parentElement?.querySelector('.error') as HTMLElement
+        if (error?.textContent) validateField(input as HTMLInputElement | HTMLTextAreaElement)
+      })
+    })
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault()
+
+      const fields = form.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]), textarea')
+      let valid = true
+      fields.forEach((input) => {
+        if (!validateField(input as HTMLInputElement | HTMLTextAreaElement)) valid = false
+      })
+
+      if (!valid) return
+
+      const data = new FormData(form)
+      const button = form.querySelector('button[type="submit"]') as HTMLButtonElement
+      button.disabled = true
+      button.textContent = 'Отправка...'
+
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: data,
+        })
+        const json = await res.json()
+
+        if (json.success) {
+          form.innerHTML = '<p class="success">Сообщение отправлено! Скоро отвечу.</p>'
+        } else {
+          button.disabled = false
+          button.textContent = 'Отправить'
+          const submitError = document.createElement('span')
+          submitError.className = 'error'
+          submitError.textContent = 'Что-то пошло не так. Попробуйте ещё раз.'
+          form.querySelector('button')?.parentElement?.appendChild(submitError)
+        }
+      } catch {
+        button.disabled = false
+        button.textContent = 'Отправить'
+      }
+    })
+  }
+
+  initForm()
+  document.addEventListener('astro:after-swap', initForm)
+</script>
 
 <style>
   .contact {
     max-width: 640px;
-    margin: 0 auto;
     padding-top: 2rem;
   }
 
@@ -29,26 +132,96 @@ const i = t('ru')
     margin-bottom: 1.5rem;
   }
 
-  .contact p {
+  .contact > p {
     font-size: clamp(1rem, 0.95rem + 0.25vw, 1.1rem);
     line-height: 1.75;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 
-  .contact-links {
+  .socials-row {
+    margin-bottom: 2.5rem;
+  }
+
+  .socials-row :global(.socials) {
+    justify-content: flex-start;
+  }
+
+  .contact-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 2.5rem;
   }
 
-  .email {
-    font-size: clamp(0.95rem, 0.9rem + 0.25vw, 1.1rem);
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    position: relative;
+  }
+
+  .field label {
+    font-size: 0.85rem;
     font-weight: 500;
-    color: var(--accent);
-    word-break: break-all;
+    color: var(--text);
   }
 
-  .email:hover {
-    color: var(--accent-hover);
+  .field input,
+  .field textarea {
+    padding: 0.65rem 0.85rem;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .field input:focus,
+  .field textarea:focus {
+    border-color: var(--accent);
+  }
+
+  .field textarea {
+    resize: vertical;
+  }
+
+  .error {
+    position: absolute;
+    bottom: -1.5rem;
+    left: 0;
+    font-size: 0.75rem;
+    color: #ef4444;
+  }
+
+  button[type="submit"] {
+    align-self: stretch;
+    padding: 0.65rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    font-family: inherit;
+    color: var(--text);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+
+  button[type="submit"]:hover:not(:disabled) {
+    border-color: var(--text-secondary);
+    background: var(--card-hover);
+  }
+
+  button[type="submit"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .success {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem 0;
   }
 </style>

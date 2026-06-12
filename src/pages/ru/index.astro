@@ -66,13 +66,20 @@ const recentPosts = posts
   }
 
   .section-header a {
-    font-size: 0.875rem;
-    color: var(--accent);
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-secondary);
     white-space: nowrap;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
   }
 
   .section-header a:hover {
-    color: var(--accent-hover);
+    color: var(--text);
+    border-color: var(--text-secondary);
+    background: var(--card-hover);
   }
 
   .post-grid {
