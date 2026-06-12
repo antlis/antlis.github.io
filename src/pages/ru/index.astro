@@ -1,7 +1,6 @@
 ---
 import Layout from '/src/layouts/Layout.astro'
 import Card from '/src/components/Card.astro'
-import GithubActivity from '/src/components/GithubActivity.astro'
 import { getCollection } from 'astro:content'
 import { t, localePath } from '/src/i18n/utils'
 
@@ -42,7 +41,6 @@ const recentPosts = posts
     </section>
   )}
 
-  <GithubActivity />
 </Layout>
 
 <style>

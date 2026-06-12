@@ -22,7 +22,7 @@ const displayText = body || description || '';
     {tags && tags.length > 0 && (
       <div class="card-tags">
         {tags.map((tag) => (
-          <span class="card-tag">{tag}</span>
+          <span class="card-tag" data-tag={tag}>{tag}</span>
         ))}
       </div>
     )}

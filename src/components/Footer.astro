@@ -24,6 +24,21 @@ const currentYear = new Date().getFullYear();
   </div>
 </footer>
 
+<script>
+  function updateFooter() {
+    const isRu = window.location.pathname.startsWith('/ru')
+    const rssLink = document.querySelector('.rss-link')
+    if (rssLink) {
+      rssLink.setAttribute('href', isRu ? '/ru/rss.xml' : '/rss.xml')
+      const span = rssLink.querySelector('span')
+      if (span) span.textContent = isRu ? 'Подписаться на RSS' : 'Subscribe to RSS'
+    }
+  }
+
+  updateFooter()
+  document.addEventListener('astro:after-swap', updateFooter)
+</script>
+
 <style>
   footer {
     border-top: 1px solid var(--border);
@@ -70,6 +85,10 @@ const currentYear = new Date().getFullYear();
     color: var(--text-secondary);
     white-space: nowrap;
     transition: color 0.2s;
+  }
+
+  .rss-link span {
+    line-height: 1;
   }
 
   .rss-link:hover,

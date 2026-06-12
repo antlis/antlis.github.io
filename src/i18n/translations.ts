@@ -37,11 +37,6 @@ export const translations = {
       description: 'Frontend development projects by Anton L — production web applications built with Vue, Nuxt.js, React, Next.js, and TypeScript.',
       intro: "Most of my commercial work is under NDA, so it can't be shown here. What you see below is a selection of personal and open-source projects — some of them are pretty old, but each one was built either entirely from scratch or with the frontend part done solo. They reflect how I approach problems, build UIs, and ship things end to end.",
     },
-    github: {
-      heading: 'GitHub',
-      commitsThisYear: 'commits this year',
-      error: 'Unable to load GitHub activity.',
-    },
     footer: {
       copyright: 'Antlis',
     },
@@ -83,11 +78,6 @@ export const translations = {
       heading: 'Портфолио',
       description: 'Проекты фронтенд-разработки Антона Л — продакшен веб-приложения на Vue, Nuxt.js, React, Next.js и TypeScript.',
       intro: 'Большинство коммерческих проектов находятся под NDA, поэтому их нельзя показать. Ниже — подборка личных и open-source проектов, некоторые из них довольно старые, но каждый был создан либо полностью с нуля, либо фронтенд-часть была сделана самостоятельно. Они отражают мой подход к решению задач, построению интерфейсов и доставке продукта.',
-    },
-    github: {
-      heading: 'GitHub',
-      commitsThisYear: 'коммитов за этот год',
-      error: 'Не удалось загрузить активность GitHub.',
     },
     footer: {
       copyright: 'Antlis',

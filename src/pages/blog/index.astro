@@ -61,7 +61,7 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
   }
 
   .filter-tag {
@@ -89,13 +89,7 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
 
   .post-list {
     display: grid;
-    gap: 0.75rem;
-  }
-
-  @media (max-width: 640px) {
-    .post-list {
-      gap: 2rem;
-    }
+    gap: 2rem;
   }
 
   .empty {
@@ -108,22 +102,50 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
     var buttons = document.querySelectorAll('.filter-tag')
     var cards = document.querySelectorAll('.post-list .card')
 
+    function filterByTag(tag) {
+      buttons.forEach(function(b) {
+        b.classList.toggle('active', b.dataset.tag === tag)
+      })
+
+      cards.forEach(function(card) {
+        if (tag === 'all') {
+          card.style.display = ''
+        } else {
+          var cardTags = (card.dataset.tags || '').split(',')
+          card.style.display = cardTags.indexOf(tag) !== -1 ? '' : 'none'
+        }
+      })
+
+      var url = new URL(window.location.href)
+      if (tag === 'all') {
+        url.searchParams.delete('tag')
+      } else {
+        url.searchParams.set('tag', tag)
+      }
+      history.replaceState({}, '', url)
+    }
+
     buttons.forEach(function(btn) {
       btn.addEventListener('click', function() {
-        var tag = btn.dataset.tag
+        filterByTag(btn.dataset.tag)
+      })
+    })
 
-        buttons.forEach(function(b) { b.classList.remove('active') })
-        btn.classList.add('active')
-
-        cards.forEach(function(card) {
-          if (tag === 'all') {
-            card.style.display = ''
-          } else {
-            var cardTags = (card.dataset.tags || '').split(',')
-            card.style.display = cardTags.indexOf(tag) !== -1 ? '' : 'none'
-          }
+    cards.forEach(function(card) {
+      card.querySelectorAll('.card-tag').forEach(function(el) {
+        el.style.cursor = 'pointer'
+        el.addEventListener('click', function(e) {
+          e.preventDefault()
+          e.stopPropagation()
+          filterByTag(el.dataset.tag)
         })
       })
     })
+
+    var params = new URLSearchParams(window.location.search)
+    var initialTag = params.get('tag') || 'all'
+    if (initialTag !== 'all') {
+      filterByTag(initialTag)
+    }
   })()
 </script>

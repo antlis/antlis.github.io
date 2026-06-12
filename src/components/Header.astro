@@ -57,6 +57,14 @@ const currentPath = Astro.url.pathname
 </header>
 
 <script>
+  function updateActiveLink() {
+    const path = window.location.pathname
+    document.querySelectorAll('.nav-link, .mobile-link').forEach((link) => {
+      const href = link.getAttribute('href')
+      link.classList.toggle('active', href === path || (href !== '/' && path.startsWith(href)))
+    })
+  }
+
   function initMenu() {
     const toggle = document.querySelector('.menu-toggle')
     const mobileMenu = document.querySelector('.mobile-menu')
@@ -76,8 +84,12 @@ const currentPath = Astro.url.pathname
     })
   }
 
+  updateActiveLink()
   initMenu()
-  document.addEventListener('astro:after-swap', initMenu)
+  document.addEventListener('astro:after-swap', () => {
+    updateActiveLink()
+    initMenu()
+  })
 </script>
 
 <style>
