@@ -15,27 +15,32 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
   <div class="blog-page">
     <h1>{i.blog.heading}</h1>
 
-    {allTags.length > 0 && (
-      <div class="tag-filter">
-        <button class="filter-tag active" data-tag="all">Все</button>
-        {allTags.map((tag) => (
-          <button class="filter-tag" data-tag={tag}>{tag}</button>
+    <div class="blog-layout">
+      <div class="post-list">
+        {sortedPosts.map((post) => (
+          <Card
+            title={post.data.title}
+            description={post.data.description}
+            href={localePath(`/blog/${post.slug.replace(/-ru$/, '')}`, locale)}
+            tags={post.data.tags}
+            imgSrc={post.data.imgSrc}
+            imgAlt={post.data.imgAlt}
+            date={post.data.pubDate.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' })}
+          />
         ))}
       </div>
-    )}
 
-    <div class="post-list">
-      {sortedPosts.map((post) => (
-        <Card
-          title={post.data.title}
-          description={post.data.description}
-          href={localePath(`/blog/${post.slug.replace(/-ru$/, '')}`, locale)}
-          tags={post.data.tags}
-          imgSrc={post.data.imgSrc}
-          imgAlt={post.data.imgAlt}
-          date={post.data.pubDate.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' })}
-        />
-      ))}
+      {allTags.length > 0 && (
+        <aside class="sidebar">
+          <p class="sidebar-title">Теги</p>
+          <div class="tag-filter">
+            <button class="filter-tag active" data-tag="all">Все</button>
+            {allTags.map((tag) => (
+              <button class="filter-tag" data-tag={tag}>{tag}</button>
+            ))}
+          </div>
+        </aside>
+      )}
     </div>
 
     {posts.length === 0 && <p class="empty">{i.blog.empty}</p>}
@@ -57,11 +62,48 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
     margin: 0 0 1.5rem;
   }
 
+  .blog-layout {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  @media (max-width: 768px) {
+    .blog-layout {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 5rem;
+    padding-top: 0.25rem;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      position: static;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+  }
+
+  .sidebar-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+  }
+
   .tag-filter {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
+    gap: 0.35rem;
   }
 
   .filter-tag {
@@ -74,6 +116,7 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
     cursor: pointer;
     font-family: inherit;
     transition: all 0.2s;
+    text-align: left;
   }
 
   .filter-tag:hover {
