@@ -24,6 +24,7 @@ const P = {
   mpv:        { a: '#f472b6', a2: '#ec4899', bg0: '#1a0c18', bg1: '#120410', glow: '#831843' },
   media:      { a: '#60a5fa', a2: '#3b82f6', bg0: '#0b1020', bg1: '#040814', glow: '#1e3a8a' },
   nvim:       { a: '#57a143', a2: '#2d8fdd', bg0: '#07160f', bg1: '#050b14', glow: '#1f6feb' },
+  nuxt:       { a: '#00dc82', a2: '#00a86b', bg0: '#07140f', bg1: '#050b14', glow: '#00dc82' },
 }
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -168,6 +169,16 @@ const ARTICLES = [
       { t: 'P  notes.md       3 files', c: '#e6edf3', size: 28 },
       { t: ':w  PATCH /gists/<id>', c: '#57a143', size: 34, bold: true },
       { t: 'cache: mem + disk TTL', dim: true, size: 28 },
+    ],
+  },
+  {
+    slug: 'nuxt-bun-create-open-source', pal: 'nuxt', path: 'nuxt + bun — oss',
+    lines: [
+      { t: '$ bun create nuxt -- -t v3', dim: true, size: 26 },
+      { t: 'Nuxt 4 prompt only', c: '#f87171', size: 32, bold: true },
+      { t: '$ npm create … -- -t v3', dim: true, size: 26 },
+      { t: "args: ['-t', 'v3']", c: '#00dc82', size: 34, bold: true },
+      { t: 'PR merged → upstream bug', dim: true, size: 28 },
     ],
   },
 ]

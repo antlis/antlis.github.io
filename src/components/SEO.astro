@@ -22,6 +22,7 @@ const alternateLang = locale === 'en' ? 'ru' : 'en'
 const alternateURL = new URL(switchLocalePath(Astro.url.pathname, alternateLang as Locale), site)
 const ogImage = image || new URL('/og-default.png', site).toString()
 const langCode = locale === 'en' ? 'en-US' : 'ru-RU'
+const rssURL = new URL(locale === 'ru' ? '/ru/rss.xml' : '/rss.xml', site)
 
 const authorSchema = {
   '@type': 'Person',
@@ -185,7 +186,7 @@ const schemas = buildJsonLd()
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
 
-<link rel="alternate" type="application/rss+xml" title="Anton L — Blog" href={new URL('/rss.xml', site)} />
+<link rel="alternate" type="application/rss+xml" title={locale === 'ru' ? 'Anton L — Блог' : 'Anton L — Blog'} href={rssURL} />
 
 {schemas.map((schema) => (
   <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />

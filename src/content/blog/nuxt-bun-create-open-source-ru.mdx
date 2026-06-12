@@ -1,0 +1,219 @@
+---
+title: "Как сломанная команда Nuxt привела к багу в Bun CLI"
+description: "Я попытался создать Nuxt 3 проект через Bun, нашёл вводящую в заблуждение команду в документации, докопался до бага в аргументах Bun CLI, получил merged PR в Nuxt docs и отправил fix в Bun на Zig с помощью Claude Code."
+pubDate: 2026-06-12
+locale: "ru"
+category: "Open Source"
+tags: ["open-source", "nuxt", "bun", "docs", "zig", "claude-code"]
+imgSrc: "/blog/nuxt-bun-create-open-source.png"
+imgAlt: "Terminal-style thumbnail про Bun, который передаёт -- буквально, и npm, который правильно передаёт -t v3"
+---
+
+# Как сломанная команда Nuxt привела к багу в Bun CLI
+
+Я хотел создать небольшой Nuxt 3 проект через Bun.
+
+В документации Nuxt 3 была команда, которую я и ожидал увидеть:
+
+```bash
+bun create nuxt@latest <project-name> -- -t v3
+```
+
+Я запустил то же самое локально:
+
+```bash
+bun create nuxt@latest nuxt-test -- -t v3
+```
+
+Но вместо Nuxt 3 проекта CLI открыл интерактивный prompt, где были только Nuxt 4
+шаблоны:
+
+```text
+◇  Templates loaded
+│
+◆  Which template would you like to use?
+│  ○ content – Content-driven website
+│  ● minimal – Minimal setup for Nuxt 4 (recommended)
+│  ○ module – Nuxt module
+│  ○ ui – App using Nuxt UI
+```
+
+Никакого Nuxt 3 варианта. Никакой понятной ошибки. Просто команда из Nuxt 3 docs
+не создавала Nuxt 3 проект для пользователей Bun.
+
+Так маленькое несовпадение в docs превратилось в расследование между двумя проектами.
+
+## Исправление документации
+
+У Nuxt уже был issue про эту проблему:
+[nuxt/nuxt#32854](https://github.com/nuxt/nuxt/issues/32854).
+
+Ближайший рабочий workaround — не использовать `bun create`, а запускать
+`create-nuxt` через `bunx`:
+
+```bash
+bunx create-nuxt@latest init <project-name> -t v3
+```
+
+Команда всё ещё использует Bun, сохраняет тот же `-t v3` template flag и реально
+создаёт Nuxt 3 starter.
+
+Я открыл PR в документацию Nuxt:
+[nuxt/nuxt#34792](https://github.com/nuxt/nuxt/pull/34792).
+
+Сначала это выглядело как маленький docs patch: заменить Bun-команду на рабочую.
+Но maintainer задал правильный вопрос:
+
+> what about using `--`?
+
+И это был честный вопрос. `--` должен сказать package manager: «дальше не парси
+флаги сам, передай их create script». Если это работает, документация должна
+оставаться похожей на npm, pnpm, yarn и deno.
+
+Я проверил ещё раз:
+
+```bash
+bun create nuxt@latest proj -- -t v3
+```
+
+Результат тот же: prompt, и в нём только Nuxt 4 шаблоны.
+
+Потом сравнил с npm:
+
+```bash
+npm create nuxt@latest proj -- -t v3
+```
+
+npm отработал правильно: передал `-t v3`, и `create-nuxt` скачал v3 template.
+
+Значит, команда ломалась именно для Bun.
+
+## Минимальный reproduction
+
+На этом этапе я не хотел гадать. Может, Nuxt странно парсит аргументы. Может,
+Bun по-другому их передаёт. Может, в `create-nuxt` есть особый case.
+
+Нужен был маленький тест: `create-*` package, который просто печатает argv.
+
+Я опубликовал
+[`create-bun-args-test-antlis`](https://www.npmjs.com/package/create-bun-args-test-antlis)
+— минимальный npm package, executable которого делает только это:
+
+```js
+#!/usr/bin/env node
+console.log('args received:', process.argv.slice(2))
+```
+
+Потом сравнил npm и Bun на одном и том же input:
+
+```bash
+npm create bun-args-test-antlis -- -t v3
+bun create bun-args-test-antlis -- -t v3
+```
+
+Разница и была багом:
+
+```text
+npm → args received: [ '-t', 'v3' ]
+bun → args received: [ '--', '-t', 'v3' ]
+```
+
+Bun передавал `--` в create script как обычный аргумент, вместо того чтобы
+воспринять его как separator и убрать.
+
+Это объяснило поведение Nuxt. `create-nuxt` получал `--` как настоящий аргумент
+перед `-t v3`, путался и откатывался к интерактивному выбору template.
+
+## Issue в Bun
+
+Я открыл issue в Bun:
+[oven-sh/bun#29087](https://github.com/oven-sh/bun/issues/29087).
+
+В issue я связал проблему с Nuxt bug и Nuxt docs PR, потому что это был не
+абстрактный edge case. Из-за этого ломалась реальная команда из документации
+крупного фреймворка.
+
+GitHub также нашёл старые связанные issues в Bun:
+[oven-sh/bun#20314](https://github.com/oven-sh/bun/issues/20314) и
+[oven-sh/bun#6566](https://github.com/oven-sh/bun/issues/6566). Это было
+полезно: Nuxt оказался одним видимым симптомом более общего бага в
+argument forwarding у `bun create`.
+
+## Fix в Bun, хотя я почти не знал Zig
+
+Следующий шаг был страшнее: Bun написан на Zig.
+
+Я не знал Zig настолько хорошо, чтобы спокойно патчить Bun CLI по памяти. Но сам
+баг был маленький и уже хорошо изолированный: `bun create` должен фильтровать
+forwarded args так, чтобы первый `--` separator съедался, а не передавался дальше
+в generated create command.
+
+Я использовал Claude Code как pair programmer для незнакомых частей:
+
+- найти код, который отвечает за `bun create` argument forwarding;
+- понять стиль соседнего Zig-кода;
+- сделать минимальное изменение;
+- добавить regression coverage на forwarding behavior.
+
+PR в Bun здесь:
+[oven-sh/bun#29089](https://github.com/oven-sh/bun/pull/29089).
+
+Fix делает три вещи:
+
+- убирает один leading `--` перед forwarding args в create script;
+- корректно обрабатывает wrapper-level `--bun` до separator;
+- сохраняет `--`, если его специально передали уже после separator.
+
+Regression test покрывает важные формы аргументов, включая Nuxt case, с которого
+всё началось.
+
+Полностью собрать Bun локально на моём NixOS setup я не смог из-за toolchain
+проблем с `lld`/`zstd`, поэтому честно написал об этом в PR и положился на CI.
+PR всё ещё открыт, но investigation и proposed fix уже есть.
+
+## Что в итоге смержили
+
+Nuxt documentation PR смержили:
+[nuxt/nuxt#34792](https://github.com/nuxt/nuxt/pull/34792).
+
+Финальную версию поправил maintainer: он оставил предполагаемую
+`bun create` команду комментарием на будущее, когда Bun bug будет исправлен, а
+рабочей командой сейчас сделал
+`bunx create-nuxt@latest init <project-name> -t v3`.
+
+Изменение маленькое, но полезное: команда в Nuxt 3 docs вводила Bun users в
+заблуждение. А ещё это оказалось нормальным debugging exercise между двумя
+проектами:
+
+1. попробовать documented command;
+2. воспроизвести broken behavior;
+3. сравнить с другим package manager;
+4. свести баг к минимальному package;
+5. зарепортить upstream Bun issue;
+6. отправить root-cause fix.
+
+Именно эта часть мне понравилась больше всего. Merged PR был не просто typo fix.
+Это был видимый конец цепочки расследования.
+
+## Что я вынес
+
+Маленькие documentation bugs — нормальные contributions, но их всё равно
+стоит нормально дебажить.
+
+Если бы я остановился на «Bun не работает, используйте `bunx`», Nuxt docs fix,
+возможно, всё равно приняли бы. Но root cause остался бы мутным. Сравнение npm и
+Bun плюс маленький reproduction package сделали проблему конкретной.
+
+Ещё я понял, что AI полезен в незнакомом codebase, когда проблема уже сведена к
+чёткому invariant. Claude Code не нашёл баг магически вместо меня. Главная часть
+была в том, чтобы сузить failure до одной фразы:
+
+```text
+bun create должен убрать первый -- перед forwarding args
+```
+
+Когда invariant понятен, использовать Claude Code, чтобы разобраться в Zig и
+написать маленький patch, уже реалистично.
+
+Так получились merged Nuxt docs PR, upstream bug report в Bun и открытый Bun PR
+— всё из-за команды, которая на первый взгляд должна была просто работать.

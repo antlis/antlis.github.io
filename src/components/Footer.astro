@@ -4,13 +4,23 @@ import { getLocaleFromUrl, t } from '../i18n/utils'
 
 const locale = getLocaleFromUrl(Astro.url)
 const i = t(locale)
+const rssHref = locale === 'ru' ? '/ru/rss.xml' : '/rss.xml'
+const rssLabel = locale === 'ru' ? 'Подписаться на RSS' : 'Subscribe to RSS'
 const currentYear = new Date().getFullYear();
 ---
 
 <footer>
   <div class="footer-inner">
     <small class="copyright">&copy; {currentYear} {i.footer.copyright}</small>
-    <Socials />
+    <div class="footer-actions">
+      <a class="rss-link" href={rssHref}>
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20">
+          <path d="M19.199 24C19.199 13.467 10.533 4.8 0 4.8V0c13.165 0 24 10.835 24 24h-4.801zM3.291 17.415c1.814 0 3.293 1.479 3.293 3.295 0 1.813-1.485 3.29-3.301 3.29C1.47 24 0 22.526 0 20.71s1.475-3.294 3.291-3.295zM15.909 24h-4.665c0-6.169-5.075-11.245-11.244-11.245V8.09c8.727 0 15.909 7.184 15.909 15.91z" fill="currentColor" />
+        </svg>
+        <span>{rssLabel}</span>
+      </a>
+      <Socials />
+    </div>
   </div>
 </footer>
 
@@ -26,6 +36,7 @@ const currentYear = new Date().getFullYear();
     padding: 2rem clamp(1rem, 3vw, 2rem);
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
@@ -36,10 +47,53 @@ const currentYear = new Date().getFullYear();
     color: var(--text-secondary);
   }
 
+  .footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .rss-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+
+  .rss-link:hover,
+  .rss-link:focus-visible {
+    color: var(--text);
+  }
+
+  .rss-link svg {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+  }
+
+  .footer-actions :global(.socials) {
+    align-items: center;
+  }
+
+  .footer-actions :global(.socials a) {
+    align-items: center;
+    height: 20px;
+  }
+
   @media (max-width: 480px) {
     .footer-inner {
       flex-direction: column;
       text-align: center;
+    }
+
+    .footer-actions {
+      justify-content: center;
     }
   }
 </style>
