@@ -18,7 +18,7 @@ const displayText = body || description || '';
 <a href={href} class:list={["card", { "card-with-img": !!imgSrc }]} data-tags={tags?.join(',') || ''} data-category={category || ''}>
   <div class="card-content">
     <h3>{title}</h3>
-    {date && <time class="card-date">{date}</time>}
+    {date && <time class="card-date"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>{date}</time>}
     {displayText && <p>{displayText}</p>}
     {tags && tags.length > 0 && (
       <div class="card-tags">
@@ -78,10 +78,16 @@ const displayText = body || description || '';
   }
 
   .card-date {
-    display: block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
     margin: -0.25rem 0 0.5rem;
     font-size: 0.75rem;
     color: var(--text-secondary);
+  }
+
+  .card-date svg {
+    flex-shrink: 0;
   }
 
   .card p {
