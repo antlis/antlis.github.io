@@ -6,15 +6,16 @@ interface Props {
 	href: string;
   imgSrc?: string;
   imgAlt?: string;
+  category?: string;
   tags?: string[];
   date?: string;
 }
 
-const { href, title, body, description, imgAlt, imgSrc, tags, date } = Astro.props;
+const { href, title, body, description, imgAlt, imgSrc, category, tags, date } = Astro.props;
 const displayText = body || description || '';
 ---
 
-<a href={href} class:list={["card", { "card-with-img": !!imgSrc }]} data-tags={tags?.join(',') || ''}>
+<a href={href} class:list={["card", { "card-with-img": !!imgSrc }]} data-tags={tags?.join(',') || ''} data-category={category || ''}>
   <div class="card-content">
     <h3>{title}</h3>
     {date && <time class="card-date">{date}</time>}

@@ -8,12 +8,38 @@ const locale = 'en'
 const i = t(locale)
 const posts = await getCollection('blog', ({ data }) => (data.locale ?? 'en') === 'en')
 const sortedPosts = posts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+const allCategories = [...new Set(sortedPosts.map((p) => p.data.category).filter(Boolean))].sort()
 const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort()
 ---
 
 <Layout title={i.blog.title} description={i.blog.description} pageType="blog-listing">
   <div class="blog-page">
     <h1>{i.blog.heading}</h1>
+
+    <div class="mobile-filters">
+      {allCategories.length > 0 && (
+        <div class="filter-group">
+          <label class="sidebar-title" for="category-select-mobile">Categories</label>
+          <select class="filter-select" id="category-select-mobile">
+            <option value="all">All</option>
+            {allCategories.map((cat) => (
+              <option value={cat}>{cat}</option>
+            ))}
+          </select>
+        </div>
+      )}
+      {allTags.length > 0 && (
+        <div class="filter-group">
+          <label class="sidebar-title" for="tag-select-mobile">Tags</label>
+          <select class="filter-select" id="tag-select-mobile">
+            <option value="all">All</option>
+            {allTags.map((tag) => (
+              <option value={tag}>{tag}</option>
+            ))}
+          </select>
+        </div>
+      )}
+    </div>
 
     <div class="blog-layout">
       <div class="post-list">
@@ -22,25 +48,48 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
             title={post.data.title}
             description={post.data.description}
             href={localePath(`/blog/${post.slug}`, locale)}
+            category={post.data.category}
             tags={post.data.tags}
             imgSrc={post.data.imgSrc}
             imgAlt={post.data.imgAlt}
             date={post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           />
         ))}
+        <div class="no-results" id="no-results">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/>
+            <path d="M12 2C6.5 2 2 6.5 2 12c0 3.5 2 6.5 5 8v2h10v-2c3-1.5 5-4.5 5-8 0-5.5-4.5-10-10-10z"/>
+            <path d="M9 20v1M15 20v1"/>
+          </svg>
+          <p>No posts match your filters</p>
+        </div>
       </div>
 
-      {allTags.length > 0 && (
-        <aside class="sidebar">
-          <p class="sidebar-title">Tags</p>
-          <div class="tag-filter">
-            <button class="filter-tag active" data-tag="all">All</button>
-            {allTags.map((tag) => (
-              <button class="filter-tag" data-tag={tag}>{tag}</button>
-            ))}
+      <aside class="sidebar">
+        {allCategories.length > 0 && (
+          <div class="filter-group">
+            <label class="sidebar-title" for="category-select">Categories</label>
+            <select class="filter-select" id="category-select">
+              <option value="all">All</option>
+              {allCategories.map((cat) => (
+                <option value={cat}>{cat}</option>
+              ))}
+            </select>
           </div>
-        </aside>
-      )}
+        )}
+
+        {allTags.length > 0 && (
+          <div class="filter-group">
+            <p class="sidebar-title">Tags</p>
+            <div class="tag-filter">
+              <button class="filter-btn active" data-filter="tag" data-tag="all">All</button>
+              {allTags.map((tag) => (
+                <button class="filter-btn" data-filter="tag" data-tag={tag}>{tag}</button>
+              ))}
+            </div>
+          </div>
+        )}
+      </aside>
     </div>
 
     {posts.length === 0 && <p class="empty">{i.blog.empty}</p>}
@@ -62,11 +111,112 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
     margin: 0 0 1.5rem;
   }
 
+  .mobile-filters {
+    display: none;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
   .blog-layout {
     display: grid;
     grid-template-columns: 1fr 200px;
     gap: 3rem;
     align-items: start;
+  }
+
+  .blog-layout:has(.no-results.visible) {
+    align-items: stretch;
+  }
+
+  @media (max-width: 768px) {
+    .mobile-filters {
+      display: flex;
+    }
+
+    .sidebar {
+      display: none;
+    }
+
+    .blog-layout {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 5rem;
+    padding-top: 0.25rem;
+  }
+
+  .filter-group + .filter-group {
+    margin-top: 1.5rem;
+  }
+
+  .sidebar-title {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+  }
+
+  .filter-select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    padding-right: 2rem;
+    transition: border-color 0.2s;
+  }
+
+  .filter-select:focus {
+    border-color: var(--accent);
+  }
+
+  .tag-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .filter-btn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.7rem;
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+    text-align: left;
+  }
+
+  .filter-btn:hover {
+    border-color: var(--text-secondary);
+    color: var(--text);
+  }
+
+  .filter-btn.active {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
   }
 
   @media (max-width: 768px) {
@@ -91,13 +241,41 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
     }
   }
 
+  .filter-group + .filter-group {
+    margin-top: 1.5rem;
+  }
+
   .sidebar-title {
+    display: block;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--text-secondary);
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .category-select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
+    padding-right: 2rem;
+    transition: border-color 0.2s;
+  }
+
+  .category-select:focus {
+    border-color: var(--accent);
   }
 
   .tag-filter {
@@ -106,7 +284,7 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
     gap: 0.35rem;
   }
 
-  .filter-tag {
+  .filter-btn {
     font-size: 0.75rem;
     padding: 0.25rem 0.7rem;
     background: var(--card-bg);
@@ -119,12 +297,12 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
     text-align: left;
   }
 
-  .filter-tag:hover {
+  .filter-btn:hover {
     border-color: var(--text-secondary);
     color: var(--text);
   }
 
-  .filter-tag.active {
+  .filter-btn.active {
     background: var(--text);
     color: var(--bg);
     border-color: var(--text);
@@ -138,41 +316,109 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
   .empty {
     color: var(--text-secondary);
   }
+
+  .no-results {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 100%;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  .no-results.visible {
+    display: flex;
+    min-height: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .no-results {
+      padding: 3rem 0;
+    }
+  }
+
+  .no-results svg {
+    width: 48px;
+    height: 48px;
+    color: var(--text);
+  }
+
+  .no-results p {
+    font-size: 1.1rem;
+  }
 </style>
 
 <script is:inline>
   (function() {
-    var buttons = document.querySelectorAll('.filter-tag')
+    var categorySelect = document.getElementById('category-select')
+    var categorySelectMobile = document.getElementById('category-select-mobile')
+    var tagButtons = document.querySelectorAll('[data-filter="tag"]')
+    var tagSelectMobile = document.getElementById('tag-select-mobile')
     var cards = document.querySelectorAll('.post-list .card')
+    var activeCategory = 'all'
+    var activeTag = 'all'
 
-    function filterByTag(tag) {
-      buttons.forEach(function(b) {
-        b.classList.toggle('active', b.dataset.tag === tag)
+    function applyFilters() {
+      var visibleCount = 0
+      cards.forEach(function(card) {
+        var cardCategory = card.dataset.category || ''
+        var cardTags = (card.dataset.tags || '').split(',')
+        var categoryMatch = activeCategory === 'all' || cardCategory === activeCategory
+        var tagMatch = activeTag === 'all' || cardTags.indexOf(activeTag) !== -1
+        var show = categoryMatch && tagMatch
+        card.style.display = show ? '' : 'none'
+        if (show) visibleCount++
       })
 
-      cards.forEach(function(card) {
-        if (tag === 'all') {
-          card.style.display = ''
-        } else {
-          var cardTags = (card.dataset.tags || '').split(',')
-          card.style.display = cardTags.indexOf(tag) !== -1 ? '' : 'none'
-        }
+      var noResults = document.getElementById('no-results')
+      if (noResults) {
+        noResults.classList.toggle('visible', visibleCount === 0)
+      }
+
+      if (categorySelect) categorySelect.value = activeCategory
+      if (categorySelectMobile) categorySelectMobile.value = activeCategory
+      if (tagSelectMobile) tagSelectMobile.value = activeTag
+      tagButtons.forEach(function(b) {
+        b.classList.toggle('active', b.dataset.tag === activeTag)
       })
 
       var url = new URL(window.location.href)
-      if (tag === 'all') {
-        url.searchParams.delete('tag')
-      } else {
-        url.searchParams.set('tag', tag)
-      }
+      if (activeCategory !== 'all') url.searchParams.set('category', activeCategory)
+      else url.searchParams.delete('category')
+      if (activeTag !== 'all') url.searchParams.set('tag', activeTag)
+      else url.searchParams.delete('tag')
       history.replaceState({}, '', url)
     }
 
-    buttons.forEach(function(btn) {
+    if (categorySelect) {
+      categorySelect.addEventListener('change', function() {
+        activeCategory = categorySelect.value
+        applyFilters()
+      })
+    }
+
+    if (categorySelectMobile) {
+      categorySelectMobile.addEventListener('change', function() {
+        activeCategory = categorySelectMobile.value
+        applyFilters()
+      })
+    }
+
+    tagButtons.forEach(function(btn) {
       btn.addEventListener('click', function() {
-        filterByTag(btn.dataset.tag)
+        activeTag = btn.dataset.tag
+        applyFilters()
       })
     })
+
+    if (tagSelectMobile) {
+      tagSelectMobile.addEventListener('change', function() {
+        activeTag = tagSelectMobile.value
+        applyFilters()
+      })
+    }
 
     cards.forEach(function(card) {
       card.querySelectorAll('.card-tag').forEach(function(el) {
@@ -180,15 +426,17 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
         el.addEventListener('click', function(e) {
           e.preventDefault()
           e.stopPropagation()
-          filterByTag(el.dataset.tag)
+          activeTag = el.dataset.tag
+          applyFilters()
         })
       })
     })
 
     var params = new URLSearchParams(window.location.search)
-    var initialTag = params.get('tag') || 'all'
-    if (initialTag !== 'all') {
-      filterByTag(initialTag)
+    activeCategory = params.get('category') || 'all'
+    activeTag = params.get('tag') || 'all'
+    if (activeCategory !== 'all' || activeTag !== 'all') {
+      applyFilters()
     }
   })()
 </script>
