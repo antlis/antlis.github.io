@@ -110,6 +110,10 @@ const labels = locale === 'ru'
       <div class="related-grid">
         {relatedPosts.map((post) => (
           <a href={postHref(post)} class="related-card">
+            <span class="related-meta">
+              {post.data.category && <span class="related-category">{post.data.category}</span>}
+              <time>{post.data.pubDate.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
+            </span>
             <strong>{post.data.title}</strong>
             <span>{post.data.description}</span>
           </a>
@@ -142,7 +146,7 @@ const labels = locale === 'ru'
     border: 1px solid var(--border);
     border-radius: 8px;
     background: var(--card-bg);
-    transition: background 0.2s, border-color 0.2s;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
   }
 
   .post-nav-link {
@@ -165,8 +169,13 @@ const labels = locale === 'ru'
 
   .related-card:hover,
   .compact-item:hover {
-    background: var(--card-hover);
-    border-color: var(--text-secondary);
+    background: color-mix(in srgb, var(--card-bg) 84%, var(--card-hover));
+    border-color: color-mix(in srgb, var(--accent) 36%, var(--border));
+  }
+
+  .related-card:hover {
+    box-shadow: 0 12px 28px color-mix(in srgb, #000 8%, transparent);
+    transform: translateY(-1px);
   }
 
   .post-nav-kicker {
@@ -279,7 +288,31 @@ const labels = locale === 'ru'
 
   .related-card {
     display: block;
-    padding: 1rem;
+    padding: 1.05rem;
+  }
+
+  .related-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 0.65rem;
+    margin-bottom: 0.55rem;
+    color: var(--text-secondary);
+    font-size: 0.74rem;
+  }
+
+  .related-category {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.35rem;
+    padding: 0.12rem 0.48rem;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1;
   }
 
   .related-card strong {
