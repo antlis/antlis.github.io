@@ -25,7 +25,9 @@ const relatedPosts = currentPost
       .filter((post) => post.slug !== currentSlug)
       .map((post) => ({
         post,
-        score: (post.data.tags || []).filter((tag) => currentTags.has(tag)).length,
+        score:
+          (post.data.tags || []).filter((tag) => currentTags.has(tag)).length * 2 +
+          (post.data.category && post.data.category === currentPost.data.category ? 1 : 0),
       }))
       .filter((item) => item.score > 0)
       .sort((a, b) => b.score - a.score || b.post.data.pubDate.getTime() - a.post.data.pubDate.getTime())

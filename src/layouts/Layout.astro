@@ -5,7 +5,7 @@ import Header from '../components/Header.astro'
 import Socials from '../components/Socials.astro'
 import SEO from '../components/SEO.astro'
 import { ThemeScript } from 'astro-theme-toggle/components';
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 import { getLocaleFromUrl, t } from '../i18n/utils'
 
 interface Props {
@@ -55,7 +55,7 @@ const metaDescription = description || i.home.description
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet">
     <ThemeScript />
-    <ViewTransitions />
+    <ClientRouter />
 	</head>
 
 	<body>

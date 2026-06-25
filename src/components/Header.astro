@@ -38,12 +38,12 @@ const currentPath = Astro.url.pathname
     <div class="nav-end">
       <LanguageSwitcher />
       <Toggle style="width: 24px; height: 24px;" />
-      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
+      <button class="menu-toggle" aria-label={locale === 'ru' ? 'Открыть меню' : 'Open menu'} aria-expanded="false" aria-controls="mobile-menu">
         <span class="hamburger"></span>
       </button>
     </div>
 
-    <div class="mobile-menu" id="mobile-menu">
+    <div class="mobile-menu" id="mobile-menu" aria-hidden="true" inert>
       <div class="mobile-links">
         {navItems.map(item => (
           <a
@@ -73,21 +73,40 @@ const currentPath = Astro.url.pathname
   }
 
   function initMenu() {
-    const toggle = document.querySelector('.menu-toggle')
-    const mobileMenu = document.querySelector('.mobile-menu')
+    const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle')
+    const mobileMenu = document.querySelector<HTMLElement>('.mobile-menu')
     if (!toggle || !mobileMenu) return
+    const menuToggle = toggle
+    const menu = mobileMenu
+    if (menuToggle.dataset.menuReady === 'true') return
+    menuToggle.dataset.menuReady = 'true'
 
-    toggle.addEventListener('click', () => {
-      const expanded = toggle.getAttribute('aria-expanded') === 'true'
-      toggle.setAttribute('aria-expanded', String(!expanded))
-      mobileMenu.classList.toggle('open')
+    const openLabel = menuToggle.getAttribute('aria-label') || 'Open menu'
+    const closeLabel = openLabel === 'Открыть меню' ? 'Закрыть меню' : 'Close menu'
+
+    function setMenuOpen(open: boolean) {
+      menuToggle.setAttribute('aria-expanded', String(open))
+      menuToggle.setAttribute('aria-label', open ? closeLabel : openLabel)
+      menu.setAttribute('aria-hidden', String(!open))
+      menu.toggleAttribute('inert', !open)
+      menu.classList.toggle('open', open)
+    }
+
+    menuToggle.addEventListener('click', () => {
+      const expanded = menuToggle.getAttribute('aria-expanded') === 'true'
+      setMenuOpen(!expanded)
     })
 
-    mobileMenu.querySelectorAll('.mobile-link').forEach((link) => {
+    menu.querySelectorAll('.mobile-link').forEach((link) => {
       link.addEventListener('click', () => {
-        toggle.setAttribute('aria-expanded', 'false')
-        mobileMenu.classList.remove('open')
+        setMenuOpen(false)
       })
+    })
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || menuToggle.getAttribute('aria-expanded') !== 'true') return
+      setMenuOpen(false)
+      menuToggle.focus()
     })
   }
 
