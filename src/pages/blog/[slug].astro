@@ -71,10 +71,16 @@ const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
       </aside>
     )}
   </div>
+  <button class="back-to-top" type="button" aria-label="Back to top" hidden>
+    <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+      <path d="m18 15-6-6-6 6"/>
+    </svg>
+  </button>
 </Layout>
 
 <script>
   let tocCleanup: (() => void) | undefined
+  let backToTopCleanup: (() => void) | undefined
 
   function getTocTarget(hash: string | null): HTMLElement | null {
     if (!hash?.startsWith('#')) return null
@@ -158,6 +164,58 @@ const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
 
   initToc()
   document.addEventListener('astro:after-swap', initToc)
+
+  function initBackToTop() {
+    backToTopCleanup?.()
+
+    const button = document.querySelector<HTMLButtonElement>('.back-to-top')
+    if (!button) return
+    const backToTopButton = button
+    const footer = document.querySelector<HTMLElement>('body > footer')
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    let ticking = false
+
+    function updateVisibility() {
+      ticking = false
+
+      const isLongArticle = document.documentElement.scrollHeight > window.innerHeight * 1.8
+      const footerTop = footer?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY
+      const footerOffset = Math.max(20, window.innerHeight - footerTop + 20)
+      const shouldShow = isLongArticle && window.scrollY > window.innerHeight * 0.7
+
+      backToTopButton.style.setProperty('--back-to-top-bottom', `${footerOffset}px`)
+      backToTopButton.hidden = !isLongArticle
+      backToTopButton.classList.toggle('visible', shouldShow)
+    }
+
+    function requestUpdate() {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(updateVisibility)
+    }
+
+    function scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: reduceMotion ? 'auto' : 'smooth',
+      })
+    }
+
+    backToTopButton.addEventListener('click', scrollToTop)
+    window.addEventListener('scroll', requestUpdate, { passive: true })
+    window.addEventListener('resize', requestUpdate)
+    updateVisibility()
+
+    backToTopCleanup = () => {
+      backToTopButton.removeEventListener('click', scrollToTop)
+      window.removeEventListener('scroll', requestUpdate)
+      window.removeEventListener('resize', requestUpdate)
+    }
+  }
+
+  initBackToTop()
+  document.addEventListener('astro:after-swap', initBackToTop)
 
   import mediumZoom from 'medium-zoom'
 
@@ -247,6 +305,53 @@ const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
     font-weight: 600;
   }
 
+  .back-to-top {
+    position: fixed;
+    right: max(1rem, calc((100vw - 1100px) / 2));
+    bottom: var(--back-to-top-bottom, 1.25rem);
+    z-index: 30;
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    color: var(--text);
+    background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: 0 12px 34px color-mix(in srgb, #000 16%, transparent);
+    opacity: 0;
+    transform: translateY(0.5rem);
+    pointer-events: none;
+    cursor: pointer;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .back-to-top[hidden] {
+    display: none;
+  }
+
+  .back-to-top.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  .back-to-top:hover,
+  .back-to-top:focus-visible {
+    color: var(--accent);
+    background: var(--card-bg);
+    border-color: var(--accent);
+  }
+
+  .back-to-top:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
   @media (max-width: 768px) {
     .post-layout,
     .post-layout:has(.sidebar) {
@@ -262,6 +367,13 @@ const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
 
     .sidebar {
       display: none;
+    }
+
+    .back-to-top {
+      right: 1rem;
+      bottom: 1rem;
+      width: 2.5rem;
+      height: 2.5rem;
     }
   }
 
