@@ -37,7 +37,7 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date, tagsAsFi
         )}
       </div>
     )}
-    <h3><a href={href}>{title}</a></h3>
+    <h3><a class="blog-card-title-link" href={href}>{title}</a></h3>
     <p>{description}</p>
     {tags && tags.length > 0 && (
       <div class="blog-card-tags">
@@ -96,6 +96,8 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date, tagsAsFi
   }
 
   .blog-card-content {
+    position: relative;
+    z-index: 1;
     min-width: 0;
   }
 
@@ -130,12 +132,21 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date, tagsAsFi
     text-wrap: balance;
   }
 
-  .blog-card h3 a {
+  .blog-card-title-link {
     color: var(--text);
     text-decoration: none;
   }
 
-  .blog-card h3 a:hover {
+  .blog-card-title-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: 8px;
+  }
+
+  .blog-card h3 a:hover,
+  .blog-card:hover .blog-card-title-link {
     color: var(--accent);
   }
 
@@ -159,6 +170,8 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date, tagsAsFi
   }
 
   .blog-card-tags {
+    position: relative;
+    z-index: 2;
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
@@ -185,6 +198,8 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date, tagsAsFi
   }
 
   .blog-card-img {
+    position: relative;
+    z-index: 1;
     width: 100%;
     aspect-ratio: 16 / 10;
     overflow: hidden;

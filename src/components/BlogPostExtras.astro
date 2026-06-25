@@ -115,7 +115,7 @@ const labels = locale === 'ru'
               <time>{post.data.pubDate.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</time>
             </span>
             <strong>{post.data.title}</strong>
-            <span>{post.data.description}</span>
+            <span class="related-description">{post.data.description}</span>
           </a>
         ))}
       </div>
@@ -291,19 +291,24 @@ const labels = locale === 'ru'
     padding: 1.05rem;
   }
 
-  .related-meta {
-    display: flex;
+  .related-card .related-meta {
+    display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
+    width: fit-content;
+    max-width: 100%;
     gap: 0.45rem 0.65rem;
     margin-bottom: 0.55rem;
     color: var(--text-secondary);
     font-size: 0.74rem;
   }
 
-  .related-category {
+  .related-card .related-category {
     display: inline-flex;
     align-items: center;
+    flex: 0 0 auto;
+    width: fit-content;
+    max-width: 100%;
     min-height: 1.35rem;
     padding: 0.12rem 0.48rem;
     color: var(--accent);
@@ -323,7 +328,7 @@ const labels = locale === 'ru'
     line-height: 1.4;
   }
 
-  .related-card span {
+  .related-description {
     display: block;
     color: var(--text-secondary);
     font-size: 0.82rem;
