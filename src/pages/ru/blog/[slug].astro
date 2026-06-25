@@ -1,8 +1,14 @@
 ---
 import Layout from '/src/layouts/Layout.astro'
 import Comments from '/src/components/Comments.astro'
-import { getCollection, getEntryBySlug } from 'astro:content'
+import BlogPostExtras from '/src/components/BlogPostExtras.astro'
+import { getCollection } from 'astro:content'
+import type { CollectionEntry } from 'astro:content'
 import 'medium-zoom/dist/style.css'
+
+interface Props {
+  post: CollectionEntry<'blog'>
+}
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => data.locale === 'ru')
@@ -14,13 +20,9 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props
-
-if (!post) {
-  throw new Error(`Post not found: ${slug}`)
-}
-
+const posts = await getCollection('blog', ({ data }) => data.locale === 'ru')
 const { Content, headings } = await post.render()
-const tocHeadings = headings.filter((h) => h.depth === 2)
+const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
 ---
 
 <Layout title={`${post.data.title} | Антлис`} description={post.data.description} image={post.data.imgSrc} type="article" publishedTime={post.data.pubDate} modifiedTime={post.data.modifiedDate} pageType="blog-post" tags={post.data.tags}>
@@ -49,6 +51,7 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
       <div class="content">
         <Content />
       </div>
+      <BlogPostExtras posts={posts} currentSlug={post.slug} locale="ru" />
       <Comments lang="ru" />
     </article>
 
@@ -57,7 +60,7 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
         <nav class="toc">
           <p class="toc-title">Содержание</p>
           <ul>
-            {tocHeadings.map((heading) => (
+            {tocHeadings.map((heading: { slug: string; text: string }) => (
               <li>
                 <a href={`#${heading.slug}`}>{heading.text}</a>
               </li>
@@ -70,44 +73,81 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
 </Layout>
 
 <script>
+  let tocCleanup: (() => void) | undefined
+
+  function getTocTarget(hash: string | null): HTMLElement | null {
+    if (!hash?.startsWith('#')) return null
+
+    const id = hash.slice(1)
+    if (!id) return null
+
+    try {
+      return document.getElementById(id) ?? document.getElementById(decodeURIComponent(id))
+    } catch {
+      return document.getElementById(id)
+    }
+  }
+
   function initToc() {
-    const links = document.querySelectorAll('.toc a')
-    const headings = document.querySelectorAll('.content h2')
-    if (!links.length || !headings.length) return
+    tocCleanup?.()
+
+    const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.toc a'))
+    const tocItems = links
+      .map((link) => ({
+        link,
+        target: getTocTarget(link.getAttribute('href')),
+      }))
+      .filter((item): item is { link: HTMLAnchorElement; target: HTMLElement } => item.target !== null)
+
+    if (!tocItems.length) return
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    let ticking = false
 
-    links.forEach((link) => {
+    function setActive(target: HTMLElement) {
+      tocItems.forEach(({ link }) => link.classList.toggle('active', target === getTocTarget(link.getAttribute('href'))))
+    }
+
+    function updateActive() {
+      ticking = false
+
+      const current =
+        tocItems
+          .slice()
+          .reverse()
+          .find(({ target }) => target.getBoundingClientRect().top <= 120) ?? tocItems[0]
+
+      setActive(current.target)
+    }
+
+    function requestUpdate() {
+      if (ticking) return
+      ticking = true
+      requestAnimationFrame(updateActive)
+    }
+
+    tocItems.forEach(({ link, target }) => {
       link.addEventListener('click', (event) => {
-        const href = link.getAttribute('href')
-        if (!href?.startsWith('#')) return
-
-        const target = document.getElementById(decodeURIComponent(href.slice(1)))
-        if (!target) return
-
         event.preventDefault()
-        target.scrollIntoView({
+
+        const top = target.getBoundingClientRect().top + window.scrollY - 24
+        window.scrollTo({
+          top,
           behavior: reduceMotion ? 'auto' : 'smooth',
-          block: 'start',
         })
-        history.pushState(null, '', href)
+        history.pushState(null, '', link.getAttribute('href'))
+        setActive(target)
       })
     })
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            links.forEach((link) => link.classList.remove('active'))
-            const active = document.querySelector(`.toc a[href="#${entry.target.id}"]`)
-            active?.classList.add('active')
-          }
-        })
-      },
-      { rootMargin: '0px 0px -70% 0px', threshold: 0 }
-    )
+    window.addEventListener('scroll', requestUpdate, { passive: true })
+    window.addEventListener('resize', requestUpdate)
+    updateActive()
 
-    headings.forEach((h) => observer.observe(h))
+    tocCleanup = () => {
+      window.removeEventListener('scroll', requestUpdate)
+      window.removeEventListener('resize', requestUpdate)
+    }
   }
 
   initToc()
@@ -125,14 +165,20 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
 
 <style>
   .post-layout {
+    display: block;
+  }
+
+  .post-layout:has(.sidebar) {
     display: grid;
-    grid-template-columns: 1fr 200px;
+    grid-template-columns: minmax(0, 760px) 200px;
     gap: 3rem;
+    justify-content: center;
   }
 
   .post {
     padding-top: 2rem;
     min-width: 0;
+    max-width: 760px;
   }
 
   .sidebar {
@@ -179,9 +225,11 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
     color: var(--text);
   }
 
-  .toc a:global(.active) {
+  .toc :global(a.active) {
     color: var(--accent);
     border-left-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    font-weight: 600;
   }
 
   @media (max-width: 768px) {
@@ -242,7 +290,13 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
 
   .content {
     font-size: clamp(1rem, 0.95rem + 0.25vw, 1.0625rem);
-    line-height: 1.75;
+    line-height: 1.78;
+  }
+
+  .content :global(> p:first-child) {
+    color: var(--text);
+    font-size: clamp(1.08rem, 1rem + 0.35vw, 1.18rem);
+    line-height: 1.72;
   }
 
   .content :global(p) {
@@ -250,14 +304,16 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
   }
 
   .content :global(h2) {
-    margin-top: 2.5em;
+    margin-top: 2.75em;
     margin-bottom: 0.75em;
     letter-spacing: -0.01em;
+    scroll-margin-top: 2rem;
   }
 
   .content :global(h3) {
     margin-top: 2em;
     margin-bottom: 0.5em;
+    scroll-margin-top: 2rem;
   }
 
   .content :global(strong) {

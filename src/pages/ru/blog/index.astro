@@ -1,6 +1,6 @@
 ---
 import Layout from '/src/layouts/Layout.astro'
-import Card from '/src/components/Card.astro'
+import BlogCard from '/src/components/BlogCard.astro'
 import { getCollection } from 'astro:content'
 import { t, localePath } from '/src/i18n/utils'
 
@@ -44,7 +44,7 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
     <div class="blog-layout">
       <div class="post-list">
         {sortedPosts.map((post) => (
-          <Card
+          <BlogCard
             title={post.data.title}
             description={post.data.description}
             href={localePath(`/blog/${post.slug.replace(/-ru$/, '')}`, locale)}
@@ -70,34 +70,6 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
           <div class="filter-group">
             <label class="sidebar-title" for="category-select">Категории</label>
             <select class="filter-select" id="category-select">
-              <option value="all">Все</option>
-              {allCategories.map((cat) => (
-                <option value={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {allTags.length > 0 && (
-          <div class="filter-group">
-            <p class="sidebar-title">Теги</p>
-            <div class="tag-filter">
-              <button class="filter-btn active" data-filter="tag" data-tag="all">Все</button>
-              {allTags.map((tag) => (
-                <button class="filter-btn" data-filter="tag" data-tag={tag}>{tag}</button>
-              ))}
-            </div>
-          </div>
-        )}
-      </aside>
-    </div>
-      </div>
-
-      <aside class="sidebar">
-        {allCategories.length > 0 && (
-          <div class="filter-group">
-            <label class="sidebar-title" for="category-select">Категории</label>
-            <select class="category-select" id="category-select">
               <option value="all">Все</option>
               {allCategories.map((cat) => (
                 <option value={cat}>{cat}</option>
@@ -384,7 +356,7 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
     var categorySelectMobile = document.getElementById('category-select-mobile')
     var tagButtons = document.querySelectorAll('[data-filter="tag"]')
     var tagSelectMobile = document.getElementById('tag-select-mobile')
-    var cards = document.querySelectorAll('.post-list .card')
+    var cards = document.querySelectorAll('.post-list .blog-card')
     var activeCategory = 'all'
     var activeTag = 'all'
 
@@ -449,7 +421,7 @@ const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort
     }
 
     cards.forEach(function(card) {
-      card.querySelectorAll('.card-tag').forEach(function(el) {
+      card.querySelectorAll('.blog-card-tag').forEach(function(el) {
         el.style.cursor = 'pointer'
         el.addEventListener('click', function(e) {
           e.preventDefault()

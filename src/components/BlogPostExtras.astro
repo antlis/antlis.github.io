@@ -1,0 +1,316 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import type { Locale } from '../i18n/translations'
+import { localePath } from '../i18n/utils'
+
+interface Props {
+  posts: CollectionEntry<'blog'>[]
+  currentSlug: string
+  locale: Locale
+}
+
+const { posts, currentSlug, locale } = Astro.props
+const currentBaseSlug = currentSlug.replace(/-ru$/, '')
+const routeSlug = (slug: string) => slug.replace(/-ru$/, '')
+const postHref = (post: CollectionEntry<'blog'>) => localePath(`/blog/${routeSlug(post.slug)}`, locale)
+const sortedPosts = [...posts].sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+const currentPost = sortedPosts.find((post) => post.slug === currentSlug)
+const currentIndex = sortedPosts.findIndex((post) => post.slug === currentSlug)
+const newerPost = currentIndex > 0 ? sortedPosts[currentIndex - 1] : undefined
+const olderPost = currentIndex >= 0 && currentIndex < sortedPosts.length - 1 ? sortedPosts[currentIndex + 1] : undefined
+
+const currentTags = new Set(currentPost?.data.tags || [])
+const relatedPosts = currentPost
+  ? sortedPosts
+      .filter((post) => post.slug !== currentSlug)
+      .map((post) => ({
+        post,
+        score: (post.data.tags || []).filter((tag) => currentTags.has(tag)).length,
+      }))
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score || b.post.data.pubDate.getTime() - a.post.data.pubDate.getTime())
+      .slice(0, 3)
+      .map((item) => item.post)
+  : []
+
+const seriesBaseSlugs = ['homelab-archcraft', 'tg-mpv-bot', 'tg-media-bot', 'docker-btrfs-disk-recovery']
+const seriesPosts = seriesBaseSlugs
+  .map((baseSlug) => posts.find((post) => routeSlug(post.slug) === baseSlug))
+  .filter((post): post is CollectionEntry<'blog'> => Boolean(post))
+const showSeries = seriesBaseSlugs.includes(currentBaseSlug)
+
+const labels = locale === 'ru'
+  ? {
+      previous: 'Старее',
+      next: 'Новее',
+      related: 'Похожие статьи',
+      series: 'Серия про домашний сервер',
+      current: 'Текущая',
+    }
+  : {
+      previous: 'Older',
+      next: 'Newer',
+      related: 'Related Posts',
+      series: 'Living-Room Server Series',
+      current: 'Current',
+    }
+---
+
+<footer class="post-extras">
+  {(olderPost || newerPost) && (
+    <nav class:list={['post-nav', { 'post-nav-single': !(olderPost && newerPost) }]} aria-label={locale === 'ru' ? 'Навигация по статьям' : 'Post navigation'}>
+      {olderPost ? (
+        <a href={postHref(olderPost)} class="post-nav-link">
+          <span class="post-nav-kicker">
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+            {labels.previous}
+          </span>
+          <strong>{olderPost.data.title}</strong>
+        </a>
+      ) : <span class="post-nav-spacer" />}
+      {newerPost ? (
+        <a href={postHref(newerPost)} class="post-nav-link post-nav-link-next">
+          <span class="post-nav-kicker">
+            {labels.next}
+            <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </span>
+          <strong>{newerPost.data.title}</strong>
+        </a>
+      ) : <span class="post-nav-spacer" />}
+    </nav>
+  )}
+
+  {showSeries && seriesPosts.length > 1 && (
+    <section class="post-panel">
+      <h2>{labels.series}</h2>
+      <div class="compact-list">
+        {seriesPosts.map((post, index) => {
+          const isCurrent = post.slug === currentSlug
+          return (
+            <a href={postHref(post)} class:list={['compact-item', { active: isCurrent }]}>
+              <span class="compact-index">{String(index + 1).padStart(2, '0')}</span>
+              <span class="compact-title">{post.data.title}</span>
+              {isCurrent && <em>{labels.current}</em>}
+            </a>
+          )
+        })}
+      </div>
+    </section>
+  )}
+
+  {relatedPosts.length > 0 && (
+    <section class="post-panel">
+      <h2>{labels.related}</h2>
+      <div class="related-grid">
+        {relatedPosts.map((post) => (
+          <a href={postHref(post)} class="related-card">
+            <strong>{post.data.title}</strong>
+            <span>{post.data.description}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  )}
+</footer>
+
+<style>
+  .post-extras {
+    margin-top: 2.25rem;
+    padding-top: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .post-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 2.5rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .post-nav-single {
+    grid-template-columns: 1fr;
+  }
+
+  .related-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .post-nav-link {
+    display: flex;
+    min-height: 5.25rem;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem 0;
+    color: var(--text);
+    transition: color 0.18s ease;
+  }
+
+  .post-nav-link:hover {
+    color: var(--accent);
+  }
+
+  .post-nav-link-next {
+    text-align: right;
+  }
+
+  .related-card:hover,
+  .compact-item:hover {
+    background: var(--card-hover);
+    border-color: var(--text-secondary);
+  }
+
+  .post-nav-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.45rem;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .post-nav-link-next .post-nav-kicker {
+    justify-content: flex-end;
+  }
+
+  .post-nav-kicker svg {
+    flex-shrink: 0;
+    transition: transform 0.18s ease;
+  }
+
+  .post-nav-link:hover .post-nav-kicker svg:first-child {
+    transform: translateX(-2px);
+  }
+
+  .post-nav-link-next:hover .post-nav-kicker svg {
+    transform: translateX(2px);
+  }
+
+  .post-nav-link strong {
+    display: block;
+    max-width: 90%;
+    font-size: clamp(1rem, 0.92rem + 0.35vw, 1.16rem);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .post-nav-link-next strong {
+    margin-left: auto;
+  }
+
+  .post-panel + .post-panel {
+    margin-top: 2.25rem;
+  }
+
+  .post-panel h2 {
+    margin: 0 0 1rem;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .compact-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .compact-item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.85rem;
+    min-height: 3.4rem;
+    padding: 0.75rem 0.95rem;
+    color: var(--text);
+    border-radius: 8px;
+    transition: color 0.18s ease, background 0.18s ease;
+  }
+
+  .compact-item:hover {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+  }
+
+  .compact-item.active {
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+  }
+
+  .compact-index {
+    min-width: 2ch;
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+  }
+
+  .compact-title {
+    min-width: 0;
+    font-size: 0.92rem;
+    line-height: 1.4;
+  }
+
+  .compact-item em {
+    flex-shrink: 0;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-style: normal;
+  }
+
+  .related-grid {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .related-card {
+    display: block;
+    padding: 1rem;
+  }
+
+  .related-card strong {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.4;
+  }
+
+  .related-card span {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 560px) {
+    .post-nav {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .post-nav-link-next {
+      text-align: left;
+    }
+
+    .post-nav-link-next .post-nav-kicker {
+      justify-content: flex-start;
+    }
+
+    .post-nav-link-next strong {
+      margin-left: 0;
+    }
+  }
+</style>

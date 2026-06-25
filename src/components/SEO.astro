@@ -21,7 +21,7 @@ const siteUrl = site.toString().replace(/\/$/, '')
 const canonicalURL = new URL(Astro.url.pathname, site)
 const alternateLang = locale === 'en' ? 'ru' : 'en'
 const alternateURL = new URL(switchLocalePath(Astro.url.pathname, alternateLang as Locale), site)
-const ogImage = image || new URL('/og-default.png', site).toString()
+const ogImage = image ? new URL(image, site).toString() : new URL('/og-default.png', site).toString()
 const langCode = locale === 'en' ? 'en-US' : 'ru-RU'
 const rssURL = new URL(locale === 'ru' ? '/ru/rss.xml' : '/rss.xml', site)
 

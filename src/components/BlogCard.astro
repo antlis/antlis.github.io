@@ -1,0 +1,163 @@
+---
+interface Props {
+  title: string
+  description: string
+  href: string
+  imgSrc?: string
+  imgAlt?: string
+  category?: string
+  tags?: string[]
+  date?: string
+}
+
+const { href, title, description, imgAlt, imgSrc, category, tags, date } = Astro.props
+---
+
+<a
+  href={href}
+  class:list={['blog-card', { 'blog-card-with-img': Boolean(imgSrc) }]}
+  data-tags={tags?.join(',') || ''}
+  data-category={category || ''}
+>
+  <div class="blog-card-content">
+    <h3>{title}</h3>
+    {date && (
+      <time class="blog-card-date">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+        {date}
+      </time>
+    )}
+    <p>{description}</p>
+    {tags && tags.length > 0 && (
+      <div class="blog-card-tags">
+        {tags.map((tag) => (
+          <span class="blog-card-tag" data-tag={tag}>{tag}</span>
+        ))}
+      </div>
+    )}
+  </div>
+  {imgSrc && (
+    <div class="blog-card-img">
+      <img
+        src={imgSrc}
+        alt={imgAlt || title}
+        width={360}
+        height={225}
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  )}
+</a>
+
+<style>
+  .blog-card {
+    display: block;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .blog-card:hover {
+    background: var(--card-hover);
+    border-color: var(--text-secondary);
+  }
+
+  .blog-card-with-img {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 180px;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .blog-card-content {
+    min-width: 0;
+  }
+
+  .blog-card h3 {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .blog-card-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin: -0.25rem 0 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  .blog-card-date svg {
+    flex-shrink: 0;
+  }
+
+  .blog-card p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+
+  .blog-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+  }
+
+  .blog-card-tag {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+    background: var(--card-hover);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+  }
+
+  .blog-card-img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card-hover);
+  }
+
+  .blog-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  @media (max-width: 560px) {
+    .blog-card-with-img {
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .blog-card-with-img .blog-card-content {
+      padding: 1.25rem;
+    }
+
+    .blog-card-img {
+      order: -1;
+      border: 0;
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
+    }
+  }
+</style>

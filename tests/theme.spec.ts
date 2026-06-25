@@ -15,7 +15,7 @@ test('default theme is light', async ({ page }) => {
 test('clicking theme toggle switches to dark', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => {
-    const toggle = document.querySelector('astro-theme-toggle');
+    const toggle = document.querySelector<HTMLElement>('astro-theme-toggle');
     if (toggle) toggle.click();
   });
   await page.waitForTimeout(100);
@@ -26,12 +26,12 @@ test('clicking theme toggle switches to dark', async ({ page }) => {
 test('clicking theme toggle again switches back to light', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => {
-    const toggle = document.querySelector('astro-theme-toggle');
+    const toggle = document.querySelector<HTMLElement>('astro-theme-toggle');
     if (toggle) toggle.click();
   });
   await page.waitForTimeout(100);
   await page.evaluate(() => {
-    const toggle = document.querySelector('astro-theme-toggle');
+    const toggle = document.querySelector<HTMLElement>('astro-theme-toggle');
     if (toggle) toggle.click();
   });
   await page.waitForTimeout(100);
@@ -42,7 +42,7 @@ test('clicking theme toggle again switches back to light', async ({ page }) => {
 test('theme persists across navigation', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => {
-    const toggle = document.querySelector('astro-theme-toggle');
+    const toggle = document.querySelector<HTMLElement>('astro-theme-toggle');
     if (toggle) toggle.click();
   });
   await page.waitForTimeout(100);
@@ -56,7 +56,7 @@ test('theme persists across navigation', async ({ page }) => {
 test('theme persists in localStorage', async ({ page }) => {
   await page.goto('/');
   await page.evaluate(() => {
-    const toggle = document.querySelector('astro-theme-toggle');
+    const toggle = document.querySelector<HTMLElement>('astro-theme-toggle');
     if (toggle) toggle.click();
   });
   await page.waitForTimeout(100);

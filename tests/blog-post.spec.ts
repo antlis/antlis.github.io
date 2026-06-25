@@ -17,7 +17,7 @@ test('blog post has publication date', async ({ page }) => {
 
 test('blog post has tags', async ({ page }) => {
   await page.goto('/blog/telescope-gist', { waitUntil: 'domcontentloaded' });
-  const tags = page.locator('.card-tag, .tag, [class*="tag"]');
+  const tags = page.locator('.blog-card-tag, .tag, [class*="tag"]');
   const count = await tags.count();
   expect(count).toBeGreaterThan(0);
 });

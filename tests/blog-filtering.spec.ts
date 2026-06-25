@@ -18,7 +18,7 @@ test('filtering by category shows only matching posts', async ({ page }) => {
   const select = page.locator('#category-select');
   await select.selectOption('Homelab');
 
-  const cards = page.locator('.post-list .card');
+  const cards = page.locator('.post-list .blog-card');
   const count = await cards.count();
   for (let i = 0; i < count; i++) {
     const display = await cards.nth(i).evaluate((el) => (el as HTMLElement).style.display);
@@ -34,7 +34,7 @@ test('filtering by tag shows only matching posts', async ({ page }) => {
   const dockerTag = page.locator('[data-filter="tag"][data-tag="docker"]');
   await dockerTag.click();
 
-  const cards = page.locator('.post-list .card');
+  const cards = page.locator('.post-list .blog-card');
   const count = await cards.count();
   for (let i = 0; i < count; i++) {
     const display = await cards.nth(i).evaluate((el) => (el as HTMLElement).style.display);
@@ -50,7 +50,7 @@ test('clicking "All" tag resets filter', async ({ page }) => {
   const allButton = page.locator('[data-filter="tag"][data-tag="all"]');
   await allButton.click();
 
-  const cards = page.locator('.post-list .card:visible');
+  const cards = page.locator('.post-list .blog-card:visible');
   const count = await cards.count();
   expect(count).toBeGreaterThan(1);
 });
@@ -96,7 +96,7 @@ test('tag filter syncs with URL on load', async ({ page }) => {
 
 test('clicking tag on card triggers filter', async ({ page }) => {
   await page.goto('/blog', { waitUntil: 'domcontentloaded' });
-  const cardTag = page.locator('.card-tag').first();
+  const cardTag = page.locator('.blog-card-tag').first();
   if (await cardTag.isVisible()) {
     await cardTag.click();
     expect(page.url()).toContain('tag=');
