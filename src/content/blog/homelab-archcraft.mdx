@@ -1,6 +1,6 @@
 ---
-title: "The $300 Living-Room Home Server on a Half-Broken Laptop"
-description: "How a half-broken i5 laptop became a living-room homelab for Telegram bots, music, audiobooks, torrents, NFS storage, and private remote access."
+title: "The $300 Living-Room Home Server on an Old ThinkPad T460s"
+description: "How an old ThinkPad T460s with a dead touchpad became a living-room home server for Telegram bots, music, audiobooks, torrents, NFS storage, and private remote access."
 pubDate: 2026-06-25
 category: "Homelab"
 tags: ["homelab", "self-hosted", "archcraft", "arch-linux", "tailscale", "navidrome", "nixos", "nas", "telegram"]
@@ -8,17 +8,25 @@ imgSrc: "/blog/homelab-archcraft.png"
 imgAlt: "Laptop plugged into a TV serving as a homelab"
 ---
 
-# The $300 Living-Room Home Server on a Half-Broken Laptop
+import { CldImage } from 'astro-cloudinary'
 
-I never planned to build a homelab. I just had a laptop that was too useful to
-throw away and too annoying to use normally.
+# The $300 Living-Room Home Server on an Old ThinkPad T460s
 
-Around 2019 I bought it from a former employer for $300. It was already a
-plain business machine, and later the touchpad died, which made it even less
-appealing as a daily laptop. Then I wanted to try
+There is an old ThinkPad T460s next to my TV. It sits in a docking station,
+has two USB drives attached, runs Archcraft, and quietly does enough work that
+it stopped feeling like a laptop. It is my media box, download box, Telegram
+bot host, private network entry point, and occasional experiment machine.
+
+I did not plan it as a homelab. I just had a laptop that was still useful, but
+annoying to use normally.
+
+Around 2019 I bought it from a former employer for $300. It was a ThinkPad
+T460s: a plain business machine, not new even then. Later the touchpad died.
+I could probably replace it, but on an old laptop that no longer leaves the TV
+stand, I do not really care enough to bother. Then I wanted to try
 [Archcraft](https://archcraft.io), mostly out of curiosity. I installed it,
 liked the minimal i3 setup, plugged the laptop into the TV over HDMI, added a
-USB keyboard, and let it stay there.
+USB keyboard, attached it to a docking station, and let it stay there.
 
 That temporary experiment slowly became the machine that runs my home media,
 Telegram bots, private network access, and the boring glue around all of it.
@@ -30,7 +38,24 @@ The hardware is ordinary, but that is exactly why I like this setup. It proves
 that a homelab does not need to start with a rack, a server board, or a shopping
 list.
 
+<figure className="article-photo">
+  <CldImage
+    src="blog/t-460s"
+    alt="ThinkPad T460s used as a living-room home server"
+    width={1200}
+    height={900}
+    sizes="(max-width: 768px) 100vw, 760px"
+    loading="lazy"
+  />
+  <figcaption>The ThinkPad T460s in its current role: old laptop body, living-room server job.</figcaption>
+</figure>
+
 <div className="spec-grid">
+  <div className="spec-item">
+    <span>Machine</span>
+    <strong>ThinkPad T460s</strong>
+    <small>old laptop with a dead touchpad, now attached to a docking station</small>
+  </div>
   <div className="spec-item">
     <span>CPU</span>
     <strong>Intel Core i5-6200U</strong>
@@ -68,10 +93,34 @@ the 3.6 TB media disk is around 64% used, and the machine normally sits at a
 low load average unless something is downloading or transcoding. It has 21 GB
 of swap too, but most of the time the useful memory is in filesystem cache.
 
-Physically, it is not elegant. It is a laptop near the TV, two USB drives, an
-HDMI cable, Ethernet, and power. The broken touchpad stopped mattering because
-it is no longer a laptop in the normal sense. It is a small server with a
-built-in screen, battery, keyboard, and emergency console.
+Physically, it is not elegant. It is a laptop near the TV, attached to a
+docking station, with two USB drives, HDMI, Ethernet, and power hanging from
+that small cluster. The broken touchpad stopped mattering because it is no
+longer a laptop in the normal sense. It is a small server with a built-in
+screen, battery, keyboard, and emergency console.
+
+The docking station is what makes the mess manageable. Ethernet, HDMI, USB
+storage, keyboard, and power all terminate in one place, so the laptop can be
+removed or serviced without rethinking the whole living-room cable situation.
+
+## How It Fits Together
+
+The architecture is small enough to fit in one picture:
+
+<figure className="architecture-diagram">
+  <img
+    src="/blog/homelab-architecture.svg"
+    alt="Diagram of the living-room home server architecture: Telegram controls tg-mpv-bot on the ThinkPad, mpv outputs to the TV, NFS exposes the media disk, and nginx serves private .lab services."
+    loading="lazy"
+  />
+  <figcaption>One laptop acts as the server, playback device, storage gateway, and private-service entry point.</figcaption>
+</figure>
+
+The important part is that the ThinkPad is both server and playback device. It
+does not stream video to a smart TV client. It runs mpv locally on the machine
+already connected to the TV. That keeps the media path short and makes the
+Telegram bot feel like a real remote control instead of a web app pretending to
+be one.
 
 ## How I Control It
 
@@ -118,6 +167,13 @@ The result feels less like a pile of ports and more like a tiny local platform:
 `music.lab`, `torrents.lab`, and similar names work from my devices without
 opening the services to the public internet.
 
+The services fall into three groups:
+
+- **Daily:** tg-mpv-bot, Navidrome, Deluge, nginx, NFS, private access.
+- **Occasional:** Audiobookshelf, tg-media-bot, tg-streaming-bot, IPTV, radio.
+- **Mostly retired:** Plex and GitLab, both still useful concepts, neither
+  important enough to be central anymore.
+
 ### Telegram Bots
 
 The bots are the most personal part of the setup, because they connect the TV,
@@ -147,6 +203,29 @@ the mesh the service is available as `music.lab`.
 The important detail is that the music library stays as normal files on disk.
 Navidrome is an index and playback layer, not the owner of the collection. If I
 replace the service later, the library remains understandable.
+
+### Plex, Mostly Retired
+
+Plex is installed too, and I used it more actively before the Telegram bot
+workflow took over. These days I rarely open it. Most of my video watching goes
+through tg-mpv-bot: send a file or link in Telegram, let mpv play it on the TV,
+and keep the media library as normal folders instead of browsing through a
+separate media-center interface.
+
+Plex is still better at being a polished media catalogue. It has fancy
+thumbnails, posters, matching, summaries, cast lists, seasons, and all the
+extra metadata that makes a library feel like a streaming app.
+
+The Telegram bot wins on control and immediacy. `/mpv_scan` can scan the media
+folders and generate playlists for the whole library, so I still get browsable
+categories from Telegram, but playback stays simple: mpv plays directly on the
+machine connected to the TV. That usually means no server-side transcoding, no
+client compatibility negotiation, and no surprise CPU spike because a subtitle
+format or video codec made Plex decide to convert the stream. The same bot also
+handles things Plex is not really meant for: random links, forwarded Telegram
+files, YouTube search, internet radio through `/mpv_radio`, and live TV through
+`/mpv_iptv`. Plex is better when I want a rich catalogue. The bot is better
+when Telegram is already open and I just want something playing on the TV.
 
 ### Audiobooks: Audiobookshelf
 
@@ -182,6 +261,25 @@ This is one of the useful lessons from running a homelab for long enough:
 removing a service is also maintenance. Not everything that can be self-hosted
 deserves to stay running.
 
+## Things That Changed Along the Way
+
+The setup is better now because a few earlier choices became annoying enough
+to replace.
+
+Samba was the first one. It worked until it did not, and the failures were
+boring: SMB dialects, client behavior, tiny compatibility details. Since my
+main clients are Linux machines, replacing it with NFSv4 made the storage
+story simpler.
+
+Plex was the second one. I still respect it as a catalogue, but for my actual
+TV habits it became extra ceremony. The Telegram bot matches the way I already
+interact with media: send something, search something, resume something, play
+something on the TV.
+
+GitLab was the third. It is impressive software, but on a single-user home
+server it felt too heavy for the value I was getting. Stopping it was not a
+failure. It was the right maintenance decision.
+
 ## Private Access
 
 Remote access is built around a Tailscale-compatible mesh with a self-hosted
@@ -197,6 +295,22 @@ need public inbound access.
 The practical result is simple: my phone can reach the services by their
 private names, the bots can reach the outside world, and nginx remains the one
 front door for local web apps.
+
+## AI as the Patience Layer
+
+One honest reason this setup grew as far as it did: I use AI tools a lot while
+configuring it.
+
+Before that, I often did not have the patience to fight through every config
+file, systemd unit, Docker compose detail, nginx rule, and weird Linux edge
+case. I could do it, but the friction made me stop earlier. With an AI assistant
+available, I can ask for a first draft, compare it with the real machine, fix
+the wrong assumptions, and keep moving.
+
+That does not remove the need to understand the system. If anything, it makes
+the feedback loop tighter: try a config, read the logs, adjust, document what
+worked. But it changes the emotional cost of experimentation. The homelab grew
+because the boring config work became less lonely and less tedious.
 
 ## The Daily Shape of It
 
@@ -244,7 +358,7 @@ SSD install, declaring the current services, and turning the homelab from
 "this is what the machine happens to contain" into "this is what the repo says
 the machine is."
 
-## The Actual Lesson
+## What I Learned
 
 This homelab started because I had an awkward laptop and a free HDMI port. That
 is still the best part of it.
@@ -253,9 +367,26 @@ Purpose-built hardware would be cleaner. A real NAS would be safer. A rack
 would look better in a blog post. But none of that was required to get useful
 services running at home.
 
+The real lessons are smaller and more practical:
+
+- Old business laptops make good home servers because they already include a
+  screen, keyboard, battery, Wi-Fi, Ethernet through a dock, and enough CPU for
+  boring services.
+- Direct playback beats media-server complexity when the same machine is
+  already connected to the TV.
+- Plain folders are underrated. Fancy libraries are nice, but the files should
+  still make sense without the app.
+- Services should earn their RAM. If something is heavy and rarely used, it
+  probably does not need to be running.
+- A homelab does not need to be impressive to be useful. It just needs to solve
+  real problems and leave room for experiments.
+
 If you have an unused laptop, a spare disk, and one real problem you want to
 solve, that is enough to start. The rest can grow slowly, one service at a
 time.
+
+It is a server because I rely on it every day. It is a lab because it keeps
+changing.
 
 Previous posts in this series:
 
