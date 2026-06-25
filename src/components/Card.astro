@@ -55,7 +55,7 @@ const displayText = body || description || '';
 
   .card-with-img {
     display: flex;
-    align-items: stretch;
+    align-items: center;
     padding: 0;
     overflow: hidden;
   }
@@ -115,13 +115,19 @@ const displayText = body || description || '';
 
   .card-img {
     flex-shrink: 0;
-    width: 140px;
+    width: 180px;
+    aspect-ratio: 16 / 10;
+    margin: 1rem 1rem 1rem 0;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card-hover);
   }
 
   .card-img :global(img) {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
   }
 
@@ -132,7 +138,11 @@ const displayText = body || description || '';
 
     .card-img {
       width: 100%;
-      height: 160px;
+      aspect-ratio: 16 / 10;
+      margin: 0;
+      border: 0;
+      border-bottom: 1px solid var(--border);
+      border-radius: 0;
     }
   }
 </style>
