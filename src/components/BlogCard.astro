@@ -13,14 +13,13 @@ interface Props {
 const { href, title, description, imgAlt, imgSrc, category, tags, date } = Astro.props
 ---
 
-<a
-  href={href}
+<article
   class:list={['blog-card', { 'blog-card-with-img': Boolean(imgSrc) }]}
   data-tags={tags?.join(',') || ''}
   data-category={category || ''}
 >
   <div class="blog-card-content">
-    <h3>{title}</h3>
+    <h3><a href={href}>{title}</a></h3>
     {date && (
       <time class="blog-card-date">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -36,13 +35,13 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date } = Astro
     {tags && tags.length > 0 && (
       <div class="blog-card-tags">
         {tags.map((tag) => (
-          <span class="blog-card-tag" data-tag={tag}>{tag}</span>
+          <button class="blog-card-tag" type="button" data-tag={tag} aria-label={`Filter posts by tag ${tag}`}>{tag}</button>
         ))}
       </div>
     )}
   </div>
   {imgSrc && (
-    <div class="blog-card-img">
+    <a class="blog-card-img" href={href} aria-label={title}>
       <img
         src={imgSrc}
         alt={imgAlt || title}
@@ -51,9 +50,9 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date } = Astro
         loading="lazy"
         decoding="async"
       />
-    </div>
+    </a>
   )}
-</a>
+</article>
 
 <style>
   .blog-card {
@@ -62,13 +61,16 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date } = Astro
     border: 1px solid var(--border);
     border-radius: 8px;
     background: var(--card-bg);
-    text-decoration: none;
     transition: background 0.2s, border-color 0.2s;
   }
 
   .blog-card:hover {
     background: var(--card-hover);
     border-color: var(--text-secondary);
+  }
+
+  .blog-card:focus-within {
+    border-color: var(--accent);
   }
 
   .blog-card-with-img {
@@ -87,6 +89,15 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date } = Astro
     margin: 0 0 0.5rem;
     font-size: 1rem;
     font-weight: 600;
+  }
+
+  .blog-card h3 a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .blog-card h3 a:hover {
+    color: var(--accent);
   }
 
   .blog-card-date {
@@ -117,12 +128,20 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date } = Astro
   }
 
   .blog-card-tag {
+    cursor: pointer;
+    font-family: inherit;
     font-size: 0.7rem;
     padding: 0.15rem 0.5rem;
     background: var(--card-hover);
     color: var(--text-secondary);
     border: 1px solid var(--border);
     border-radius: 999px;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+
+  .blog-card-tag:hover {
+    color: var(--text);
+    border-color: var(--text-secondary);
   }
 
   .blog-card-img {
@@ -132,6 +151,7 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date } = Astro
     border: 1px solid var(--border);
     border-radius: 6px;
     background: var(--card-hover);
+    display: block;
   }
 
   .blog-card-img img {

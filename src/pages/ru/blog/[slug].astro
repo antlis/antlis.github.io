@@ -4,6 +4,7 @@ import Comments from '/src/components/Comments.astro'
 import BlogPostExtras from '/src/components/BlogPostExtras.astro'
 import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
+import { localePath } from '/src/i18n/utils'
 import 'medium-zoom/dist/style.css'
 
 interface Props {
@@ -33,7 +34,7 @@ const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
       {post.data.tags && post.data.tags.length > 0 && (
         <div class="tags">
           {post.data.tags.map((tag: string) => (
-            <span class="tag">{tag}</span>
+            <a class="tag" href={`${localePath('/blog', 'ru')}?tag=${encodeURIComponent(tag)}`}>{tag}</a>
           ))}
         </div>
       )}
@@ -105,7 +106,12 @@ const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
     let ticking = false
 
     function setActive(target: HTMLElement) {
-      tocItems.forEach(({ link }) => link.classList.toggle('active', target === getTocTarget(link.getAttribute('href'))))
+      tocItems.forEach(({ link }) => {
+        const isActive = target === getTocTarget(link.getAttribute('href'))
+        link.classList.toggle('active', isActive)
+        if (isActive) link.setAttribute('aria-current', 'true')
+        else link.removeAttribute('aria-current')
+      })
     }
 
     function updateActive() {
@@ -161,6 +167,15 @@ const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
 
   initZoom()
   document.addEventListener('astro:after-swap', initZoom)
+
+  function initCodeA11y() {
+    document.querySelectorAll<HTMLButtonElement>('.expressive-code .copy button').forEach((button) => {
+      button.setAttribute('aria-label', 'Скопировать код')
+    })
+  }
+
+  initCodeA11y()
+  document.addEventListener('astro:after-swap', initCodeA11y)
 </script>
 
 <style>
@@ -233,8 +248,16 @@ const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
   }
 
   @media (max-width: 768px) {
-    .post-layout {
+    .post-layout,
+    .post-layout:has(.sidebar) {
+      display: block;
       grid-template-columns: 1fr;
+      width: 100%;
+    }
+
+    .post {
+      width: 100%;
+      max-width: none;
     }
 
     .sidebar {
@@ -286,6 +309,15 @@ const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
     color: var(--text-secondary);
     border: 1px solid var(--border);
     border-radius: 999px;
+    text-decoration: none;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+
+  .tag:hover,
+  .tag:focus-visible {
+    color: var(--text);
+    border-color: var(--text-secondary);
+    background: var(--card-bg);
   }
 
   .content {
@@ -498,10 +530,28 @@ const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
     }
 
     .content :global(pre) {
-      border-radius: 0;
-      margin-left: calc(-1 * clamp(1rem, 3vw, 2rem));
-      margin-right: calc(-1 * clamp(1rem, 3vw, 2rem));
-      padding: 1rem clamp(1rem, 3vw, 2rem);
+      max-width: 100%;
+      border-radius: 8px;
+      margin-left: 0;
+      margin-right: 0;
+      padding: 1rem;
+    }
+
+    .content :global(.expressive-code),
+    .content :global(.expressive-code .frame) {
+      max-width: 100%;
+      min-width: 0;
+      overflow-x: auto;
+    }
+
+    .content :global(.expressive-code pre) {
+      max-width: 100%;
+      min-width: 0;
+      overflow-x: auto;
+    }
+
+    .content :global(.expressive-code .copy) {
+      right: 0.5rem;
     }
 
     .content :global(.spec-grid) {

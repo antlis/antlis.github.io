@@ -28,6 +28,7 @@ const currentPath = Astro.url.pathname
         <a
           href={item.href}
           class:list={['nav-link', { active: currentPath === item.href }]}
+          aria-current={currentPath === item.href ? 'page' : undefined}
         >
           {item.label}
         </a>
@@ -37,17 +38,18 @@ const currentPath = Astro.url.pathname
     <div class="nav-end">
       <LanguageSwitcher />
       <Toggle style="width: 24px; height: 24px;" />
-      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+      <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobile-menu">
         <span class="hamburger"></span>
       </button>
     </div>
 
-    <div class="mobile-menu">
+    <div class="mobile-menu" id="mobile-menu">
       <div class="mobile-links">
         {navItems.map(item => (
           <a
             href={item.href}
             class:list={['mobile-link', { active: currentPath === item.href }]}
+            aria-current={currentPath === item.href ? 'page' : undefined}
           >
             {item.label}
           </a>
@@ -63,7 +65,10 @@ const currentPath = Astro.url.pathname
     document.querySelectorAll('.nav-link, .mobile-link').forEach((link) => {
       const href = link.getAttribute('href')
       if (!href) return
-      link.classList.toggle('active', href === path || (href !== '/' && path.startsWith(href)))
+      const active = href === path || (href !== '/' && path.startsWith(href))
+      link.classList.toggle('active', active)
+      if (active) link.setAttribute('aria-current', 'page')
+      else link.removeAttribute('aria-current')
     })
   }
 

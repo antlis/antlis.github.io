@@ -60,7 +60,7 @@ const labels = locale === 'ru'
   {(olderPost || newerPost) && (
     <nav class:list={['post-nav', { 'post-nav-single': !(olderPost && newerPost) }]} aria-label={locale === 'ru' ? 'Навигация по статьям' : 'Post navigation'}>
       {olderPost ? (
-        <a href={postHref(olderPost)} class="post-nav-link">
+        <a href={postHref(olderPost)} class="post-nav-link" aria-label={`${labels.previous}: ${olderPost.data.title}`}>
           <span class="post-nav-kicker">
             <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="m15 18-6-6 6-6" />
@@ -71,7 +71,7 @@ const labels = locale === 'ru'
         </a>
       ) : <span class="post-nav-spacer" />}
       {newerPost ? (
-        <a href={postHref(newerPost)} class="post-nav-link post-nav-link-next">
+        <a href={postHref(newerPost)} class="post-nav-link post-nav-link-next" aria-label={`${labels.next}: ${newerPost.data.title}`}>
           <span class="post-nav-kicker">
             {labels.next}
             <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
