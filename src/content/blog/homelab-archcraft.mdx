@@ -1,0 +1,263 @@
+---
+title: "The $300 Living-Room Home Server on a Half-Broken Laptop"
+description: "How a half-broken i5 laptop became a living-room homelab for Telegram bots, music, audiobooks, torrents, NFS storage, and private remote access."
+pubDate: 2026-06-25
+category: "Homelab"
+tags: ["homelab", "self-hosted", "archcraft", "arch-linux", "tailscale", "navidrome", "nixos", "nas", "telegram"]
+imgSrc: "/blog/homelab-archcraft.png"
+imgAlt: "Laptop plugged into a TV serving as a homelab"
+---
+
+# The $300 Living-Room Home Server on a Half-Broken Laptop
+
+I never planned to build a homelab. I just had a laptop that was too useful to
+throw away and too annoying to use normally.
+
+Around 2019 I bought it from a former employer for $300. It was already a
+plain business machine, and later the touchpad died, which made it even less
+appealing as a daily laptop. Then I wanted to try
+[Archcraft](https://archcraft.io), mostly out of curiosity. I installed it,
+liked the minimal i3 setup, plugged the laptop into the TV over HDMI, added a
+USB keyboard, and let it stay there.
+
+That temporary experiment slowly became the machine that runs my home media,
+Telegram bots, private network access, and the boring glue around all of it.
+It has now been working as a homelab for about a year and a half.
+
+## The Machine
+
+The hardware is ordinary, but that is exactly why I like this setup. It proves
+that a homelab does not need to start with a rack, a server board, or a shopping
+list.
+
+<div className="spec-grid">
+  <div className="spec-item">
+    <span>CPU</span>
+    <strong>Intel Core i5-6200U</strong>
+    <small>2.30 GHz, 2 cores, 4 threads</small>
+  </div>
+  <div className="spec-item">
+    <span>Memory</span>
+    <strong>20 GB DDR4</strong>
+    <small>enough for containers, cache, and desktop use</small>
+  </div>
+  <div className="spec-item">
+    <span>Internal SSD</span>
+    <strong>238 GB</strong>
+    <small>Archcraft, Docker data, downloads, cache</small>
+  </div>
+  <div className="spec-item">
+    <span>Backup Disk</span>
+    <strong>~600 GB</strong>
+    <small>external HDD for backups</small>
+  </div>
+  <div className="spec-item">
+    <span>Media Disk</span>
+    <strong>3.6 TB</strong>
+    <small>external NTFS HDD, mounted at <code>/mnt/EHDDSG-4</code></small>
+  </div>
+  <div className="spec-item">
+    <span>OS</span>
+    <strong>Archcraft</strong>
+    <small>Arch Linux base with i3wm</small>
+  </div>
+</div>
+
+Current usage is still comfortable: the root filesystem is around 72% used,
+the 3.6 TB media disk is around 64% used, and the machine normally sits at a
+low load average unless something is downloading or transcoding. It has 21 GB
+of swap too, but most of the time the useful memory is in filesystem cache.
+
+Physically, it is not elegant. It is a laptop near the TV, two USB drives, an
+HDMI cable, Ethernet, and power. The broken touchpad stopped mattering because
+it is no longer a laptop in the normal sense. It is a small server with a
+built-in screen, battery, keyboard, and emergency console.
+
+## How I Control It
+
+Because it lives in the living room, I avoid treating it like a headless black
+box. The normal control path is [x2x](https://github.com/dottedmag/x2x), which
+shares my main laptop's keyboard and mouse with the Archcraft X11 session over
+SSH. I move the cursor past the edge of my laptop display and it appears on the
+TV.
+
+That sounds like a small detail, but it changes the feel of the whole setup.
+If a media player is stuck, a browser needs attention, or I want to inspect a
+desktop app, I do not need a remote desktop session or a second keyboard. I
+just push the cursor across and fix it.
+
+For shell work, normal SSH is enough. For the rare case where I need a full
+remote desktop session, xrdp is available, but it is not the daily path.
+
+## Storage: A Plain, Useful NAS
+
+The storage design is intentionally boring:
+
+- **Internal SSD:** system, container state, temporary downloads, and cache.
+- **Small external HDD:** backup target.
+- **Large external HDD:** media library with `video/`, `music/`, `books/`,
+  `audiobooks/`, and `podcasts/`.
+
+The big drive is shared over **NFSv4** to my NixOS laptop on the LAN. I used
+Samba before, but it kept turning small compatibility details into chores. For
+Linux-to-Linux file sharing, NFS has been simpler and less fussy.
+
+Torrents land on the internal SSD first. After they finish, I move the files
+server-side onto the media disk. That keeps the normal download workflow fast
+and avoids pulling large files through my laptop just to put them back on the
+server.
+
+There is no RAID and no claim that this is a storage appliance. Important data
+needs backups. Replaceable media needs organization. That tradeoff is good
+enough for this machine.
+
+## Services
+
+Most services sit behind **nginx** with short `.lab` names on my private mesh.
+The result feels less like a pile of ports and more like a tiny local platform:
+`music.lab`, `torrents.lab`, and similar names work from my devices without
+opening the services to the public internet.
+
+### Telegram Bots
+
+The bots are the most personal part of the setup, because they connect the TV,
+Telegram, and the media library into one workflow.
+
+- **[tg-mpv-bot](/blog/tg-mpv-bot)** controls mpv on the TV from Telegram. I
+  can browse files, send a YouTube link, forward a video, and make the TV play
+  it without touching the machine directly. It runs as a user systemd service
+  because it needs access to the X11 session and mpv IPC socket.
+- **[tg-media-bot](/blog/tg-media-bot)** downloads media with yt-dlp and sends
+  files back through Telegram. It runs in Docker with a local Telegram Bot API
+  server so large files are practical.
+- **tg-streaming-bot** handles music and video streams for Telegram group
+  calls. It is less central than the mpv bot, but useful when the destination
+  is a voice chat rather than the TV.
+
+This is the part that makes the homelab feel custom instead of generic. A
+normal media server gives you a library. The bots give me a remote control and
+a download workflow inside the app I already have open all day.
+
+### Music: Navidrome
+
+[Navidrome](https://www.navidrome.org/) indexes the music directory on the big
+drive and exposes it through the Subsonic API. On my phone I use Tempo, and on
+the mesh the service is available as `music.lab`.
+
+The important detail is that the music library stays as normal files on disk.
+Navidrome is an index and playback layer, not the owner of the collection. If I
+replace the service later, the library remains understandable.
+
+### Audiobooks: Audiobookshelf
+
+The audiobook setup is built around
+[Audiobookshelf](https://www.audiobookshelf.org/). Its compose file mounts
+`/mnt/EHDDSG-4/data/audiobooks` as the audiobook library and
+`/mnt/EHDDSG-4/data/podcasts` as the podcast library, with config and metadata
+kept next to the compose project under `~/docker/audiobookshelf`.
+
+That is a better fit than serving raw directories. Audiobooks need progress
+tracking, chapters, metadata, authors, series, and a phone-friendly interface.
+Plain files are fine for storage; Audiobookshelf is the layer that makes them
+pleasant to actually listen to.
+
+### Torrents: Deluge
+
+[Deluge](https://deluge-torrent.org/) runs in Docker with its web UI at
+`torrents.lab`. The container writes downloads to
+`~/Downloads/torrents-deluge`, with incomplete downloads separated from
+finished ones.
+
+I like this split because the torrent client does not need write access to the
+entire media library. It gets a landing zone. I decide what graduates into the
+library and where it belongs.
+
+### GitLab, Stopped
+
+GitLab exists on the machine, but it is stopped. For one person it is heavy,
+and public projects already live comfortably on GitHub. If I want a local forge
+again, I would pick something smaller.
+
+This is one of the useful lessons from running a homelab for long enough:
+removing a service is also maintenance. Not everything that can be self-hosted
+deserves to stay running.
+
+## Private Access
+
+Remote access is built around a Tailscale-compatible mesh with a self-hosted
+headscale control plane on a Polish VPS. The homelab has a stable mesh address
+and advertises the home LAN subnet, so I can reach home devices while away
+without exposing random ports on the router.
+
+Outbound access is routed through AmneziaVPN when needed. That matters because
+Telegram and related infrastructure can be unreliable from Russia depending on
+the network path. The bots need stable outbound connectivity more than they
+need public inbound access.
+
+The practical result is simple: my phone can reach the services by their
+private names, the bots can reach the outside world, and nginx remains the one
+front door for local web apps.
+
+## The Daily Shape of It
+
+The machine is usually boring, which is what I want. It has been up for 10 days
+at the time of writing, and that is a normal interval between kernel updates.
+The user services and containers are configured to come back after reboot, so a
+restart is not a project.
+
+The CPU is old but rarely stressed. The fan does not spend its life screaming.
+The media drive is the real center of gravity; the laptop is mostly compute,
+networking, and glue around that disk.
+
+What makes the setup interesting is not raw power. It is the way small pieces
+line up:
+
+- Telegram becomes a TV remote and download inbox.
+- NFS makes the media drive feel local from my main laptop.
+- Navidrome gives the music collection a real mobile interface.
+- Audiobookshelf turns folders of long audio files into a library.
+- The private mesh makes all of it reachable without public exposure.
+
+That is enough. I do not need high availability for a living-room media box.
+If it reboots, the music pauses and the bots disappear for a minute. That is
+not a disaster.
+
+## What I Would Change
+
+The messy part is not the hardware. It is the accumulated system state.
+
+Archcraft has been pleasant, but after 18 months the machine contains too many
+things that exist because I installed them once and moved on. Some services are
+Docker compose projects, one important bot is a user service, nginx has its own
+local history, and the storage mounts are configured by hand.
+
+That is why I want to move it to **NixOS**.
+
+On NixOS, the machine can be rebuilt from a flake instead of memory. Services,
+mounts, users, firewall rules, packages, and user-level units can be expressed
+as code. If an update breaks something, I get previous generations and rollback
+instead of archaeology.
+
+The plan is not to touch the media disk. The data is the valuable part, and it
+should survive the OS change unchanged. The migration is about replacing the
+SSD install, declaring the current services, and turning the homelab from
+"this is what the machine happens to contain" into "this is what the repo says
+the machine is."
+
+## The Actual Lesson
+
+This homelab started because I had an awkward laptop and a free HDMI port. That
+is still the best part of it.
+
+Purpose-built hardware would be cleaner. A real NAS would be safer. A rack
+would look better in a blog post. But none of that was required to get useful
+services running at home.
+
+If you have an unused laptop, a spare disk, and one real problem you want to
+solve, that is enough to start. The rest can grow slowly, one service at a
+time.
+
+Previous posts in this series:
+
+- [tg-mpv-bot: My TV's Remote Is Now Telegram](/blog/tg-mpv-bot)
+- [tg-media-bot: Telegram as a Download Manager](/blog/tg-media-bot)
