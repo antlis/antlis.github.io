@@ -1,17 +1,33 @@
 ---
 import Layout from '/src/layouts/Layout.astro'
-import Socials from '/src/components/Socials.astro'
 import { t } from '/src/i18n/utils'
 
 const i = t('en')
+const platforms = [
+  { name: 'GitHub', url: 'https://github.com/antlis' },
+  { name: 'LinkedIn', url: 'https://www.linkedin.com/in/antlis/' },
+  { name: 'GitLab', url: 'https://gitlab.com/antlis' },
+  { name: 'StackOverflow', url: 'https://stackoverflow.com/users/2983061/antlis' },
+  { name: 'Telegram', url: 'https://t.me/Balkon1111' },
+]
 ---
 
 <Layout title={i.contact.title} description={i.contact.description} pageType="contact">
   <section class="contact">
-    <h1>{i.contact.heading}</h1>
-    <p>{i.contact.text}</p>
-    <div class="socials-row">
-      <Socials />
+    <header class="contact-header">
+      <p class="eyebrow">Contact</p>
+      <h1>{i.contact.heading}</h1>
+      <p>
+        The quickest way to reach me is via
+        <a href="https://t.me/Balkon1111" target="_blank" rel="noopener">Telegram</a>.
+        You can also use the form below or find me on any of these platforms.
+      </p>
+    </header>
+
+    <div class="platforms" aria-label="Social platforms">
+      {platforms.map((platform) => (
+        <a href={platform.url} target="_blank" rel="noopener">{platform.name}</a>
+      ))}
     </div>
 
     <form class="contact-form" id="contact-form" novalidate>
@@ -69,6 +85,8 @@ const i = t('en')
   function initForm() {
     const form = document.getElementById('contact-form') as HTMLFormElement | null
     if (!form) return
+    if (form.dataset.formReady === 'true') return
+    form.dataset.formReady = 'true'
 
     form.querySelectorAll('input:not([type="hidden"]):not([type="checkbox"]), textarea').forEach((input) => {
       input.addEventListener('blur', () => validateField(input as HTMLInputElement | HTMLTextAreaElement))
@@ -124,32 +142,82 @@ const i = t('en')
 
 <style>
   .contact {
-    max-width: 640px;
+    max-width: 720px;
     padding-top: 2rem;
   }
 
-  .contact h1 {
+  .contact-header {
     margin-bottom: 1.5rem;
   }
 
-  .contact > p {
+  .eyebrow {
+    margin: 0 0 0.55rem;
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .contact h1 {
+    margin-bottom: 0.9rem;
+    font-size: clamp(2rem, 1.45rem + 2.25vw, 3.2rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+  }
+
+  .contact-header p {
+    max-width: 64ch;
+    margin: 0;
     font-size: clamp(1rem, 0.95rem + 0.25vw, 1.1rem);
     line-height: 1.75;
-    margin-bottom: 1.5rem;
   }
 
-  .socials-row {
-    margin-bottom: 2.5rem;
+  .contact-header a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    text-underline-offset: 2px;
   }
 
-  .socials-row :global(.socials) {
-    justify-content: flex-start;
+  .contact-header a:hover {
+    color: var(--accent-hover);
+    text-decoration-color: var(--accent-hover);
+  }
+
+  .platforms {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .platforms a {
+    padding: 0.38rem 0.72rem;
+    color: var(--text-secondary);
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+
+  .platforms a:hover,
+  .platforms a:focus-visible {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
   }
 
   .contact-form {
     display: flex;
     flex-direction: column;
-    gap: 2.5rem;
+    gap: 1.65rem;
+    padding: 1.25rem;
+    background: color-mix(in srgb, var(--card-bg) 88%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 8px;
   }
 
   .field {
@@ -188,30 +256,29 @@ const i = t('en')
   }
 
   .error {
-    position: absolute;
-    bottom: -1.5rem;
-    left: 0;
+    min-height: 1rem;
     font-size: 0.75rem;
     color: #ef4444;
   }
 
   button[type="submit"] {
     align-self: stretch;
-    padding: 0.65rem 1.5rem;
+    padding: 0.72rem 1.5rem;
     font-size: 0.9rem;
-    font-weight: 500;
+    font-weight: 600;
     font-family: inherit;
-    color: var(--text);
-    background: transparent;
-    border: 1px solid var(--border);
+    color: var(--bg);
+    background: var(--text);
+    border: 1px solid var(--text);
     border-radius: 6px;
     cursor: pointer;
     transition: color 0.2s, border-color 0.2s, background 0.2s;
   }
 
   button[type="submit"]:hover:not(:disabled) {
-    border-color: var(--text-secondary);
-    background: var(--card-hover);
+    color: var(--bg);
+    border-color: var(--accent);
+    background: var(--accent);
   }
 
   button[type="submit"]:disabled {
