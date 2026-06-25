@@ -2,6 +2,7 @@
 import Layout from '/src/layouts/Layout.astro'
 import Comments from '/src/components/Comments.astro'
 import { getCollection, getEntryBySlug } from 'astro:content'
+import 'medium-zoom/dist/style.css'
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => data.locale === 'ru')
@@ -92,6 +93,15 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
 
   initToc()
   document.addEventListener('astro:after-swap', initToc)
+
+  import mediumZoom from 'medium-zoom'
+
+  function initZoom() {
+    mediumZoom('.content img, .hero-img img', { margin: 24, background: 'rgba(0,0,0,0.85)' })
+  }
+
+  initZoom()
+  document.addEventListener('astro:after-swap', initZoom)
 </script>
 
 <style>
@@ -277,6 +287,19 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
     height: auto;
     border-radius: 8px;
     border: 1px solid var(--border);
+  }
+
+  .content :global(.medium-zoom-image),
+  .hero-img :global(.medium-zoom-image) {
+    cursor: pointer !important;
+  }
+
+  :global(.medium-zoom-overlay) {
+    z-index: 1000;
+  }
+  :global(.medium-zoom-image--opened) {
+    z-index: 1001;
+    position: relative;
   }
 
   .content :global(.article-photo figcaption) {
