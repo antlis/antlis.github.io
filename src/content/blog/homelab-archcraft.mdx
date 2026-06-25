@@ -10,8 +10,6 @@ imgAlt: "Laptop plugged into a TV serving as a homelab"
 
 import { CldImage } from 'astro-cloudinary'
 
-# The $300 Living-Room Home Server on an Old ThinkPad T460s
-
 There is an old ThinkPad T460s next to my TV. It sits in a docking station,
 has two USB drives attached, runs Archcraft, and quietly does enough work that
 it stopped feeling like a laptop. It is my media box, download box, Telegram
@@ -30,7 +28,26 @@ USB keyboard, attached it to a docking station, and let it stay there.
 
 That temporary experiment slowly became the machine that runs my home media,
 Telegram bots, private network access, and the boring glue around all of it.
-It has now been working as a homelab for about a year and a half.
+It grew slowly, one small annoyance at a time.
+
+## Home Server or Homelab?
+
+The honest answer is: both, but the center of gravity is a home server.
+
+It is a **home server** because I rely on it every day. It stores media, runs
+services, exposes local web apps, handles downloads, controls TV playback, and
+keeps private access available from my other devices. If it is offline, I
+notice.
+
+It is a **homelab** because I still experiment on it. I change how services are
+deployed, test private networking ideas, move things between Docker and
+systemd, compare media workflows, and occasionally break something while
+learning how I want the next version to work.
+
+That distinction matters because it keeps the expectations realistic. This is
+not a lab full of disposable test nodes, and it is not a production server with
+formal uptime goals. It is a useful home server that still leaves room for
+experimentation.
 
 ## The Machine
 
@@ -103,6 +120,11 @@ The docking station is what makes the mess manageable. Ethernet, HDMI, USB
 storage, keyboard, and power all terminate in one place, so the laptop can be
 removed or serviced without rethinking the whole living-room cable situation.
 
+The built-in screen and keyboard also matter more than I expected. If the
+network is misconfigured or a service does not come back, I can walk over to
+the TV stand and use the machine directly. That is not elegant, but it is a
+very practical failure mode.
+
 ## How It Fits Together
 
 The architecture is small enough to fit in one picture:
@@ -121,6 +143,11 @@ does not stream video to a smart TV client. It runs mpv locally on the machine
 already connected to the TV. That keeps the media path short and makes the
 Telegram bot feel like a real remote control instead of a web app pretending to
 be one.
+
+That direct path is the biggest practical difference from a normal media
+server. The file is already on the machine. The display is already connected.
+The player is local. Most of the time there is no separate client, no stream to
+transcode, and no question about whether the TV app supports the file.
 
 ## How I Control It
 
@@ -160,6 +187,18 @@ There is no RAID and no claim that this is a storage appliance. Important data
 needs backups. Replaceable media needs organization. That tradeoff is good
 enough for this machine.
 
+The backup disk is there for things I would actually care about losing:
+configs, small project data, metadata, and selected personal files. The large
+media library is treated differently. Some of it would be annoying to rebuild,
+but not all of it deserves enterprise-style protection. That is the line I draw
+for this machine: protect the irreplaceable parts first, keep replaceable media
+organized, and do not pretend an old laptop with USB disks is a NAS appliance.
+
+The SSD is also intentionally a working area, not the long-term archive. Docker
+state, incomplete torrents, caches, and temporary downloads can churn there
+without constantly writing into the media library. Finished files move to the
+large disk after I decide they belong there.
+
 ## Services
 
 Most services sit behind **nginx** with short `.lab` names on my private mesh.
@@ -193,6 +232,13 @@ Telegram, and the media library into one workflow.
 This is the part that makes the homelab feel custom instead of generic. A
 normal media server gives you a library. The bots give me a remote control and
 a download workflow inside the app I already have open all day.
+
+A normal evening can be as simple as forwarding a video to the bot, searching
+YouTube from Telegram, or browsing the scanned media folders and telling mpv to
+play the result on the TV. The important part is not that Telegram is a perfect
+media UI. It is that the command surface is always in my pocket, works from the
+same chat history, and does not require opening a separate app just to start
+playback.
 
 ### Music: Navidrome
 
@@ -340,7 +386,7 @@ not a disaster.
 
 The messy part is not the hardware. It is the accumulated system state.
 
-Archcraft has been pleasant, but after 18 months the machine contains too many
+Archcraft has been pleasant, but over time the machine accumulated too many
 things that exist because I installed them once and moved on. Some services are
 Docker compose projects, one important bot is a user service, nginx has its own
 local history, and the storage mounts are configured by hand.
@@ -357,6 +403,15 @@ should survive the OS change unchanged. The migration is about replacing the
 SSD install, declaring the current services, and turning the homelab from
 "this is what the machine happens to contain" into "this is what the repo says
 the machine is."
+
+I would also like to make the physical setup less awkward. The docking station
+helps, but two external drives, HDMI, Ethernet, and power still create a small
+cable nest next to the TV. A cleaner drive enclosure or a more deliberate shelf
+would probably improve the setup more than a faster CPU would.
+
+The touchpad is not a priority. It is broken, and I could probably replace it,
+but this machine no longer needs to behave like a portable laptop. For this
+role, a working keyboard, screen, dock, Ethernet, and storage matter much more.
 
 ## What I Learned
 
