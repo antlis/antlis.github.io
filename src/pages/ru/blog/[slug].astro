@@ -75,6 +75,25 @@ const tocHeadings = headings.filter((h) => h.depth === 2)
     const headings = document.querySelectorAll('.content h2')
     if (!links.length || !headings.length) return
 
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+    links.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        const href = link.getAttribute('href')
+        if (!href?.startsWith('#')) return
+
+        const target = document.getElementById(decodeURIComponent(href.slice(1)))
+        if (!target) return
+
+        event.preventDefault()
+        target.scrollIntoView({
+          behavior: reduceMotion ? 'auto' : 'smooth',
+          block: 'start',
+        })
+        history.pushState(null, '', href)
+      })
+    })
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
