@@ -17,7 +17,7 @@ const navItems = [
 const currentPath = Astro.url.pathname
 ---
 
-<header transition:persist="header">
+<header>
   <nav>
     <a href={localePath('/', locale)} class="logo" aria-label="Home">
       <FoxLogo size={48} />
