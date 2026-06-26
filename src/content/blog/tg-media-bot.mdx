@@ -2,18 +2,18 @@
 title: "tg-media-bot: Send a Link, Get the File Back"
 description: "A self-hosted Telegram bot that downloads media from 1000+ sites with yt-dlp and sends it straight back — tagged MP3s, inline-playable video, 2 GB uploads, a live progress bar. Plus the war stories: three bugs hiding in code that looked finished, an upload you can't measure, and a cookies.txt that broke the very site it was meant to help."
 pubDate: 2026-06-07
+modifiedDate: 2026-06-26
 category: "Homelab"
 tags: ["homelab", "telegram", "yt-dlp", "aiogram", "self-hosted", "docker", "open-source"]
 imgSrc: "/blog/tg-media-bot.png"
 imgAlt: "Terminal showing tg-media-bot fetching a link with yt-dlp and sending the file"
 ---
 
-# tg-media-bot: Send a Link, Get the File Back
-
 [tg-mpv-bot](/blog/tg-mpv-bot) plays links on my TV. But just as often I don't
 want to *watch* something on the big screen — I want the **file**: a track on
 my phone, a clip saved offline, a SoundCloud set as a tagged MP3. So its
-sibling exists.
+sibling exists. It runs on the same old ThinkPad described in my
+[living-room home server](/blog/homelab-archcraft) write-up.
 
 **[tg-media-bot](https://github.com/antlis/tg-media-bot)** is a small,
 self-hosted Telegram bot: send it a URL — from any of the 1000+ sites yt-dlp
@@ -21,22 +21,45 @@ supports — and it downloads the media and uploads it back to your chat. Pure
 utility. No AI, no accounts, no tracking; it runs on your own box and only
 makes outbound connections.
 
-- 🌐 **Landing page:** [antlis.is-a.dev/tg-media-bot](https://antlis.is-a.dev/tg-media-bot/)
-- 📦 **Source:** [github.com/antlis/tg-media-bot](https://github.com/antlis/tg-media-bot) (MIT)
-- 🐧 **Arch:** [`tg-media-bot` on the AUR](https://aur.archlinux.org/packages/tg-media-bot)
-- 🐳 **Docker:** `ghcr.io/antlis/tg-media-bot`
+<dl className="project-meta" aria-label="Project metadata">
+  <div>
+    <dt>Stack</dt>
+    <dd>Python, aiogram, yt-dlp, local Bot API, pytest</dd>
+  </div>
+  <div>
+    <dt>Use case</dt>
+    <dd>Turn media links into downloadable Telegram files</dd>
+  </div>
+  <div>
+    <dt>Source</dt>
+    <dd><a href="https://github.com/antlis/tg-media-bot">github.com/antlis/tg-media-bot</a></dd>
+  </div>
+  <div>
+    <dt>Install</dt>
+    <dd><a href="https://aur.archlinux.org/packages/tg-media-bot">AUR</a> · <code>ghcr.io/antlis/tg-media-bot</code></dd>
+  </div>
+  <div>
+    <dt>License</dt>
+    <dd>MIT</dd>
+  </div>
+  <div>
+    <dt>Landing page</dt>
+    <dd><a href="https://antlis.is-a.dev/tg-media-bot/">antlis.is-a.dev/tg-media-bot</a></dd>
+  </div>
+</dl>
 
 This post is what it does and — more useful — what broke while I built it.
 
 ## What it does
 
-```
-   phone / laptop                  home server
-  ┌──────────────┐    Telegram   ┌───────────────────────────────┐
-  │  @your_bot   │ ────────────▶ │  tg-media-bot ─▶ yt-dlp ─▶ file │
-  │  <any link>  │ ◀──────────── │     ▲ local Bot API (2 GB)     │
-  └──────────────┘   file back   └───────────────────────────────┘
-```
+<figure className="architecture-diagram">
+  <img
+    src="/blog/tg-media-bot-architecture.svg"
+    alt="Diagram of tg-media-bot: Telegram sends a media link to the bot on a Linux home server, the bot queues the job, downloads and processes the file with yt-dlp, uploads it through a local Telegram Bot API server, and sends the file back to the chat."
+    loading="lazy"
+  />
+  <figcaption>Telegram is the inbox and delivery channel. The work stays on the home server: queue the link, download with yt-dlp, process the file, then send it back through the local Bot API server.</figcaption>
+</figure>
 
 - **Send any URL** (up to three per message) and it downloads in your active
   mode and sends the file back. YouTube, SoundCloud, TikTok, Instagram,

@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">tg-media-bot download architecture</title>
+  <desc id="desc">Telegram devices send media links to tg-media-bot on a Linux home server. The bot queues jobs, uses yt-dlp to download and process files, sends large uploads through a local Telegram Bot API server, and caches Telegram file IDs for instant repeats.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.52" stop-color="#111827"/>
+      <stop offset="1" stop-color="#164e63"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e293b"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#020617" flood-opacity="0.45"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#22d3ee"/>
+    </marker>
+    <style>
+      .label{font:700 26px Inter,Arial,sans-serif;fill:#e5eefb}
+      .sub{font:500 17px Inter,Arial,sans-serif;fill:#94a3b8}
+      .tiny{font:600 14px Inter,Arial,sans-serif;fill:#67e8f9}
+      .mono{font:600 17px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#cbd5e1}
+      .box{fill:url(#panel);stroke:#334155;stroke-width:2}
+      .chip{fill:#0b1220;stroke:#155e75;stroke-width:1.5}
+      .line{fill:none;stroke:#22d3ee;stroke-width:4;stroke-linecap:round;marker-end:url(#arrow)}
+      .return{fill:none;stroke:#a78bfa;stroke-width:4;stroke-linecap:round;marker-end:url(#arrow)}
+      .soft{fill:none;stroke:#67e8f9;stroke-width:2;stroke-dasharray:8 10;opacity:.58}
+    </style>
+  </defs>
+
+  <rect width="1200" height="620" rx="34" fill="url(#bg)"/>
+  <path d="M58 476 C226 338 350 554 520 418 S814 300 1142 392" class="soft"/>
+  <path d="M70 134 C226 72 332 88 448 150 S694 198 824 112 S1036 78 1140 140" class="soft"/>
+
+  <g filter="url(#shadow)">
+    <rect x="66" y="150" width="236" height="196" rx="22" class="box"/>
+    <circle cx="112" cy="198" r="20" fill="#229ed9"/>
+    <path d="M101 198l34-14-8 38-10-14-10 10z" fill="#e0f2fe"/>
+    <text x="150" y="191" class="label">Telegram</text>
+    <text x="150" y="218" class="sub">phone / laptop</text>
+    <rect x="92" y="262" width="184" height="38" rx="19" class="chip"/>
+    <text x="184" y="286" text-anchor="middle" class="mono">&lt;any link&gt;</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="432" y="78" width="336" height="396" rx="26" class="box"/>
+    <rect x="470" y="118" width="260" height="58" rx="16" fill="#111827" stroke="#475569" stroke-width="2"/>
+    <text x="600" y="154" text-anchor="middle" class="label">tg-media-bot</text>
+    <text x="600" y="202" text-anchor="middle" class="sub">Python + aiogram</text>
+    <rect x="474" y="230" width="252" height="44" rx="14" class="chip"/>
+    <text x="600" y="258" text-anchor="middle" class="mono">queue + rate limits</text>
+    <rect x="474" y="294" width="252" height="44" rx="14" class="chip"/>
+    <text x="600" y="322" text-anchor="middle" class="mono">yt-dlp download</text>
+    <rect x="474" y="358" width="252" height="44" rx="14" class="chip"/>
+    <text x="600" y="386" text-anchor="middle" class="mono">recode / tag / thumbnail</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="894" y="96" width="226" height="126" rx="22" class="box"/>
+    <text x="1007" y="146" text-anchor="middle" class="label">Local Bot API</text>
+    <text x="1007" y="176" text-anchor="middle" class="sub">uploads up to 2 GB</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="894" y="298" width="226" height="126" rx="22" class="box"/>
+    <text x="1007" y="348" text-anchor="middle" class="label">File back</text>
+    <text x="1007" y="378" text-anchor="middle" class="sub">video, MP3, document</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="110" y="432" width="248" height="98" rx="20" class="box"/>
+    <text x="234" y="472" text-anchor="middle" class="label">Media sites</text>
+    <text x="234" y="501" text-anchor="middle" class="sub">YouTube, SoundCloud, X</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="482" y="506" width="236" height="76" rx="20" fill="#0b1220" stroke="#155e75" stroke-width="2"/>
+    <text x="600" y="538" text-anchor="middle" class="tiny">file_id cache</text>
+    <text x="600" y="564" text-anchor="middle" class="sub">instant re-sends</text>
+  </g>
+
+  <path d="M304 250 C356 250 384 236 426 208" class="line"/>
+  <path d="M768 270 C820 226 850 174 886 158" class="line"/>
+  <path d="M1007 224 L1007 290" class="line"/>
+  <path d="M890 364 C752 448 462 448 306 324" class="return"/>
+  <path d="M360 480 C408 454 432 406 476 338" class="line"/>
+  <path d="M600 474 L600 498" class="line"/>
+
+  <text x="356" y="231" class="tiny">URL + mode</text>
+  <text x="812" y="211" class="tiny">send file</text>
+  <text x="774" y="423" class="tiny">Telegram cache / chat</text>
+  <text x="402" y="420" class="tiny">download</text>
+</svg>

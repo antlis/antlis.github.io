@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">tg-mpv-bot playback architecture</title>
+  <desc id="desc">Telegram devices send commands to tg-mpv-bot on a Linux home server. The bot controls mpv through IPC, launches playback hooks, uses yt-dlp and proxy paths for remote media, and outputs to the TV over HDMI.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.55" stop-color="#111827"/>
+      <stop offset="1" stop-color="#172554"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e293b"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#60a5fa"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#020617" flood-opacity="0.45"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#60a5fa"/>
+    </marker>
+    <style>
+      .label{font:700 26px Inter,Arial,sans-serif;fill:#e5eefb}
+      .sub{font:500 17px Inter,Arial,sans-serif;fill:#94a3b8}
+      .tiny{font:600 14px Inter,Arial,sans-serif;fill:#7dd3fc}
+      .mono{font:600 17px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#cbd5e1}
+      .box{fill:url(#panel);stroke:#334155;stroke-width:2}
+      .chip{fill:#0b1220;stroke:#1e40af;stroke-width:1.5}
+      .line{fill:none;stroke:#60a5fa;stroke-width:4;stroke-linecap:round;marker-end:url(#arrow)}
+      .soft{fill:none;stroke:#38bdf8;stroke-width:2;stroke-dasharray:8 10;opacity:.65}
+    </style>
+  </defs>
+
+  <rect width="1200" height="620" rx="34" fill="url(#bg)"/>
+  <path d="M52 490 C240 360 330 570 508 430 S822 300 1145 410" class="soft"/>
+  <path d="M64 132 C210 76 314 88 430 150 S675 196 808 112 S1038 78 1138 136" class="soft"/>
+
+  <g filter="url(#shadow)">
+    <rect x="68" y="165" width="230" height="180" rx="22" class="box"/>
+    <circle cx="112" cy="212" r="20" fill="#229ed9"/>
+    <path d="M101 212l34-14-8 38-10-14-10 10z" fill="#e0f2fe"/>
+    <text x="150" y="205" class="label">Telegram</text>
+    <text x="150" y="232" class="sub">phone / laptop</text>
+    <rect x="92" y="270" width="180" height="38" rx="19" class="chip"/>
+    <text x="182" y="294" text-anchor="middle" class="mono">/mpv_list</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="455" y="92" width="290" height="360" rx="26" class="box"/>
+    <rect x="490" y="132" width="220" height="58" rx="16" fill="#111827" stroke="#475569" stroke-width="2"/>
+    <text x="600" y="168" text-anchor="middle" class="label">tg-mpv-bot</text>
+    <text x="600" y="214" text-anchor="middle" class="sub">Python + aiogram</text>
+    <rect x="492" y="242" width="216" height="44" rx="14" class="chip"/>
+    <text x="600" y="270" text-anchor="middle" class="mono">mpv IPC socket</text>
+    <rect x="492" y="306" width="216" height="44" rx="14" class="chip"/>
+    <text x="600" y="334" text-anchor="middle" class="mono">pre/post hooks</text>
+    <rect x="492" y="370" width="216" height="44" rx="14" class="chip"/>
+    <text x="600" y="398" text-anchor="middle" class="mono">state + history</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="884" y="120" width="220" height="130" rx="22" class="box"/>
+    <text x="994" y="171" text-anchor="middle" class="label">mpv</text>
+    <text x="994" y="201" text-anchor="middle" class="sub">local playback</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="884" y="338" width="220" height="130" rx="22" class="box"/>
+    <text x="994" y="389" text-anchor="middle" class="label">TV</text>
+    <text x="994" y="419" text-anchor="middle" class="sub">HDMI output</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="92" y="430" width="238" height="96" rx="20" class="box"/>
+    <text x="211" y="471" text-anchor="middle" class="label">Media links</text>
+    <text x="211" y="500" text-anchor="middle" class="sub">YouTube, files, streams</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="446" y="500" width="308" height="76" rx="20" fill="#0b1220" stroke="#1e40af" stroke-width="2"/>
+    <text x="600" y="532" text-anchor="middle" class="tiny">yt-dlp / MEDIA_PROXY path</text>
+    <text x="600" y="558" text-anchor="middle" class="sub">keeps one egress path for remote media</text>
+  </g>
+
+  <path d="M300 255 C360 255 392 244 448 216" class="line"/>
+  <path d="M746 252 C792 228 826 205 876 188" class="line"/>
+  <path d="M994 252 L994 330" class="line"/>
+  <path d="M332 478 C388 478 420 506 446 528" class="line"/>
+  <path d="M754 528 C828 510 870 466 910 438" class="line"/>
+
+  <text x="374" y="236" class="tiny">commands</text>
+  <text x="792" y="221" class="tiny">JSON IPC</text>
+  <text x="1013" y="300" class="tiny">HDMI</text>
+</svg>

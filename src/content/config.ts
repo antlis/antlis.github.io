@@ -4,6 +4,9 @@ const blogCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
+    summary: z.string().optional(),
+    author: z.string().optional(),
+    keywords: z.array(z.string()).optional(),
     pubDate: z.date(),
     modifiedDate: z.date().optional(),
     locale: z.enum(['en', 'ru']).default('en'),
@@ -29,6 +32,9 @@ const interviewPrepCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
+    summary: z.string().optional(),
+    author: z.string().optional(),
+    keywords: z.array(z.string()).optional(),
     pubDate: z.date(),
     modifiedDate: z.date().optional(),
     locale: z.enum(['en', 'ru']).default('en'),

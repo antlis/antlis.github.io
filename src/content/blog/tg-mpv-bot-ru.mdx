@@ -2,6 +2,7 @@
 title: "tg-mpv-bot: пульт от моего телевизора теперь — Telegram"
 description: "Перестроил свой хак Telegram→mpv в самостоятельного open-source бота: библиотека на inline-кнопках, стриминг любой ссылки, файлы из Telegram до 2 ГБ на телевизор — плюс сетевые военные истории (мёртвый IPv6, CDN с привязкой к IP, MP4, заклинивший пайп), которые и сформировали архитектуру."
 pubDate: 2026-06-06
+modifiedDate: 2026-06-26
 locale: "ru"
 category: "Homelab"
 tags: ["homelab", "mpv", "telegram", "self-hosted", "yt-dlp", "aiogram", "open-source"]
@@ -9,12 +10,12 @@ imgSrc: "/blog/tg-mpv-bot.png"
 imgAlt: "Терминал: tg-mpv-bot управляет воспроизведением mpv из Telegram"
 ---
 
-# tg-mpv-bot: пульт от моего телевизора теперь — Telegram
-
 Мой домашний сервер стоит в гостиной, подключённый к телевизору по HDMI.
 Какое-то время назад я подружил [mpv](https://mpv.io) с Telegram через
 Hermes-агента — шелл-скрипт, немного YAML, quick-команды. Работало, и я был
 доволен.
+Железо за этим сетапом — тот самый старый ThinkPad из статьи про
+[домашний сервер в гостиной](/ru/blog/homelab-archcraft).
 
 Но хотелось большего: листать библиотеку кнопками, а не вспоминать названия;
 кинуть ссылку на YouTube — и чтобы просто заиграло; переслать видеофайл из
@@ -27,23 +28,46 @@ self-hosted Telegram-бот, превращающий любую Linux-маши�
 смарт-ТВ: бот разговаривает с JSON IPC-сокетом mpv напрямую и устанавливает
 только исходящие соединения.
 
-- 🌐 **Лендинг:** [antlis.is-a.dev/tg-mpv-bot](https://antlis.is-a.dev/tg-mpv-bot/)
-- 📦 **Исходники:** [github.com/antlis/tg-mpv-bot](https://github.com/antlis/tg-mpv-bot) (MIT)
-- 🐧 **Arch:** [`tg-mpv-bot-git` в AUR](https://aur.archlinux.org/packages/tg-mpv-bot-git)
-- 🐳 **Docker:** `ghcr.io/antlis/tg-mpv-bot`
+<dl className="project-meta" aria-label="Метаданные проекта">
+  <div>
+    <dt>Стек</dt>
+    <dd>Python, aiogram, mpv IPC, yt-dlp, uv</dd>
+  </div>
+  <div>
+    <dt>Сценарий</dt>
+    <dd>Управление просмотром на ТВ из Telegram</dd>
+  </div>
+  <div>
+    <dt>Исходники</dt>
+    <dd><a href="https://github.com/antlis/tg-mpv-bot">github.com/antlis/tg-mpv-bot</a></dd>
+  </div>
+  <div>
+    <dt>Установка</dt>
+    <dd><a href="https://aur.archlinux.org/packages/tg-mpv-bot-git">AUR</a> · <code>ghcr.io/antlis/tg-mpv-bot</code></dd>
+  </div>
+  <div>
+    <dt>Лицензия</dt>
+    <dd>MIT</dd>
+  </div>
+  <div>
+    <dt>Лендинг</dt>
+    <dd><a href="https://antlis.is-a.dev/tg-mpv-bot/">antlis.is-a.dev/tg-mpv-bot</a></dd>
+  </div>
+</dl>
 
 Этот пост — о том, что получилось, и (что интереснее) о том, что ломалось по
 дороге. Одна только сетевая часть стоила мне ночи жизни.
 
 ## Что он умеет
 
-```
-   телефон / ноут                 домашний сервер ──HDMI──▶ ТВ
-  ┌──────────────┐   Telegram   ┌─────────────────────────┐
-  │  @your_bot   │ ───────────▶ │  tg-mpv-bot ──▶ mpv ────┼──▶ 📺
-  │  /mpv_list   │              │  (X11/Wayland-сессия)   │
-  └──────────────┘              └─────────────────────────┘
-```
+<figure className="architecture-diagram">
+  <img
+    src="/blog/tg-mpv-bot-architecture-ru.svg"
+    alt="Схема tg-mpv-bot: Telegram отправляет команды боту на домашнем Linux-сервере, бот управляет mpv через IPC, использует yt-dlp и прокси для внешних медиа и выводит картинку на телевизор по HDMI."
+    loading="lazy"
+  />
+  <figcaption>Telegram — только пульт. Воспроизведение остаётся локальным: tg-mpv-bot управляет mpv на машине, уже подключённой к телевизору.</figcaption>
+</figure>
 
 Команд около сорока, но ежедневный цикл маленький:
 
