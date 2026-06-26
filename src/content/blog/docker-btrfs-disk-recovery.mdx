@@ -2,13 +2,12 @@
 title: "How Docker Silently Ate 105GB on My ThinkPad's Btrfs Root"
 description: "A homelab on an old ThinkPad T460 with a 217GB Btrfs root ran out of space. The culprit: unbounded Docker logs from a single GitLab container. Here's how I diagnosed it, fixed it, and hardened the setup."
 pubDate: 2026-05-26
+modifiedDate: 2026-06-26
 category: "Homelab"
 tags: ["homelab", "docker", "btrfs", "linux", "archlinux", "thinkpad"]
 imgSrc: "/blog/docker-btrfs-disk-recovery.png"
 imgAlt: "Terminal showing docker system df reclaiming 105 GB on a Btrfs root"
 ---
-
-# How Docker Silently Ate 105GB on My ThinkPad's Btrfs Root
 
 I run a homelab on an old ThinkPad T460 — Arch Linux, Btrfs root on a 217GB `/dev/sda2`, external 3.7TB drive for media. It's not a rack, it's a laptop that sits on a shelf and does things. GitLab, Navidrome, Deluge, Audiobookshelf, Calibre-Web — the usual self-hosted stack.
 

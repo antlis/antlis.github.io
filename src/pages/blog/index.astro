@@ -485,6 +485,23 @@ const tagCounts = allTags.map((tag) => ({
       applyFilters()
     }
 
+    function updateFilterRobotsMeta() {
+      var hasFilters = activeCategory !== 'all' || activeTags.length > 0
+      var meta = document.querySelector('meta[name="robots"][data-filter-robots]')
+
+      if (hasFilters) {
+        if (!meta) {
+          meta = document.createElement('meta')
+          meta.setAttribute('name', 'robots')
+          meta.setAttribute('data-filter-robots', 'true')
+          document.head.appendChild(meta)
+        }
+        meta.setAttribute('content', 'noindex,follow')
+      } else if (meta) {
+        meta.remove()
+      }
+    }
+
     function applyFilters() {
       var visibleCount = 0
       cards.forEach(function(card) {
@@ -540,6 +557,7 @@ const tagCounts = allTags.map((tag) => ({
         url.searchParams.append('tag', tag)
       })
       history.replaceState({}, '', url)
+      updateFilterRobotsMeta()
     }
 
     if (categorySelect) {

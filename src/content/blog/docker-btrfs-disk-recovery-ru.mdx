@@ -2,14 +2,13 @@
 title: "Как Docker тихо сожрал 105 ГБ на Btrfs-корне моего ThinkPad"
 description: "Хомлаб на старом ThinkPad T460 с корнем на Btrfs в 217 ГБ остался без места. Виновник — безлимитные логи Docker из одного контейнера GitLab. Как я это нашёл, починил и захардил систему."
 pubDate: 2026-05-26
+modifiedDate: 2026-06-26
 locale: "ru"
 category: "Homelab"
 tags: ["homelab", "docker", "btrfs", "linux", "archlinux", "thinkpad"]
 imgSrc: "/blog/docker-btrfs-disk-recovery.png"
 imgAlt: "Терминал: docker system df освобождает 105 ГБ на Btrfs-корне"
 ---
-
-# Как Docker тихо сожрал 105 ГБ на Btrfs-корне моего ThinkPad
 
 У меня хомлаб на старом ThinkPad T460 — Arch Linux, корень на Btrfs (`/dev/sda2`, 217 ГБ), внешний диск на 3.7 ТБ для медиа. Это не стойка, это ноутбук на полке, который делает вещи. GitLab, Navidrome, Deluge, Audiobookshelf, Calibre-Web — стандартный самохостный набор.
 
