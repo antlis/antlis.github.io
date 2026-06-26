@@ -11,12 +11,30 @@ const posts = await getCollection('blog', ({ data }) => data.locale === 'ru')
 const recentPosts = posts
   .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
   .slice(0, 3)
+
+const highlights = [
+  ['Фронтенд', 'Vue, Nuxt, React, Next.js, TypeScript'],
+  ['Инструменты', 'CLI workflow, плагины, автоматизация'],
+  ['Хомлаб', 'Telegram-боты, медиа-сервисы, приватный доступ'],
+]
 ---
 
 <Layout title={i.home.title} description={i.home.description} pageType="home">
   <section class="hero">
     <h1>{i.home.heading}</h1>
     <p>{i.home.description}</p>
+    <div class="hero-actions">
+      <a href={localePath('/portfolio', locale)}>Смотреть проекты</a>
+      <a href={localePath('/blog', locale)}>Читать блог</a>
+    </div>
+    <div class="highlight-grid" aria-label="Основные направления">
+      {highlights.map(([label, value]) => (
+        <div>
+          <span>{label}</span>
+          <strong>{value}</strong>
+        </div>
+      ))}
+    </div>
   </section>
 
   {recentPosts.length > 0 && (
@@ -47,7 +65,7 @@ const recentPosts = posts
 
 <style>
   .hero {
-    padding: 2.75rem 0 3.75rem;
+    padding: 2.75rem 0 3rem;
   }
 
   .hero h1 {
@@ -63,6 +81,64 @@ const recentPosts = posts
     max-width: 620px;
     font-size: clamp(1.05rem, 1rem + 0.25vw, 1.15rem);
     line-height: 1.7;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 1.4rem;
+  }
+
+  .hero-actions a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.35rem;
+    padding: 0.48rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--text);
+    background: var(--card-bg);
+    font-size: 0.875rem;
+    font-weight: 650;
+  }
+
+  .hero-actions a:first-child {
+    color: var(--bg);
+    background: var(--text);
+    border-color: var(--text);
+  }
+
+  .highlight-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    max-width: 820px;
+    margin-top: 2rem;
+  }
+
+  .highlight-grid div {
+    padding: 0.9rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+  }
+
+  .highlight-grid span {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .highlight-grid strong {
+    display: block;
+    color: var(--text);
+    font-size: 0.92rem;
+    line-height: 1.45;
   }
 
   .recent-posts {
@@ -102,5 +178,11 @@ const recentPosts = posts
   .post-grid {
     display: grid;
     gap: 0.9rem;
+  }
+
+  @media (max-width: 720px) {
+    .highlight-grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

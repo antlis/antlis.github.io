@@ -1,0 +1,67 @@
+---
+import Layout from '/src/layouts/Layout.astro'
+---
+
+<Layout title="Page not found — Anton L" description="The requested page could not be found." robots="noindex,follow">
+  <section class="not-found">
+    <p>404</p>
+    <h1>Page not found</h1>
+    <span>The page may have moved, or the URL may be wrong.</span>
+    <div class="actions">
+      <a href="/">Home</a>
+      <a href="/blog">Blog</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .not-found {
+    max-width: 620px;
+    padding: 4rem 0;
+  }
+
+  .not-found p {
+    margin: 0 0 0.6rem;
+    color: var(--accent);
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+  }
+
+  .not-found h1 {
+    margin-bottom: 0.8rem;
+    font-size: clamp(2.25rem, 1.6rem + 3vw, 4rem);
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+  }
+
+  .not-found span {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+    line-height: 1.65;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 1.4rem;
+  }
+
+  .actions a {
+    display: inline-flex;
+    padding: 0.48rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card-bg);
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  .actions a:first-child {
+    color: var(--bg);
+    background: var(--text);
+    border-color: var(--text);
+  }
+</style>

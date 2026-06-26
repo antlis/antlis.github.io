@@ -26,9 +26,10 @@ const posts = await getCollection('blog', ({ data }) => data.locale === 'ru')
 const { Content, headings } = await post.render()
 const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
 const readingTime = getReadingTime(post.body, 'ru')
+const ogImage = `/og/blog/ru/${post.slug.replace(/-ru$/, '')}.svg`
 ---
 
-<Layout title={`${post.data.title} | Антлис`} description={post.data.description} image={post.data.imgSrc} type="article" publishedTime={post.data.pubDate} modifiedTime={post.data.modifiedDate} pageType="blog-post" tags={post.data.tags} category={post.data.category} readingTime={readingTime.isoDuration} author={post.data.author} summary={post.data.summary} keywords={post.data.keywords}>
+<Layout title={`${post.data.title} | Антлис`} description={post.data.description} image={ogImage} type="article" publishedTime={post.data.pubDate} modifiedTime={post.data.modifiedDate} pageType="blog-post" tags={post.data.tags} category={post.data.category} readingTime={readingTime.isoDuration} author={post.data.author} summary={post.data.summary} keywords={post.data.keywords}>
   <div class="reading-progress" aria-hidden="true">
     <span></span>
   </div>

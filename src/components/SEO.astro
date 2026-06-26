@@ -17,9 +17,10 @@ interface Props {
   author?: string
   summary?: string
   keywords?: string[]
+  robots?: string
 }
 
-const { title, description, locale, image, type = 'website', publishedTime, modifiedTime, pageType, tags, category, readingTime, author, summary, keywords } = Astro.props
+const { title, description, locale, image, type = 'website', publishedTime, modifiedTime, pageType, tags, category, readingTime, author, summary, keywords, robots } = Astro.props
 
 const site = Astro.site!
 const siteUrl = site.toString().replace(/\/$/, '')
@@ -206,6 +207,7 @@ const schemas = buildJsonLd()
 <link rel="me" href="https://www.linkedin.com/in/antlis/" />
 
 <meta name="description" content={description} />
+{robots && <meta name="robots" content={robots} />}
 {articleKeywords && articleKeywords.length > 0 && <meta name="keywords" content={articleKeywords.join(', ')} />}
 <meta http-equiv="content-language" content={langCode} />
 

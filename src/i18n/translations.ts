@@ -9,7 +9,7 @@ export const translations = {
     home: {
       title: 'Anton L — Frontend Developer | Vue, React, TypeScript',
       heading: "Hi, I'm Anton",
-      description: 'Frontend developer specializing in Vue/Nuxt.js, React/Next.js, and TypeScript. Building modern web applications, sharing dev tips, and contributing to open source.',
+      description: 'Frontend developer building production web apps, open-source tools, and practical self-hosted systems. I write about Vue, React, TypeScript, terminal workflows, bots, and the engineering details that usually get skipped.',
       recentPosts: 'Recent Posts',
       viewAll: 'View all',
     },
@@ -51,7 +51,7 @@ export const translations = {
     home: {
       title: 'Антон Л — Фронтенд-разработчик | Vue, React, TypeScript',
       heading: 'Привет, я Антон',
-      description: 'Фронтенд-разработчик, специализируюсь на Vue/Nuxt.js, React/Next.js и TypeScript. Создаю современные веб-приложения, делюсь опытом и участвую в open source.',
+      description: 'Фронтенд-разработчик: делаю продакшен веб-приложения, open-source инструменты и практичные self-hosted системы. Пишу про Vue, React, TypeScript, терминальные workflow, ботов и инженерные детали, которые обычно пропускают.',
       recentPosts: 'Последние записи',
       viewAll: 'Все записи',
     },

@@ -11,7 +11,7 @@ export async function getStaticPaths() {
   const posts = await getCollection('portfolio', ({ data }) => data.locale === 'ru')
 
   return posts.map((post) => ({
-    params: { slug: post.slug },
+    params: { slug: post.slug.replace(/-ru$/, '') },
     props: { post },
   }))
 }

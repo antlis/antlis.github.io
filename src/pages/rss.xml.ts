@@ -4,6 +4,7 @@ import type { APIContext } from 'astro'
 
 export async function GET(context: APIContext) {
   const posts = await getCollection('blog', ({ data }) => (data.locale ?? 'en') === 'en')
+  const site = context.site!.toString().replace(/\/$/, '')
 
   return rss({
     title: 'Anton L — Blog',
@@ -11,11 +12,19 @@ export async function GET(context: APIContext) {
     site: context.site!.toString(),
     items: posts
       .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
-      .map((post) => ({
-        title: post.data.title,
-        pubDate: post.data.pubDate,
-        description: post.data.description,
-        link: `/blog/${post.slug}/`,
-      })),
+      .map((post) => {
+        const link = `/blog/${post.slug}/`
+        const categories = [post.data.category, ...(post.data.tags || [])].filter(Boolean) as string[]
+
+        return {
+          title: post.data.title,
+          pubDate: post.data.pubDate,
+          description: post.data.description,
+          link,
+          categories,
+          content: `<p>${post.data.description}</p><p><a href="${site}${link}">Read the full article</a></p>`,
+          ...(post.data.modifiedDate && { customData: `<lastBuildDate>${post.data.modifiedDate.toUTCString()}</lastBuildDate>` }),
+        }
+      }),
   })
 }
