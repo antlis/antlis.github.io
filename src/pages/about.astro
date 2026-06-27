@@ -4,23 +4,8 @@ import TechStackBadges from '/src/components/TechStackBadges.astro'
 import { t } from '/src/i18n/utils'
 
 const i = t('en')
-const primaryStack = [
-  { label: 'TypeScript', href: 'https://www.typescriptlang.org/' },
-  { label: 'JavaScript', href: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript' },
-  { label: 'Vue', href: 'https://vuejs.org/' },
-  { label: 'Nuxt', href: 'https://nuxt.com/' },
-  { label: 'React', href: 'https://react.dev/' },
-  { label: 'Next.js', href: 'https://nextjs.org/' },
-]
-const toolingStack = [
-  { label: 'Astro', href: 'https://astro.build/' },
-  { label: 'Node.js', href: 'https://nodejs.org/' },
-  { label: 'Bun', href: 'https://bun.sh/' },
-  { label: 'Docker', href: 'https://www.docker.com/' },
-  { label: 'Git', href: 'https://git-scm.com/' },
-  { label: 'Neovim', href: 'https://neovim.io/' },
-  { label: 'SASS', href: 'https://sass-lang.com/' },
-]
+const primaryStack = ['TypeScript', 'JavaScript', 'Vue', 'Nuxt', 'React', 'Next.js']
+const toolingStack = ['Astro', 'Node.js', 'Bun', 'Docker', 'Git', 'Neovim', 'SASS']
 ---
 
 <Layout title={i.about.title} description={i.about.description} pageType="about">
