@@ -69,7 +69,7 @@ const currentYear = new Date().getFullYear();
 
   .footer-actions {
     display: flex;
-    align-items: flex-end;
+    align-items: center;
     gap: 1.25rem;
     flex-wrap: wrap;
     justify-content: flex-end;
@@ -79,15 +79,16 @@ const currentYear = new Date().getFullYear();
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: 32px;
+    height: 32px;
+    margin: -6px;
     color: var(--text-secondary);
     transition: color 0.2s;
   }
 
   .rss-link:hover,
   .rss-link:focus-visible {
-    color: #EE802F;
+    color: #C25E0E;
   }
 
   .rss-link svg {
@@ -98,12 +99,7 @@ const currentYear = new Date().getFullYear();
   }
 
   .footer-actions :global(.socials) {
-    align-items: flex-end;
-  }
-
-  .footer-actions :global(.socials a) {
-    align-items: flex-end;
-    height: 20px;
+    align-items: center;
   }
 
   .footer-actions :global(.socials img) {

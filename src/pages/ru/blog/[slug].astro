@@ -29,7 +29,7 @@ const readingTime = getReadingTime(post.body, 'ru')
 const ogImage = `/og/blog/ru/${post.slug.replace(/-ru$/, '')}.svg`
 ---
 
-<Layout title={`${post.data.title} | Антлис`} description={post.data.description} image={ogImage} type="article" publishedTime={post.data.pubDate} modifiedTime={post.data.modifiedDate} pageType="blog-post" tags={post.data.tags} category={post.data.category} readingTime={readingTime.isoDuration} author={post.data.author} summary={post.data.summary} keywords={post.data.keywords}>
+<Layout title={`${post.data.title} | Антон Л`} description={post.data.description} image={ogImage} type="article" publishedTime={post.data.pubDate} modifiedTime={post.data.modifiedDate} pageType="blog-post" tags={post.data.tags} category={post.data.category} readingTime={readingTime.isoDuration} author={post.data.author} summary={post.data.summary} keywords={post.data.keywords}>
   <ZoomableImages />
 
   <div class="reading-progress" aria-hidden="true">

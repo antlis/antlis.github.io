@@ -38,7 +38,7 @@ export const translations = {
       intro: "Most of my commercial work is under NDA, so it can't be shown here. What you see below is a selection of personal and open-source projects — some of them are pretty old, but each one was built either entirely from scratch or with the frontend part done solo. They reflect how I approach problems, build UIs, and ship things end to end.",
     },
     footer: {
-      copyright: 'Antlis',
+      copyright: 'antlis',
     },
   },
   ru: {
@@ -80,7 +80,7 @@ export const translations = {
       intro: 'Большинство коммерческих проектов находятся под NDA, поэтому их нельзя показать. Ниже — подборка личных и open-source проектов, некоторые из них довольно старые, но каждый был создан либо полностью с нуля, либо фронтенд-часть была сделана самостоятельно. Они отражают мой подход к решению задач, построению интерфейсов и доставке продукта.',
     },
     footer: {
-      copyright: 'Antlis',
+      copyright: 'antlis',
     },
   },
 } as const;

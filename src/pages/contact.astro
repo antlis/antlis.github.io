@@ -36,20 +36,20 @@ const platforms = [
 
       <div class="field">
         <label for="name">Name</label>
-        <input type="text" id="name" name="name" required placeholder="Your name" />
-        <span class="error"></span>
+        <input type="text" id="name" name="name" required placeholder="Your name" aria-describedby="name-error" />
+        <span class="error" id="name-error" role="alert"></span>
       </div>
 
       <div class="field">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" required placeholder="you@example.com" />
-        <span class="error"></span>
+        <input type="email" id="email" name="email" required placeholder="you@example.com" aria-describedby="email-error" />
+        <span class="error" id="email-error" role="alert"></span>
       </div>
 
       <div class="field">
         <label for="message">Message</label>
-        <textarea id="message" name="message" required placeholder="Your message..." rows="5"></textarea>
-        <span class="error"></span>
+        <textarea id="message" name="message" required placeholder="Your message..." rows="5" aria-describedby="message-error"></textarea>
+        <span class="error" id="message-error" role="alert"></span>
       </div>
 
       <button type="submit">Send</button>
@@ -62,19 +62,35 @@ const platforms = [
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
   }
 
+  function showSubmitError(form: HTMLFormElement, button: HTMLButtonElement, message: string) {
+    button.disabled = false
+    button.textContent = 'Send'
+    let submitError = form.querySelector('.submit-error') as HTMLElement | null
+    if (!submitError) {
+      submitError = document.createElement('span')
+      submitError.className = 'error submit-error'
+      submitError.setAttribute('role', 'alert')
+      form.querySelector('button')?.parentElement?.appendChild(submitError)
+    }
+    submitError.textContent = message
+  }
+
   function validateField(input: HTMLInputElement | HTMLTextAreaElement) {
     const error = input.parentElement?.querySelector('.error') as HTMLElement
     if (!error) return true
 
     error.textContent = ''
+    input.removeAttribute('aria-invalid')
 
     if (!input.value.trim()) {
       error.textContent = 'This field is required'
+      input.setAttribute('aria-invalid', 'true')
       return false
     }
 
     if (input.type === 'email' && !validateEmail(input.value)) {
       error.textContent = 'Please enter a valid email address'
+      input.setAttribute('aria-invalid', 'true')
       return false
     }
 
@@ -121,16 +137,10 @@ const platforms = [
         if (json.success) {
           form.innerHTML = '<p class="success">Message sent! I\'ll get back to you soon.</p>'
         } else {
-          button.disabled = false
-          button.textContent = 'Send'
-          const submitError = document.createElement('span')
-          submitError.className = 'error'
-          submitError.textContent = 'Something went wrong. Please try again.'
-          form.querySelector('button')?.parentElement?.appendChild(submitError)
+          showSubmitError(form, button, 'Something went wrong. Please try again.')
         }
       } catch {
-        button.disabled = false
-        button.textContent = 'Send'
+        showSubmitError(form, button, 'Could not reach the server. Check your connection and try again.')
       }
     })
   }
@@ -245,7 +255,7 @@ const platforms = [
   .error {
     min-height: 1rem;
     font-size: 0.75rem;
-    color: #ef4444;
+    color: var(--error);
   }
 
   button[type="submit"] {
