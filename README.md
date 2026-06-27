@@ -35,6 +35,10 @@ npm run build
 npm run preview
 ```
 
+## Publishing
+
+Blog posts are announced to Telegram after deployment. The posted/skipped/repost state is controlled in `social-report.config.json`; see [docs/social-report.md](docs/social-report.md).
+
 ## License
 
 MIT
