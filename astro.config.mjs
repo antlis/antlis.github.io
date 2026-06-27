@@ -16,7 +16,7 @@ export default defineConfig({
   integrations: [
     icon({
       include: {
-        devicon: ['astro', 'bun', 'css3', 'docker', 'git', 'html5', 'javascript', 'nextjs', 'nodejs', 'nuxtjs', 'php', 'react', 'sass', 'typescript', 'vuejs', 'webpack'],
+        devicon: ['astro', 'bun', 'css3', 'docker', 'git', 'html5', 'javascript', 'neovim', 'nextjs', 'nodejs', 'nuxtjs', 'php', 'react', 'sass', 'typescript', 'vuejs', 'webpack'],
         'simple-icons': ['ejs'],
       },
     }),
