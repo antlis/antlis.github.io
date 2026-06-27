@@ -2,11 +2,11 @@
 import Layout from '/src/layouts/Layout.astro'
 import Comments from '/src/components/Comments.astro'
 import BlogPostExtras from '/src/components/BlogPostExtras.astro'
+import ZoomableImages from '/src/components/ZoomableImages.astro'
 import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 import { localePath } from '/src/i18n/utils'
 import { getReadingTime } from '/src/utils/readingTime'
-import 'medium-zoom/dist/style.css'
 
 interface Props {
   post: CollectionEntry<'blog'>
@@ -30,6 +30,8 @@ const ogImage = `/og/blog/ru/${post.slug.replace(/-ru$/, '')}.svg`
 ---
 
 <Layout title={`${post.data.title} | Антлис`} description={post.data.description} image={ogImage} type="article" publishedTime={post.data.pubDate} modifiedTime={post.data.modifiedDate} pageType="blog-post" tags={post.data.tags} category={post.data.category} readingTime={readingTime.isoDuration} author={post.data.author} summary={post.data.summary} keywords={post.data.keywords}>
+  <ZoomableImages />
+
   <div class="reading-progress" aria-hidden="true">
     <span></span>
   </div>
@@ -55,7 +57,7 @@ const ogImage = `/og/blog/ru/${post.slug.replace(/-ru$/, '')}.svg`
         )}
       </header>
       {post.data.imgSrc && (
-        <div class="hero-img">
+        <div class="hero-img" data-zoomable-images>
           <img
             src={post.data.imgSrc}
             alt={post.data.imgAlt || post.data.title}
@@ -65,7 +67,7 @@ const ogImage = `/og/blog/ru/${post.slug.replace(/-ru$/, '')}.svg`
           />
         </div>
       )}
-      <div class="content">
+      <div class="content" data-zoomable-images>
         <Content />
       </div>
       <BlogPostExtras posts={posts} currentSlug={post.slug} locale="ru" />
@@ -274,15 +276,6 @@ const ogImage = `/og/blog/ru/${post.slug.replace(/-ru$/, '')}.svg`
 
   initReadingProgress()
   document.addEventListener('astro:after-swap', initReadingProgress)
-
-  import mediumZoom from 'medium-zoom'
-
-  function initZoom() {
-    mediumZoom('.content img, .hero-img img', { margin: 24, background: 'rgba(0,0,0,0.85)' })
-  }
-
-  initZoom()
-  document.addEventListener('astro:after-swap', initZoom)
 
   function initCodeA11y() {
     document.querySelectorAll<HTMLButtonElement>('.expressive-code .copy button').forEach((button) => {
@@ -642,19 +635,6 @@ const ogImage = `/og/blog/ru/${post.slug.replace(/-ru$/, '')}.svg`
     height: auto;
     border-radius: 12px;
     border: 1px solid var(--border);
-  }
-
-  .content :global(.medium-zoom-image),
-  .hero-img :global(.medium-zoom-image) {
-    cursor: pointer !important;
-  }
-
-  :global(.medium-zoom-overlay) {
-    z-index: 1000;
-  }
-  :global(.medium-zoom-image--opened) {
-    z-index: 1001;
-    position: relative;
   }
 
   .content :global(.article-photo figcaption) {

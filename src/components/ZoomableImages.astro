@@ -1,0 +1,63 @@
+---
+import 'medium-zoom/dist/style.css'
+---
+
+<script>
+  import mediumZoom from 'medium-zoom'
+
+  let zoom: ReturnType<typeof mediumZoom> | undefined
+  let attachedImages: HTMLImageElement[] = []
+
+  function initZoomableImages() {
+    const images = Array.from(
+      document.querySelectorAll<HTMLImageElement>('[data-zoomable-images] img:not([data-no-zoom])'),
+    )
+
+    if (images.length === attachedImages.length && images.every((image, index) => image === attachedImages[index])) {
+      return
+    }
+
+    zoom?.detach()
+    attachedImages = images
+
+    zoom = images.length
+      ? mediumZoom(images, { margin: 24, background: 'rgba(0,0,0,0.85)' })
+      : undefined
+  }
+
+  function ensureZoomReady(event: PointerEvent) {
+    const target = event.target
+    if (!(target instanceof Element)) return
+
+    const image = target.closest<HTMLImageElement>('[data-zoomable-images] img:not([data-no-zoom])')
+    if (image && !image.classList.contains('medium-zoom-image')) {
+      initZoomableImages()
+    }
+  }
+
+  initZoomableImages()
+  requestAnimationFrame(initZoomableImages)
+  window.addEventListener('load', initZoomableImages, { once: true })
+  document.addEventListener('astro:page-load', initZoomableImages)
+  document.addEventListener('astro:after-swap', initZoomableImages)
+  document.addEventListener('pointerdown', ensureZoomReady, { capture: true, passive: true })
+</script>
+
+<style is:global>
+  [data-zoomable-images] {
+    display: block;
+  }
+
+  [data-zoomable-images] .medium-zoom-image {
+    cursor: pointer !important;
+  }
+
+  .medium-zoom-overlay {
+    z-index: 1000;
+  }
+
+  .medium-zoom-image--opened {
+    z-index: 1001;
+    position: relative;
+  }
+</style>

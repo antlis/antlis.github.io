@@ -3,6 +3,7 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import expressiveCode from 'astro-expressive-code';
+import icon from 'astro-icon';
 
 // https://astro.build/config
 export default defineConfig({
@@ -13,6 +14,12 @@ export default defineConfig({
     '/ru/blog/mpv-telegram-controller-hermes': '/ru/blog/tg-mpv-bot',
   },
   integrations: [
+    icon({
+      include: {
+        devicon: ['css3', 'html5', 'javascript', 'nextjs', 'nuxtjs', 'php', 'react', 'sass', 'typescript', 'vuejs', 'webpack'],
+        'simple-icons': ['ejs'],
+      },
+    }),
     expressiveCode({
       themes: ['github-dark', 'github-light'],
       themeCssSelector: (theme) => {

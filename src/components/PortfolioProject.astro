@@ -5,6 +5,8 @@ import type { CollectionEntry } from 'astro:content'
 import { localePath } from '/src/i18n/utils'
 import type { Locale } from '/src/i18n/translations'
 import AdjacentNav from './AdjacentNav.astro'
+import ZoomableImages from './ZoomableImages.astro'
+import { Icon } from 'astro-icon/components'
 
 interface Props {
   post: CollectionEntry<'portfolio'>
@@ -70,39 +72,76 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
   const slug = locale === 'ru' ? project.slug.replace(/-ru$/, '') : project.slug
   return localePath(`/portfolio/${slug}`, locale)
 }
+
+const techIcons: Record<string, string> = {
+  html: 'devicon:html5',
+  css: 'devicon:css3',
+  javascript: 'devicon:javascript',
+  typescript: 'devicon:typescript',
+  vue: 'devicon:vuejs',
+  nuxt: 'devicon:nuxtjs',
+  react: 'devicon:react',
+  'next.js': 'devicon:nextjs',
+  next: 'devicon:nextjs',
+  php: 'devicon:php',
+  sass: 'devicon:sass',
+  scss: 'devicon:sass',
+  ejs: 'simple-icons:ejs',
+  webpack: 'devicon:webpack',
+}
+
+function stackIcon(item: string) {
+  return techIcons[item.trim().toLowerCase()]
+}
 ---
 
 <Layout title={`${post.data.title} — ${labels.titleSuffix}`} description={post.data.description} image={post.data.imgSrc}>
+  <ZoomableImages />
+
   <article class="project">
     <header class="project-header">
-      {post.data.year && (
-        <div class="project-meta" aria-label={labels.facts}>
-          <span>
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-            <span>{labels.built} {post.data.year}</span>
-          </span>
-        </div>
-      )}
       <h1>{post.data.title}</h1>
       <p class="dek">{post.data.description}</p>
 
-      {post.data.role && (
-        <p class="role-summary">
-          <span>{labels.role}</span>
-          <strong>{post.data.role}</strong>
-        </p>
+      {(post.data.year || post.data.role) && (
+        <div class="project-meta" aria-label={labels.facts}>
+          {post.data.year && (
+            <span>
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              <span>{labels.built} {post.data.year}</span>
+            </span>
+          )}
+
+          {post.data.role && (
+            <span>
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 12h.01" />
+                <path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                <path d="M22 13a18.15 18.15 0 0 1-20 0" />
+                <rect width="20" height="14" x="2" y="6" rx="2" />
+              </svg>
+              <span>{post.data.role}</span>
+            </span>
+          )}
+        </div>
       )}
 
       {post.data.stack && post.data.stack.length > 0 && (
         <div class="stack" aria-label={labels.stack}>
-          {post.data.stack.map((item: string) => (
-            <span>{item}</span>
-          ))}
+          {post.data.stack.map((item: string) => {
+            const icon = stackIcon(item)
+            return (
+              <span class="stack-badge">
+                {icon && <Icon name={icon} size="16" aria-hidden="true" />}
+                <span>{item}</span>
+              </span>
+            )
+          })}
         </div>
       )}
 
@@ -118,7 +157,7 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
     </header>
 
     {post.data.imgSrc && (
-      <figure class="hero-image">
+      <figure class="hero-image" data-zoomable-images>
         <CldImage
           src={post.data.imgSrc}
           alt={post.data.imgAlt || post.data.title}
@@ -130,7 +169,7 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
       </figure>
     )}
 
-    <div class="content">
+    <div class="content" data-zoomable-images>
       <slot />
     </div>
 
@@ -192,23 +231,23 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
 
 <style>
   .project {
-    max-width: 880px;
+    max-width: 920px;
     margin: 0 auto;
-    padding-top: 1.75rem;
+    padding-top: 2.25rem;
     padding-bottom: 3rem;
   }
 
   .project-header {
     max-width: 760px;
-    margin-bottom: 1.6rem;
+    margin-bottom: 2.5rem;
   }
 
   .project-meta {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.45rem 0.7rem;
-    margin-bottom: 0.75rem;
+    gap: 0.55rem 0.95rem;
+    margin: 0 0 1.2rem;
   }
 
   .project-meta span {
@@ -226,7 +265,7 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
 
   .project h1 {
     max-width: 12ch;
-    margin-bottom: 0.85rem;
+    margin-bottom: 1.05rem;
     font-size: clamp(2.4rem, 1.65rem + 3.2vw, 4.4rem);
     line-height: 0.98;
     letter-spacing: -0.035em;
@@ -235,46 +274,22 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
 
   .dek {
     max-width: 62ch;
-    margin: 0 0 1.2rem;
+    margin: 0 0 1.35rem;
     font-size: clamp(1.06rem, 1rem + 0.35vw, 1.22rem);
     line-height: 1.62;
-  }
-
-  .role-summary {
-    display: flex;
-    align-items: baseline;
-    gap: 0.55rem;
-    max-width: max-content;
-    margin: 0 0 1.05rem;
-    padding-left: 0.85rem;
-    border-left: 2px solid var(--accent);
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    line-height: 1.45;
-  }
-
-  .role-summary span {
-    font-size: 0.72rem;
-    font-weight: 750;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
-
-  .role-summary strong {
-    color: var(--text);
-    font-weight: 650;
   }
 
   .stack {
     display: flex;
     flex-wrap: wrap;
     gap: 0.45rem;
-    margin: 0 0 1.35rem;
+    margin: 0 0 1.55rem;
   }
 
-  .stack span {
+  .stack-badge {
     display: inline-flex;
     align-items: center;
+    gap: 0.38rem;
     min-height: 1.85rem;
     padding: 0.26rem 0.6rem;
     border: 1px solid var(--border);
@@ -286,10 +301,21 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
     line-height: 1.2;
   }
 
+  .stack-badge :global(svg) {
+    flex: 0 0 auto;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .stack-badge span {
+    line-height: 1.2;
+  }
+
   .link {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    margin-top: 0.1rem;
     color: var(--accent);
     font-size: 0.92rem;
     font-weight: 750;
@@ -337,7 +363,7 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
   }
 
   .hero-image {
-    margin: 0 0 2.75rem;
+    margin: 0 0 3rem;
   }
 
   .hero-image :global(img) {
@@ -392,6 +418,31 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
   .content :global(h2) {
     margin: 2.6em 0 0.7em;
     letter-spacing: -0.018em;
+  }
+
+  .content :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 2rem 0;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card-bg);
+  }
+
+  .content :global(figure) {
+    margin: 2rem 0 2.25rem;
+  }
+
+  .content :global(figure img) {
+    margin: 0;
+  }
+
+  .content :global(figcaption) {
+    margin-top: 0.6rem;
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+    line-height: 1.5;
   }
 
   .case-details {
@@ -481,12 +532,12 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
 
   @media (max-width: 768px) {
     .project {
-      padding-top: 0.75rem;
+      padding-top: 1.25rem;
       padding-bottom: 2.25rem;
     }
 
     .project-header {
-      margin-bottom: 1.25rem;
+      margin-bottom: 2rem;
     }
 
     .project h1 {
@@ -495,8 +546,12 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
       line-height: 1.08;
     }
 
+    .dek {
+      margin-bottom: 1.25rem;
+    }
+
     .hero-image {
-      margin-bottom: 2rem;
+      margin-bottom: 2.25rem;
     }
 
     .hero-image :global(img) {
