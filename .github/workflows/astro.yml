@@ -79,3 +79,37 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+  announce:
+    name: Announce new blog posts
+    needs: deploy
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Restore announcement state
+        uses: actions/cache/restore@v4
+        with:
+          path: .cache/telegram-announced-posts.json
+          key: telegram-announced-posts-${{ github.run_id }}
+          restore-keys: |
+            telegram-announced-posts-
+      - name: Post Telegram announcement
+        run: node scripts/announce-blog-posts.mjs
+        env:
+          HEAD_SHA: ${{ github.sha }}
+          SITE_URL: https://antlis.is-a.dev
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      - name: Save announcement state
+        if: ${{ always() }}
+        uses: actions/cache/save@v4
+        with:
+          path: .cache/telegram-announced-posts.json
+          key: telegram-announced-posts-${{ github.run_id }}

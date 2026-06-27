@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content'
 import type { APIContext } from 'astro'
 
 export async function GET(context: APIContext) {
-  const posts = await getCollection('blog', ({ data }) => (data.locale ?? 'en') === 'en')
+  const posts = await getCollection('blog', ({ data }) => (data.locale ?? 'en') === 'en' && !data.draft)
   const site = context.site!.toString().replace(/\/$/, '')
 
   return rss({
