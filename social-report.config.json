@@ -1,0 +1,8 @@
+{
+  "defaults": {
+    "telegram": {
+      "mode": "photo"
+    }
+  },
+  "posts": {}
+}
