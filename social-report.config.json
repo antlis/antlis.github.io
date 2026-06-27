@@ -23,9 +23,9 @@
       "image": "https://antlis.is-a.dev/blog/brave-fzf-history.png",
       "status": "posted",
       "mode": "photo",
-      "repost": true,
-      "lastPostedAt": "2026-06-27T17:40:12.727Z",
-      "messageId": 25
+      "repost": false,
+      "lastPostedAt": "2026-06-27T18:24:11.177Z",
+      "messageId": 44
     },
     "/blog/fzf-tmuxinator-projects": {
       "title": "Tmuxinator Projects with fzf",
@@ -45,9 +45,9 @@
       "image": "https://antlis.is-a.dev/blog/fzf-tmuxinator-projects.png",
       "status": "posted",
       "mode": "photo",
-      "repost": true,
-      "lastPostedAt": "2026-06-27T17:40:13.518Z",
-      "messageId": 27
+      "repost": false,
+      "lastPostedAt": "2026-06-27T18:24:11.540Z",
+      "messageId": 45
     },
     "/blog/linkedin-defi-scammers": {
       "title": "LinkedIn DeFi Scammers: How Fake Recruiters Try to Drain Your Wallet",
@@ -67,9 +67,9 @@
       "image": "https://antlis.is-a.dev/blog/linkedin-defi-scammers.png",
       "status": "posted",
       "mode": "photo",
-      "repost": true,
-      "lastPostedAt": "2026-06-27T17:40:17.547Z",
-      "messageId": 29
+      "repost": false,
+      "lastPostedAt": "2026-06-27T18:24:11.704Z",
+      "messageId": 46
     },
     "/blog/docker-btrfs-disk-recovery": {
       "title": "How Docker Silently Ate 105GB on My ThinkPad's Btrfs Root",
@@ -100,9 +100,9 @@
       "image": "https://antlis.is-a.dev/blog/docker-btrfs-disk-recovery.png",
       "status": "posted",
       "mode": "photo",
-      "repost": true,
-      "lastPostedAt": "2026-06-27T17:40:20.750Z",
-      "messageId": 32
+      "repost": false,
+      "lastPostedAt": "2026-06-27T18:24:11.853Z",
+      "messageId": 47
     },
     "/ru/blog/hermes-status-bar-token-tweaks": {
       "title": "Status bar Hermes agent и как не сжигать токены на долгих сессиях",
@@ -111,9 +111,9 @@
       "image": "https://antlis.is-a.dev/blog/hermes-status-bar-token-tweaks.png",
       "status": "posted",
       "mode": "photo",
-      "repost": true,
-      "lastPostedAt": "2026-06-27T17:40:20.881Z",
-      "messageId": 33
+      "repost": false,
+      "lastPostedAt": "2026-06-27T18:24:12.002Z",
+      "messageId": 48
     },
     "/blog/tg-mpv-bot": {
       "title": "tg-mpv-bot: My TV's Remote Is Now Telegram",
@@ -133,9 +133,9 @@
       "image": "https://antlis.is-a.dev/blog/tg-mpv-bot.png",
       "status": "posted",
       "mode": "photo",
-      "repost": true,
-      "lastPostedAt": "2026-06-27T17:40:24.825Z",
-      "messageId": 35
+      "repost": false,
+      "lastPostedAt": "2026-06-27T18:24:16.246Z",
+      "messageId": 49
     },
     "/blog/tg-media-bot": {
       "title": "tg-media-bot: Send a Link, Get the File Back",
@@ -155,9 +155,9 @@
       "image": "https://antlis.is-a.dev/blog/tg-media-bot.png",
       "status": "posted",
       "mode": "photo",
-      "repost": true,
-      "lastPostedAt": "2026-06-27T17:40:26.823Z",
-      "messageId": 37
+      "repost": false,
+      "lastPostedAt": "2026-06-27T18:24:16.646Z",
+      "messageId": 50
     },
     "/blog/telescope-gist": {
       "title": "telescope-gist: GitHub Gists Belong in Telescope",
@@ -177,9 +177,9 @@
       "image": "https://antlis.is-a.dev/blog/telescope-gist.png",
       "status": "posted",
       "mode": "photo",
-      "repost": true,
-      "lastPostedAt": "2026-06-27T17:40:30.680Z",
-      "messageId": 39
+      "repost": false,
+      "lastPostedAt": "2026-06-27T18:24:16.824Z",
+      "messageId": 51
     },
     "/blog/nuxt-bun-create-open-source": {
       "title": "Debugging a Broken Nuxt Command into a Bun CLI Bug",
@@ -199,9 +199,9 @@
       "image": "https://antlis.is-a.dev/blog/nuxt-bun-create-open-source.png",
       "status": "posted",
       "mode": "photo",
-      "repost": true,
-      "lastPostedAt": "2026-06-27T17:40:31.430Z",
-      "messageId": 41
+      "repost": false,
+      "lastPostedAt": "2026-06-27T18:24:16.971Z",
+      "messageId": 52
     },
     "/blog/homelab-archcraft": {
       "title": "The $300 Living-Room Home Server on an Old ThinkPad T460s",
@@ -221,9 +221,9 @@
       "image": "https://antlis.is-a.dev/blog/homelab-archcraft.png",
       "status": "posted",
       "mode": "photo",
-      "repost": true,
-      "lastPostedAt": "2026-06-27T17:40:32.203Z",
-      "messageId": 43
+      "repost": false,
+      "lastPostedAt": "2026-06-27T18:24:17.142Z",
+      "messageId": 53
     }
   }
 }
