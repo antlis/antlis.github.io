@@ -6,7 +6,7 @@ import { localePath } from '/src/i18n/utils'
 import type { Locale } from '/src/i18n/translations'
 import AdjacentNav from './AdjacentNav.astro'
 import ZoomableImages from './ZoomableImages.astro'
-import { Icon } from 'astro-icon/components'
+import TechStackBadges from './TechStackBadges.astro'
 
 interface Props {
   post: CollectionEntry<'portfolio'>
@@ -73,26 +73,6 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
   return localePath(`/portfolio/${slug}`, locale)
 }
 
-const techIcons: Record<string, string> = {
-  html: 'devicon:html5',
-  css: 'devicon:css3',
-  javascript: 'devicon:javascript',
-  typescript: 'devicon:typescript',
-  vue: 'devicon:vuejs',
-  nuxt: 'devicon:nuxtjs',
-  react: 'devicon:react',
-  'next.js': 'devicon:nextjs',
-  next: 'devicon:nextjs',
-  php: 'devicon:php',
-  sass: 'devicon:sass',
-  scss: 'devicon:sass',
-  ejs: 'simple-icons:ejs',
-  webpack: 'devicon:webpack',
-}
-
-function stackIcon(item: string) {
-  return techIcons[item.trim().toLowerCase()]
-}
 ---
 
 <Layout title={`${post.data.title} — ${labels.titleSuffix}`} description={post.data.description} image={post.data.imgSrc}>
@@ -132,16 +112,8 @@ function stackIcon(item: string) {
       )}
 
       {post.data.stack && post.data.stack.length > 0 && (
-        <div class="stack" aria-label={labels.stack}>
-          {post.data.stack.map((item: string) => {
-            const icon = stackIcon(item)
-            return (
-              <span class="stack-badge">
-                {icon && <Icon name={icon} size="16" aria-hidden="true" />}
-                <span>{item}</span>
-              </span>
-            )
-          })}
+        <div class="stack">
+          <TechStackBadges items={post.data.stack} ariaLabel={labels.stack} />
         </div>
       )}
 
@@ -280,35 +252,7 @@ function stackIcon(item: string) {
   }
 
   .stack {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.45rem;
     margin: 0 0 1.55rem;
-  }
-
-  .stack-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.38rem;
-    min-height: 1.85rem;
-    padding: 0.26rem 0.6rem;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: var(--card-bg);
-    color: var(--text-secondary);
-    font-size: 0.78rem;
-    font-weight: 650;
-    line-height: 1.2;
-  }
-
-  .stack-badge :global(svg) {
-    flex: 0 0 auto;
-    width: 1rem;
-    height: 1rem;
-  }
-
-  .stack-badge span {
-    line-height: 1.2;
   }
 
   .link {

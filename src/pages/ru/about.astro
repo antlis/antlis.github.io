@@ -1,8 +1,11 @@
 ---
 import Layout from '/src/layouts/Layout.astro'
+import TechStackBadges from '/src/components/TechStackBadges.astro'
 import { t } from '/src/i18n/utils'
 
 const i = t('ru')
+const primaryStack = ['TypeScript', 'JavaScript', 'Vue', 'Nuxt', 'React', 'Next.js']
+const toolingStack = ['Astro', 'Node.js', 'Bun', 'Docker', 'Git', 'SASS']
 ---
 
 <Layout title={i.about.title} description={i.about.description} pageType="about">
@@ -32,6 +35,20 @@ const i = t('ru')
       финтеха и умею балансировать дизайн, качество и сроки.
     </p>
 
+    <section class="tech-section" aria-labelledby="tech-stack-title">
+      <h2 id="tech-stack-title">Технологии</h2>
+      <div class="stack-groups">
+        <div>
+          <h3>Фронтенд</h3>
+          <TechStackBadges items={primaryStack} ariaLabel="Фронтенд-стек" />
+        </div>
+        <div>
+          <h3>Инструменты</h3>
+          <TechStackBadges items={toolingStack} ariaLabel="Инструменты" />
+        </div>
+      </div>
+    </section>
+
     <h2>Open Source и статьи</h2>
     <p>
       Ещё я делаю небольшие open-source инструменты, когда какая-то проблема
@@ -57,6 +74,41 @@ const i = t('ru')
   .about h2 {
     margin-top: 2rem;
     margin-bottom: 0.75rem;
+  }
+
+  .tech-section {
+    margin: 2.8rem 0 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .tech-section h2 {
+    margin-top: 0;
+    margin-bottom: 1.35rem;
+  }
+
+  .stack-groups {
+    display: grid;
+    gap: 1.85rem;
+  }
+
+  .stack-groups > div {
+    display: grid;
+    gap: 0.85rem;
+  }
+
+  .stack-groups h3 {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.76rem;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+    line-height: 1.25;
+    text-transform: uppercase;
+  }
+
+  .stack-groups > div + div {
+    padding-top: 0.1rem;
   }
 
   .about p {
