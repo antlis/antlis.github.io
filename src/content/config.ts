@@ -25,6 +25,7 @@ const portfolioCollection = defineCollection({
     imgSrc: z.string().optional(),
     imgAlt: z.string().optional(),
     href: z.string().optional(),
+    stack: z.array(z.string()).optional(),
   }),
 })
 

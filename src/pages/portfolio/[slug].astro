@@ -1,5 +1,6 @@
 ---
 import Layout from '/src/layouts/Layout.astro'
+import { CldImage } from 'astro-cloudinary'
 import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 
@@ -23,15 +24,32 @@ const { Content } = await post.render()
 <Layout title={`${post.data.title} — Portfolio`} description={post.data.description} image={post.data.imgSrc}>
   <article class="project">
     <header class="project-header">
-      <p class="eyebrow">Portfolio</p>
       <h1>{post.data.title}</h1>
       <p class="dek">{post.data.description}</p>
+      {post.data.stack && post.data.stack.length > 0 && (
+        <div class="stack" aria-label="Tech stack">
+          {post.data.stack.map((item: string) => (
+            <span>{item}</span>
+          ))}
+        </div>
+      )}
       {post.data.href && (
         <a href={post.data.href} target="_blank" rel="noopener" class="link">
           Visit project
         </a>
       )}
     </header>
+    {post.data.imgSrc && (
+      <figure class="hero-image">
+        <CldImage
+          src={post.data.imgSrc}
+          alt={post.data.imgAlt || post.data.title}
+          width={960}
+          height={600}
+          loading="eager"
+        />
+      </figure>
+    )}
     <div class="content">
       <Content />
     </div>
@@ -40,46 +58,61 @@ const { Content } = await post.render()
 
 <style>
   .project {
-    max-width: 720px;
-    padding-top: 2rem;
+    max-width: 880px;
+    margin: 0 auto;
+    padding-top: 1.75rem;
+    padding-bottom: 3rem;
   }
 
   .project-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1.25rem;
-    border-bottom: 1px solid var(--border);
-  }
-
-  .eyebrow {
-    margin: 0 0 0.55rem;
-    color: var(--text-secondary);
-    font-size: 0.76rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
+    max-width: 760px;
+    margin-bottom: 1.6rem;
   }
 
   .project h1 {
-    margin-bottom: 0.75rem;
-    font-size: clamp(2rem, 1.45rem + 2.25vw, 3.2rem);
-    line-height: 1.08;
-    letter-spacing: -0.03em;
+    max-width: 11ch;
+    margin-bottom: 0.85rem;
+    font-size: clamp(2.4rem, 1.65rem + 3.2vw, 4.4rem);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
     text-wrap: balance;
   }
 
   .dek {
     max-width: 62ch;
-    margin: 0 0 1rem;
-    font-size: 1.05rem;
-    line-height: 1.65;
+    margin: 0 0 1.15rem;
+    font-size: clamp(1.06rem, 1rem + 0.35vw, 1.22rem);
+    line-height: 1.62;
+  }
+
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0 0 1.1rem;
+  }
+
+  .stack span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.85rem;
+    padding: 0.26rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 650;
+    line-height: 1.2;
   }
 
   .link {
     display: inline-flex;
     align-items: center;
+    min-height: 2.15rem;
     font-size: 0.875rem;
     font-weight: 600;
-    padding: 0.42rem 0.75rem;
+    padding: 0.42rem 0.82rem;
     color: var(--accent);
     border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--border));
     border-radius: 999px;
@@ -93,12 +126,82 @@ const { Content } = await post.render()
     background: color-mix(in srgb, var(--accent) 12%, transparent);
   }
 
+  .hero-image {
+    margin: 0 0 2.75rem;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card-bg);
+    box-shadow: 0 18px 48px color-mix(in srgb, #000 12%, transparent);
+  }
+
+  .hero-image :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
   .content {
+    max-width: 720px;
     font-size: 1.02rem;
     line-height: 1.8;
   }
 
+  .content :global(> p:first-child) {
+    color: var(--text);
+    font-size: clamp(1.06rem, 1rem + 0.28vw, 1.16rem);
+    line-height: 1.72;
+  }
+
   .content :global(p) {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.45rem;
+  }
+
+  .content :global(a) {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 38%, transparent);
+    text-underline-offset: 2px;
+  }
+
+  .content :global(a:hover) {
+    color: var(--accent-hover);
+    text-decoration-color: var(--accent-hover);
+  }
+
+  .content :global(h2) {
+    margin: 2.6em 0 0.7em;
+    letter-spacing: -0.018em;
+  }
+
+  @media (max-width: 768px) {
+    .project {
+      padding-top: 0.75rem;
+      padding-bottom: 2.25rem;
+    }
+
+    .project-header {
+      margin-bottom: 1.25rem;
+    }
+
+    .project h1 {
+      max-width: none;
+      font-size: clamp(2.05rem, 1.5rem + 2.8vw, 2.7rem);
+      line-height: 1.08;
+    }
+
+    .hero-image {
+      margin-bottom: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 12px 32px color-mix(in srgb, #000 10%, transparent);
+    }
+
+    .content {
+      max-width: none;
+      font-size: 1rem;
+      line-height: 1.72;
+    }
   }
 </style>

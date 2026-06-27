@@ -33,7 +33,6 @@ const projects = await getCollection('portfolio', ({ data }) => data.locale === 
           <div class="project-info">
             <h3>{project.data.title}</h3>
             <p>{project.data.description}</p>
-            {project.data.href && <span>Смотреть кейс</span>}
           </div>
         </a>
       ))}
@@ -107,14 +106,6 @@ const projects = await getCollection('portfolio', ({ data }) => data.locale === 
     font-size: 0.86rem;
     line-height: 1.55;
     color: var(--text-secondary);
-  }
-
-  .project-info span {
-    display: inline-flex;
-    margin-top: 0.85rem;
-    color: var(--accent);
-    font-size: 0.8rem;
-    font-weight: 700;
   }
 
   @media (max-width: 768px) {
