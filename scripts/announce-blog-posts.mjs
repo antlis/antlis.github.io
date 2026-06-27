@@ -7,6 +7,7 @@ const {
   SITE_URL = 'https://antlis.is-a.dev',
   TELEGRAM_BOT_TOKEN,
   TELEGRAM_CHAT_ID,
+  TELEGRAM_POST_LOCALE = 'en',
   SOCIAL_REPORT_CONFIG = 'social-report.config.json',
   DRY_RUN,
 } = process.env
@@ -14,6 +15,8 @@ const {
 const DEFAULT_MODE = 'photo'
 const VALID_MODES = new Set(['photo', 'summary', 'link'])
 const VALID_STATUSES = new Set(['pending', 'posted', 'skip'])
+const VALID_LOCALES = new Set(['en', 'ru', 'all'])
+const POST_LOCALE = VALID_LOCALES.has(TELEGRAM_POST_LOCALE) ? TELEGRAM_POST_LOCALE : 'en'
 
 function runGit(args) {
   try {
@@ -207,10 +210,15 @@ function shouldPost(entry) {
   return entry.status !== 'posted'
 }
 
+function shouldIncludeLocale(post) {
+  return POST_LOCALE === 'all' || post.locale === POST_LOCALE
+}
+
 const config = normalizeConfig(readConfig())
 const posts = blogFiles()
   .map(postFromFile)
   .filter((post) => !post.draft)
+  .filter(shouldIncludeLocale)
   .sort((a, b) => a.pubDate.localeCompare(b.pubDate) || a.url.localeCompare(b.url))
 
 let changed = false

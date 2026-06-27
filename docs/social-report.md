@@ -20,6 +20,11 @@ Set these as GitHub repository secrets:
 
 For local testing, copy the same names into `.env` or export them in your shell. Do not commit real secret values.
 
+## Optional variables
+
+- `TELEGRAM_POST_LOCALE`: controls which language is published to Telegram. Supported values are `en`, `ru`, and `all`. The default is `en`.
+- `SOCIAL_REPORT_CONFIG`: path to the report config. The default is `social-report.config.json`.
+
 ## Config
 
 `social-report.config.json` is intentionally committed. It is the control panel for what has already been posted and what should be reposted.
@@ -103,6 +108,8 @@ The script detects Russian posts from `locale: ru` or the `-ru.mdx` filename suf
 - Russian: `Новая статья`
 
 Each translation is tracked separately because English and Russian posts have different URLs.
+
+By default, only English posts are published to Telegram. To publish Russian posts instead, set a GitHub repository variable named `TELEGRAM_POST_LOCALE` to `ru`. To publish both translations to the same channel, set it to `all`.
 
 ## Local dry run
 
