@@ -4,5 +4,226 @@
       "mode": "photo"
     }
   },
-  "posts": {}
+  "posts": {
+    "/blog/brave-fzf-history": {
+      "title": "Browse Brave Browser History",
+      "file": "src/content/blog/brave-fzf-history.mdx",
+      "url": "https://antlis.is-a.dev/blog/brave-fzf-history",
+      "image": "https://antlis.is-a.dev/blog/brave-fzf-history.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:12.416Z",
+      "messageId": 24
+    },
+    "/ru/blog/brave-fzf-history": {
+      "title": "Просмотр истории Brave браузера",
+      "file": "src/content/blog/brave-fzf-history-ru.mdx",
+      "url": "https://antlis.is-a.dev/ru/blog/brave-fzf-history",
+      "image": "https://antlis.is-a.dev/blog/brave-fzf-history.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:12.727Z",
+      "messageId": 25
+    },
+    "/blog/fzf-tmuxinator-projects": {
+      "title": "Tmuxinator Projects with fzf",
+      "file": "src/content/blog/fzf-tmuxinator-projects.mdx",
+      "url": "https://antlis.is-a.dev/blog/fzf-tmuxinator-projects",
+      "image": "https://antlis.is-a.dev/blog/fzf-tmuxinator-projects.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:13.382Z",
+      "messageId": 26
+    },
+    "/ru/blog/fzf-tmuxinator-projects": {
+      "title": "Tmuxinator проекты с fzf",
+      "file": "src/content/blog/fzf-tmuxinator-projects-ru.mdx",
+      "url": "https://antlis.is-a.dev/ru/blog/fzf-tmuxinator-projects",
+      "image": "https://antlis.is-a.dev/blog/fzf-tmuxinator-projects.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:13.518Z",
+      "messageId": 27
+    },
+    "/blog/linkedin-defi-scammers": {
+      "title": "LinkedIn DeFi Scammers: How Fake Recruiters Try to Drain Your Wallet",
+      "file": "src/content/blog/linkedin-defi-scammers.mdx",
+      "url": "https://antlis.is-a.dev/blog/linkedin-defi-scammers",
+      "image": "https://antlis.is-a.dev/blog/linkedin-defi-scammers.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:14.400Z",
+      "messageId": 28
+    },
+    "/ru/blog/linkedin-defi-scammers": {
+      "title": "Мошенники в LinkedIn: Фейковые рекрутеры из DeFi, которые хотят опустошить ваш кошелёк",
+      "file": "src/content/blog/linkedin-defi-scammers-ru.mdx",
+      "url": "https://antlis.is-a.dev/ru/blog/linkedin-defi-scammers",
+      "image": "https://antlis.is-a.dev/blog/linkedin-defi-scammers.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:17.547Z",
+      "messageId": 29
+    },
+    "/blog/docker-btrfs-disk-recovery": {
+      "title": "How Docker Silently Ate 105GB on My ThinkPad's Btrfs Root",
+      "file": "src/content/blog/docker-btrfs-disk-recovery.mdx",
+      "url": "https://antlis.is-a.dev/blog/docker-btrfs-disk-recovery",
+      "image": "https://antlis.is-a.dev/blog/docker-btrfs-disk-recovery.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:18.982Z",
+      "messageId": 30
+    },
+    "/blog/hermes-status-bar-token-tweaks": {
+      "title": "Reading Hermes Agent's Status Bar and Cutting Token Usage on Long Sessions",
+      "file": "src/content/blog/hermes-status-bar-token-tweaks.mdx",
+      "url": "https://antlis.is-a.dev/blog/hermes-status-bar-token-tweaks",
+      "image": "https://antlis.is-a.dev/blog/hermes-status-bar-token-tweaks.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:20.620Z",
+      "messageId": 31
+    },
+    "/ru/blog/docker-btrfs-disk-recovery": {
+      "title": "Как Docker тихо сожрал 105 ГБ на Btrfs-корне моего ThinkPad",
+      "file": "src/content/blog/docker-btrfs-disk-recovery-ru.mdx",
+      "url": "https://antlis.is-a.dev/ru/blog/docker-btrfs-disk-recovery",
+      "image": "https://antlis.is-a.dev/blog/docker-btrfs-disk-recovery.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:20.750Z",
+      "messageId": 32
+    },
+    "/ru/blog/hermes-status-bar-token-tweaks": {
+      "title": "Status bar Hermes agent и как не сжигать токены на долгих сессиях",
+      "file": "src/content/blog/hermes-status-bar-token-tweaks-ru.mdx",
+      "url": "https://antlis.is-a.dev/ru/blog/hermes-status-bar-token-tweaks",
+      "image": "https://antlis.is-a.dev/blog/hermes-status-bar-token-tweaks.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:20.881Z",
+      "messageId": 33
+    },
+    "/blog/tg-mpv-bot": {
+      "title": "tg-mpv-bot: My TV's Remote Is Now Telegram",
+      "file": "src/content/blog/tg-mpv-bot.mdx",
+      "url": "https://antlis.is-a.dev/blog/tg-mpv-bot",
+      "image": "https://antlis.is-a.dev/blog/tg-mpv-bot.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:24.682Z",
+      "messageId": 34
+    },
+    "/ru/blog/tg-mpv-bot": {
+      "title": "tg-mpv-bot: пульт от моего телевизора теперь — Telegram",
+      "file": "src/content/blog/tg-mpv-bot-ru.mdx",
+      "url": "https://antlis.is-a.dev/ru/blog/tg-mpv-bot",
+      "image": "https://antlis.is-a.dev/blog/tg-mpv-bot.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:24.825Z",
+      "messageId": 35
+    },
+    "/blog/tg-media-bot": {
+      "title": "tg-media-bot: Send a Link, Get the File Back",
+      "file": "src/content/blog/tg-media-bot.mdx",
+      "url": "https://antlis.is-a.dev/blog/tg-media-bot",
+      "image": "https://antlis.is-a.dev/blog/tg-media-bot.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:26.685Z",
+      "messageId": 36
+    },
+    "/ru/blog/tg-media-bot": {
+      "title": "tg-media-bot: кидаешь ссылку — получаешь файл",
+      "file": "src/content/blog/tg-media-bot-ru.mdx",
+      "url": "https://antlis.is-a.dev/ru/blog/tg-media-bot",
+      "image": "https://antlis.is-a.dev/blog/tg-media-bot.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:26.823Z",
+      "messageId": 37
+    },
+    "/blog/telescope-gist": {
+      "title": "telescope-gist: GitHub Gists Belong in Telescope",
+      "file": "src/content/blog/telescope-gist.mdx",
+      "url": "https://antlis.is-a.dev/blog/telescope-gist",
+      "image": "https://antlis.is-a.dev/blog/telescope-gist.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:27.514Z",
+      "messageId": 38
+    },
+    "/ru/blog/telescope-gist": {
+      "title": "telescope-gist: GitHub Gists должны жить в Telescope",
+      "file": "src/content/blog/telescope-gist-ru.mdx",
+      "url": "https://antlis.is-a.dev/ru/blog/telescope-gist",
+      "image": "https://antlis.is-a.dev/blog/telescope-gist.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:30.680Z",
+      "messageId": 39
+    },
+    "/blog/nuxt-bun-create-open-source": {
+      "title": "Debugging a Broken Nuxt Command into a Bun CLI Bug",
+      "file": "src/content/blog/nuxt-bun-create-open-source.mdx",
+      "url": "https://antlis.is-a.dev/blog/nuxt-bun-create-open-source",
+      "image": "https://antlis.is-a.dev/blog/nuxt-bun-create-open-source.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:31.288Z",
+      "messageId": 40
+    },
+    "/ru/blog/nuxt-bun-create-open-source": {
+      "title": "Как сломанная команда Nuxt привела к багу в Bun CLI",
+      "file": "src/content/blog/nuxt-bun-create-open-source-ru.mdx",
+      "url": "https://antlis.is-a.dev/ru/blog/nuxt-bun-create-open-source",
+      "image": "https://antlis.is-a.dev/blog/nuxt-bun-create-open-source.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:31.430Z",
+      "messageId": 41
+    },
+    "/blog/homelab-archcraft": {
+      "title": "The $300 Living-Room Home Server on an Old ThinkPad T460s",
+      "file": "src/content/blog/homelab-archcraft.mdx",
+      "url": "https://antlis.is-a.dev/blog/homelab-archcraft",
+      "image": "https://antlis.is-a.dev/blog/homelab-archcraft.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:32.053Z",
+      "messageId": 42
+    },
+    "/ru/blog/homelab-archcraft": {
+      "title": "Домашний сервер в гостиной за $300 на старом ThinkPad T460s",
+      "file": "src/content/blog/homelab-archcraft-ru.mdx",
+      "url": "https://antlis.is-a.dev/ru/blog/homelab-archcraft",
+      "image": "https://antlis.is-a.dev/blog/homelab-archcraft.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-27T17:40:32.203Z",
+      "messageId": 43
+    }
+  }
 }
