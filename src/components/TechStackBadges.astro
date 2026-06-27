@@ -1,8 +1,13 @@
 ---
 import { Icon } from 'astro-icon/components'
 
+type StackItem = string | {
+  label: string
+  href?: string
+}
+
 interface Props {
-  items: string[]
+  items: StackItem[]
   ariaLabel?: string
 }
 
@@ -36,16 +41,22 @@ const techIcons: Record<string, string> = {
 function stackIcon(item: string) {
   return techIcons[item.trim().toLowerCase()]
 }
+
+function normalizeItem(item: StackItem) {
+  return typeof item === 'string' ? { label: item } : item
+}
 ---
 
 <div class="tech-stack" aria-label={ariaLabel}>
   {items.map((item) => {
-    const icon = stackIcon(item)
+    const { label, href } = normalizeItem(item)
+    const icon = stackIcon(label)
+    const Tag = href ? 'a' : 'span'
     return (
-      <span class="tech-badge">
+      <Tag class="tech-badge" href={href} target={href ? '_blank' : undefined} rel={href ? 'noopener noreferrer' : undefined}>
         {icon && <Icon name={icon} size="16" aria-hidden="true" />}
-        <span>{item}</span>
-      </span>
+        <span>{label}</span>
+      </Tag>
     )
   })}
 </div>
@@ -70,6 +81,18 @@ function stackIcon(item: string) {
     font-size: 0.78rem;
     font-weight: 650;
     line-height: 1.2;
+  }
+
+  a.tech-badge {
+    text-decoration: none;
+    transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+  }
+
+  a.tech-badge:hover {
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 42%, var(--border));
+    background: color-mix(in srgb, var(--accent) 7%, var(--card-bg));
+    transform: translateY(-1px);
   }
 
   .tech-badge :global(svg) {
