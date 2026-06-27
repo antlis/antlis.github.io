@@ -26,6 +26,13 @@ const portfolioCollection = defineCollection({
     imgAlt: z.string().optional(),
     href: z.string().optional(),
     stack: z.array(z.string()).optional(),
+    year: z.string().optional(),
+    role: z.string().optional(),
+    scope: z.array(z.string()).optional(),
+    highlights: z.array(z.string()).optional(),
+    outcome: z.string().optional(),
+    improvements: z.string().optional(),
+    imageCaption: z.string().optional(),
   }),
 })
 

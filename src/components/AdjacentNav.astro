@@ -1,0 +1,143 @@
+---
+interface NavItem {
+  href: string
+  label: string
+  title: string
+  direction: 'previous' | 'next'
+}
+
+interface Props {
+  previous?: NavItem
+  next?: NavItem
+  ariaLabel: string
+}
+
+const { previous, next, ariaLabel } = Astro.props
+---
+
+{(previous || next) && (
+  <nav class:list={['adjacent-nav', { 'adjacent-nav-single': !(previous && next) }]} aria-label={ariaLabel}>
+    {previous ? (
+      <a href={previous.href} class="adjacent-nav-link" aria-label={`${previous.label}: ${previous.title}`}>
+        <span class="adjacent-nav-kicker">
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
+          {previous.label}
+        </span>
+        <strong>{previous.title}</strong>
+      </a>
+    ) : <span class="adjacent-nav-spacer" />}
+
+    {next ? (
+      <a href={next.href} class="adjacent-nav-link adjacent-nav-link-next" aria-label={`${next.label}: ${next.title}`}>
+        <span class="adjacent-nav-kicker">
+          {next.label}
+          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m9 18 6-6-6-6" />
+          </svg>
+        </span>
+        <strong>{next.title}</strong>
+      </a>
+    ) : <span class="adjacent-nav-spacer" />}
+  </nav>
+)}
+
+<style>
+  .adjacent-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 2.35rem;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .adjacent-nav-single {
+    grid-template-columns: 1fr;
+  }
+
+  .adjacent-nav-link {
+    display: flex;
+    min-height: 4.85rem;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem 0;
+    color: var(--text);
+    transition: color 0.18s ease;
+  }
+
+  .adjacent-nav-link:hover {
+    color: var(--accent);
+  }
+
+  .adjacent-nav-link-next {
+    text-align: right;
+  }
+
+  .adjacent-nav-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.45rem;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .adjacent-nav-link-next .adjacent-nav-kicker {
+    justify-content: flex-end;
+  }
+
+  .adjacent-nav-kicker svg {
+    flex-shrink: 0;
+    transition: transform 0.18s ease;
+  }
+
+  .adjacent-nav-link:hover .adjacent-nav-kicker svg:first-child {
+    transform: translateX(-2px);
+  }
+
+  .adjacent-nav-link-next:hover .adjacent-nav-kicker svg {
+    transform: translateX(2px);
+  }
+
+  .adjacent-nav-link strong {
+    display: block;
+    max-width: 90%;
+    font-size: clamp(1rem, 0.92rem + 0.35vw, 1.16rem);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .adjacent-nav-link-next strong {
+    margin-left: auto;
+  }
+
+  @media (max-width: 560px) {
+    .adjacent-nav {
+      grid-template-columns: 1fr;
+      gap: 0;
+      margin-bottom: 2rem;
+    }
+
+    .adjacent-nav-link {
+      min-height: 4.25rem;
+      padding: 0.85rem 0;
+    }
+
+    .adjacent-nav-link-next {
+      text-align: left;
+    }
+
+    .adjacent-nav-link-next .adjacent-nav-kicker {
+      justify-content: flex-start;
+    }
+
+    .adjacent-nav-link-next strong {
+      margin-left: 0;
+    }
+  }
+</style>

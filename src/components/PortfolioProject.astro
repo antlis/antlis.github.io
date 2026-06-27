@@ -1,0 +1,522 @@
+---
+import Layout from '/src/layouts/Layout.astro'
+import { CldImage } from 'astro-cloudinary'
+import type { CollectionEntry } from 'astro:content'
+import { localePath } from '/src/i18n/utils'
+import type { Locale } from '/src/i18n/translations'
+import AdjacentNav from './AdjacentNav.astro'
+
+interface Props {
+  post: CollectionEntry<'portfolio'>
+  projects: CollectionEntry<'portfolio'>[]
+  locale: Locale
+}
+
+const { post, projects, locale } = Astro.props
+const labels = {
+  en: {
+    titleSuffix: 'Portfolio',
+    visit: 'Visit project',
+    stack: 'Tech stack',
+    facts: 'Project facts',
+    built: 'Built',
+    year: 'Year',
+    role: 'Role',
+    scope: 'Scope',
+    highlights: 'Implementation highlights',
+    outcome: 'Outcome',
+    improvements: "What I'd improve now",
+    more: 'More projects',
+    previous: 'Previous',
+    next: 'Next',
+    contactTitle: 'Need a frontend like this?',
+    contactText: 'I can help turn product and business requirements into clear, production-ready interfaces.',
+    contactLink: 'Contact me',
+  },
+  ru: {
+    titleSuffix: 'Портфолио',
+    visit: 'Перейти к проекту',
+    stack: 'Технологический стек',
+    facts: 'О проекте',
+    built: 'Сделано',
+    year: 'Год',
+    role: 'Роль',
+    scope: 'Зона работы',
+    highlights: 'Что было сделано',
+    outcome: 'Результат',
+    improvements: 'Что я бы улучшил сейчас',
+    more: 'Другие проекты',
+    previous: 'Предыдущий',
+    next: 'Следующий',
+    contactTitle: 'Нужен похожий фронтенд?',
+    contactText: 'Я могу помочь превратить продуктовые и бизнес-требования в понятный продакшен-интерфейс.',
+    contactLink: 'Связаться',
+  },
+}[locale]
+
+const sortedProjects = projects
+  .slice()
+  .sort((a, b) => {
+    const yearDiff = Number(b.data.year ?? 0) - Number(a.data.year ?? 0)
+    if (yearDiff !== 0) return yearDiff
+    return a.data.title.localeCompare(b.data.title)
+  })
+
+const currentIndex = sortedProjects.findIndex((project) => project.slug === post.slug)
+const previousProject = currentIndex > 0 ? sortedProjects[currentIndex - 1] : undefined
+const nextProject = currentIndex >= 0 && currentIndex < sortedProjects.length - 1 ? sortedProjects[currentIndex + 1] : undefined
+
+function portfolioHref(project: CollectionEntry<'portfolio'>) {
+  const slug = locale === 'ru' ? project.slug.replace(/-ru$/, '') : project.slug
+  return localePath(`/portfolio/${slug}`, locale)
+}
+---
+
+<Layout title={`${post.data.title} — ${labels.titleSuffix}`} description={post.data.description} image={post.data.imgSrc}>
+  <article class="project">
+    <header class="project-header">
+      {post.data.year && (
+        <div class="project-meta" aria-label={labels.facts}>
+          <span>
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            <span>{labels.built} {post.data.year}</span>
+          </span>
+        </div>
+      )}
+      <h1>{post.data.title}</h1>
+      <p class="dek">{post.data.description}</p>
+
+      {post.data.role && (
+        <p class="role-summary">
+          <span>{labels.role}</span>
+          <strong>{post.data.role}</strong>
+        </p>
+      )}
+
+      {post.data.stack && post.data.stack.length > 0 && (
+        <div class="stack" aria-label={labels.stack}>
+          {post.data.stack.map((item: string) => (
+            <span>{item}</span>
+          ))}
+        </div>
+      )}
+
+      {post.data.href && (
+        <a href={post.data.href} target="_blank" rel="noopener" class="link">
+          {labels.visit}
+          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 17 17 7" />
+            <path d="M7 7h10v10" />
+          </svg>
+        </a>
+      )}
+    </header>
+
+    {post.data.imgSrc && (
+      <figure class="hero-image">
+        <CldImage
+          src={post.data.imgSrc}
+          alt={post.data.imgAlt || post.data.title}
+          width={960}
+          height={600}
+          loading="eager"
+        />
+        {post.data.imageCaption && <figcaption>{post.data.imageCaption}</figcaption>}
+      </figure>
+    )}
+
+    <div class="content">
+      <slot />
+    </div>
+
+    <section class="case-details" aria-labelledby="case-details-title">
+      <h2 id="case-details-title">{labels.facts}</h2>
+
+      <div class="detail-grid">
+        {post.data.scope && post.data.scope.length > 0 && (
+          <section class="detail-block">
+            <h3>{labels.scope}</h3>
+            <ul>
+              {post.data.scope.map((item: string) => <li>{item}</li>)}
+            </ul>
+          </section>
+        )}
+
+        {post.data.highlights && post.data.highlights.length > 0 && (
+          <section class="detail-block">
+            <h3>{labels.highlights}</h3>
+            <ul>
+              {post.data.highlights.map((item: string) => <li>{item}</li>)}
+            </ul>
+          </section>
+        )}
+
+        {post.data.outcome && (
+          <section class="detail-block">
+            <h3>{labels.outcome}</h3>
+            <p>{post.data.outcome}</p>
+          </section>
+        )}
+
+        {post.data.improvements && (
+          <section class="detail-block">
+            <h3>{labels.improvements}</h3>
+            <p>{post.data.improvements}</p>
+          </section>
+        )}
+      </div>
+    </section>
+
+    <section class="contact-cta" aria-labelledby="portfolio-contact-title">
+      <div>
+        <h2 id="portfolio-contact-title">{labels.contactTitle}</h2>
+        <p>{labels.contactText}</p>
+      </div>
+      <a href={localePath('/contact', locale)}>{labels.contactLink}</a>
+    </section>
+
+    <div class="project-nav-wrap">
+      <AdjacentNav
+        ariaLabel={labels.more}
+        previous={previousProject && { href: portfolioHref(previousProject), label: labels.previous, title: previousProject.data.title, direction: 'previous' }}
+        next={nextProject && { href: portfolioHref(nextProject), label: labels.next, title: nextProject.data.title, direction: 'next' }}
+      />
+    </div>
+  </article>
+</Layout>
+
+<style>
+  .project {
+    max-width: 880px;
+    margin: 0 auto;
+    padding-top: 1.75rem;
+    padding-bottom: 3rem;
+  }
+
+  .project-header {
+    max-width: 760px;
+    margin-bottom: 1.6rem;
+  }
+
+  .project-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 0.7rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .project-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .project-meta svg {
+    flex-shrink: 0;
+  }
+
+  .project h1 {
+    max-width: 12ch;
+    margin-bottom: 0.85rem;
+    font-size: clamp(2.4rem, 1.65rem + 3.2vw, 4.4rem);
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    text-wrap: balance;
+  }
+
+  .dek {
+    max-width: 62ch;
+    margin: 0 0 1.2rem;
+    font-size: clamp(1.06rem, 1rem + 0.35vw, 1.22rem);
+    line-height: 1.62;
+  }
+
+  .role-summary {
+    display: flex;
+    align-items: baseline;
+    gap: 0.55rem;
+    max-width: max-content;
+    margin: 0 0 1.05rem;
+    padding-left: 0.85rem;
+    border-left: 2px solid var(--accent);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .role-summary span {
+    font-size: 0.72rem;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .role-summary strong {
+    color: var(--text);
+    font-weight: 650;
+  }
+
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0 0 1.35rem;
+  }
+
+  .stack span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.85rem;
+    padding: 0.26rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 650;
+    line-height: 1.2;
+  }
+
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--accent);
+    font-size: 0.92rem;
+    font-weight: 750;
+    line-height: 1.35;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .link:hover {
+    color: var(--accent-hover);
+  }
+
+  .link svg {
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+
+  .link:hover svg {
+    transform: translate(2px, -2px);
+  }
+
+  .contact-cta a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    justify-content: center;
+    min-height: 2.45rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    padding: 0.55rem 0.95rem;
+    color: var(--bg);
+    border: 1px solid var(--accent);
+    border-radius: 7px;
+    background: var(--accent);
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 18%, transparent);
+    transition: color 0.2s, border-color 0.2s, background 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+
+  .contact-cta a:hover {
+    color: var(--bg);
+    border-color: var(--accent-hover);
+    background: var(--accent-hover);
+    box-shadow: 0 14px 30px color-mix(in srgb, var(--accent) 22%, transparent);
+    transform: translateY(-1px);
+  }
+
+  .hero-image {
+    margin: 0 0 2.75rem;
+  }
+
+  .hero-image :global(img) {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    height: auto;
+    object-fit: cover;
+    color: transparent;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--card-bg);
+    box-shadow: 0 18px 48px color-mix(in srgb, #000 12%, transparent);
+  }
+
+  .hero-image figcaption {
+    margin-top: 0.65rem;
+    color: var(--text-secondary);
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+
+  .content {
+    max-width: 720px;
+    font-size: 1.02rem;
+    line-height: 1.8;
+  }
+
+  .content :global(> p:first-child) {
+    color: var(--text);
+    font-size: clamp(1.06rem, 1rem + 0.28vw, 1.16rem);
+    line-height: 1.72;
+  }
+
+  .content :global(p) {
+    margin-bottom: 1.45rem;
+  }
+
+  .content :global(a) {
+    color: var(--accent);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--accent) 38%, transparent);
+    text-underline-offset: 2px;
+  }
+
+  .content :global(a:hover) {
+    color: var(--accent-hover);
+    text-decoration-color: var(--accent-hover);
+  }
+
+  .content :global(h2) {
+    margin: 2.6em 0 0.7em;
+    letter-spacing: -0.018em;
+  }
+
+  .case-details {
+    max-width: 880px;
+    margin-top: 2.25rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .case-details > h2 {
+    margin-bottom: 1rem;
+    font-size: clamp(1.35rem, 1.18rem + 0.72vw, 1.75rem);
+    letter-spacing: -0.018em;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+  }
+
+  .detail-block {
+    min-width: 0;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+  }
+
+  .detail-block h3 {
+    margin: 0 0 0.65rem;
+    font-size: 0.9rem;
+    letter-spacing: 0;
+  }
+
+  .detail-block p,
+  .detail-block li {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.62;
+  }
+
+  .detail-block p {
+    margin: 0;
+  }
+
+  .detail-block ul {
+    margin: 0;
+    padding-left: 1.1rem;
+  }
+
+  .detail-block li + li {
+    margin-top: 0.45rem;
+  }
+
+  .contact-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    margin: 2.75rem 0 0;
+    padding: 1.2rem 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
+    border-radius: 8px;
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent 58%),
+      var(--card-bg);
+  }
+
+  .contact-cta h2 {
+    margin: 0 0 0.35rem;
+    font-size: 1.08rem;
+    letter-spacing: -0.01em;
+  }
+
+  .contact-cta p {
+    max-width: 58ch;
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.6;
+  }
+
+  .project-nav-wrap {
+    margin-top: 3rem;
+    padding-top: 0.25rem;
+  }
+
+  @media (max-width: 768px) {
+    .project {
+      padding-top: 0.75rem;
+      padding-bottom: 2.25rem;
+    }
+
+    .project-header {
+      margin-bottom: 1.25rem;
+    }
+
+    .project h1 {
+      max-width: none;
+      font-size: clamp(2.05rem, 1.5rem + 2.8vw, 2.7rem);
+      line-height: 1.08;
+    }
+
+    .hero-image {
+      margin-bottom: 2rem;
+    }
+
+    .hero-image :global(img) {
+      border-radius: 8px;
+      box-shadow: 0 12px 32px color-mix(in srgb, #000 10%, transparent);
+    }
+
+    .content {
+      max-width: none;
+      font-size: 1rem;
+      line-height: 1.72;
+    }
+
+    .detail-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .contact-cta {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>

@@ -7,6 +7,7 @@ import { t, localePath } from '/src/i18n/utils'
 const locale = 'ru'
 const i = t(locale)
 const projects = await getCollection('portfolio', ({ data }) => data.locale === 'ru')
+projects.sort((a, b) => Number(b.data.year ?? 0) - Number(a.data.year ?? 0))
 ---
 
 <Layout title={i.portfolio.title} description={i.portfolio.description} pageType="portfolio-listing">
@@ -31,7 +32,10 @@ const projects = await getCollection('portfolio', ({ data }) => data.locale === 
             </div>
           )}
           <div class="project-info">
-            <h3>{project.data.title}</h3>
+            <div class="project-title">
+              <h3>{project.data.title}</h3>
+              {project.data.year && <span>{project.data.year}</span>}
+            </div>
             <p>{project.data.description}</p>
           </div>
         </a>
@@ -88,17 +92,33 @@ const projects = await getCollection('portfolio', ({ data }) => data.locale === 
     height: 100%;
     object-fit: cover;
     display: block;
+    color: transparent;
   }
 
   .project-info {
     padding: 1rem 1.25rem;
   }
 
-  .project-info h3 {
+  .project-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
     margin: 0 0 0.4rem;
+  }
+
+  .project-title h3 {
+    margin: 0;
     font-size: 1.02rem;
     font-weight: 600;
     letter-spacing: -0.01em;
+  }
+
+  .project-title span {
+    flex: 0 0 auto;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 650;
   }
 
   .project-info p {
