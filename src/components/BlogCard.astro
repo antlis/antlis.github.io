@@ -1,4 +1,6 @@
 ---
+import HeroImage from '/src/components/HeroImage.astro'
+
 interface Props {
   title: string
   description: string
@@ -53,13 +55,12 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date, tagsAsFi
   </div>
   {imgSrc && (
     <a class="blog-card-img" href={href} aria-label={title}>
-      <img
+      <HeroImage
         src={imgSrc}
         alt={imgAlt || title}
         width={360}
         height={225}
         loading="lazy"
-        decoding="async"
       />
     </a>
   )}

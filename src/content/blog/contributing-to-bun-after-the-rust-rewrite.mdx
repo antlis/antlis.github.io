@@ -1,0 +1,186 @@
+---
+title: "My Bun PR Outlived the Language It Was Written In"
+description: "A follow-up: my Zig fix for bun create got auto-closed by a bot because Bun had migrated to Rust. I traced what actually happened, re-did the fix in Rust, fought the NixOS toolchain, and ran into the real bottleneck in Bun — not code, but review."
+pubDate: 2026-06-28
+category: "Open Source"
+tags: ["open-source", "bun", "rust", "zig", "contributing", "claude-code"]
+imgSrc: "/blog/contributing-to-bun-after-the-rust-rewrite.png"
+imgAlt: "Terminal-style thumbnail: PR #29089 closed as predating the Rust rewrite, src/cli.zig moved into runtime/cli, reopened as Rust PR #32954"
+---
+
+This is a follow-up to
+[Debugging a Broken Nuxt Command into a Bun CLI Bug](/blog/nuxt-bun-create-open-source).
+
+That post ended with an open Bun PR. I had traced a real bug — `bun create
+<template> -- <args>` forwarded the `--` separator literally instead of
+stripping it — reduced it to a minimal reproduction, reported it as
+[oven-sh/bun#29087](https://github.com/oven-sh/bun/issues/29087), and submitted a
+fix in Zig:
+[oven-sh/bun#29089](https://github.com/oven-sh/bun/pull/29089).
+
+Then the PR got closed. Not by a person — by a bot. And the reason it gave
+turned out to be more interesting than the bug itself.
+
+## A bot closed my PR
+
+The PR was closed automatically with a message that, paraphrased, said:
+
+> Closing as stale: this PR predates the Rust rewrite. Every `src/` file it
+> modifies has since been removed or relocated on `main`.
+
+My first reaction was that this was wrong. I pulled up my local checkout, and
+`src/cli.zig` — the only file my PR touched — was right there. No Rust rewrite in
+sight. Bun is a Zig project. The bot had clearly hallucinated.
+
+Except it hadn't. My local `main` was hundreds of commits behind. When I fetched
+the real, current `main`, `src/cli.zig` was gone.
+
+## Bun is Rust now
+
+This is the part I had completely missed: Bun has been migrating its core from
+Zig to Rust. On current `main` (and canary), the runtime that ships is the Rust
+one.
+
+The evidence was all over the tree once I looked:
+
+- `src/cli` is now a **symlink** to `runtime/cli`.
+- The `bun create` logic I had patched in Zig now lives in Rust, across
+  `src/runtime/cli/mod.rs`, `create_command.rs`, and `bunx_command.rs`.
+- The Rust side is a Cargo workspace of roughly **200 crates**.
+- There are `.rs` files, a `clippy.toml`, and entire `clippy-loop` scripts where
+  Zig used to be.
+
+So the bot was right and I was wrong. My PR couldn't be rebased or reopened in any
+meaningful way, because the file it edited no longer existed. The lesson landed
+immediately: **fetch upstream before you trust your own working copy.** I had been
+arguing with a bot using a months-old snapshot of reality.
+
+## The bug survived the rewrite
+
+Here's the lucky part. When code is ported, bugs get ported with it.
+
+I went and read the new Rust forwarding logic in `src/runtime/cli/mod.rs`, and it
+was the same shape as the old Zig — the same loop that pushed every argument after
+the template name straight through to `bunx`, including the leading `--`. The
+rewrite had faithfully carried the bug across the language boundary.
+
+That meant the fix was still needed, just in a different language. So I re-did it
+in Rust:
+
+```rust
+// drop a single leading `--` separator; consume `--bun` before it;
+// preserve a second `--` and any `--bun` after the separator as literal args
+```
+
+The behaviour is identical to the original Zig fix:
+
+- strip one leading `--` before forwarding args to the create script;
+- consume the wrapper's own `--bun` flag when it appears before the separator;
+- preserve a second `--`, and a `--bun` after the separator, as literal arguments.
+
+The regression test from the original PR ported over almost unchanged — it spins
+up a local registry, runs `bun create` against a package whose bin prints its
+argv, and checks all the separator cases. The new PR is here:
+[oven-sh/bun#32954](https://github.com/oven-sh/bun/pull/32954).
+
+## Building Bun on NixOS is its own side quest
+
+In the first article I waved at "toolchain issues" on NixOS. This time I tried
+harder to actually build and run the test, and hit a wall in three distinct
+places. Worth writing down, because anyone on NixOS will meet the same ones:
+
+1. **zstd.** The debug build compiles with `-gz=zstd` (zstd-compressed debug
+   sections), but the Nix `clang_21` isn't built with zstd support. Everywhere
+   it's a warning — except the precompiled header, which uses `-Werror`, so it's
+   a hard failure. Switching to `-gz=zlib` gets past it.
+2. **`_FORTIFY_SOURCE`.** Nix's compiler wrapper injects `-D_FORTIFY_SOURCE=2`,
+   but the debug build is `-O0`, and fortify requires optimization. That emits a
+   `#warning`, which `-Werror` turns into an error. Dropping `fortify` from
+   `NIX_HARDENING_ENABLE` fixes it.
+3. **Rust nightly.** This is the one I couldn't get past quickly. Bun pins a
+   specific nightly toolchain and uses `-Zbuild-std`. My machine only had a stable
+   Nix-provided `cargo`/`rustc`, and no `rustup` to install the pinned nightly. The
+   C++ half compiled; the Rust half didn't.
+
+So once again I could not fully build Bun locally. I was explicit about that in
+the PR description and leaned on CI. I'd rather ship a PR that honestly says "I
+couldn't run this locally, here's why" than imply a green local run that never
+happened.
+
+## The automated review
+
+Bun's CI runs an automated review (CodeRabbit) on PRs. It left a few suggestions,
+and this is where I think the interesting judgment lives — because you should not
+just apply whatever a bot tells you.
+
+Two were reasonable: trim an over-long comment, and assert the subprocess exit
+code in the test helper so it can't silently pass on a nonzero exit. I took both.
+
+One I declined. It claimed the wrapper should also treat `-b` (the short form of
+`--bun`) the same way it treats `--bun`. I checked: `-b` *is* a real alias in
+`bunx`. But handling it properly meant reworking pre-existing argument-scanning
+logic that my change didn't touch, it was outside the scope of the original issue,
+and `-b` already works because `bunx` interprets it downstream. So I replied
+explaining the reasoning and offered it as a follow-up. Even CodeRabbit's own
+prompt says "fix only still-valid issues, skip the rest with a brief reason" —
+which is exactly the right instinct to apply to *any* automated suggestion,
+including the ones I write with Claude Code.
+
+## The real bottleneck isn't the code
+
+Here's the uncomfortable part. The fix is small. The hard problem is getting a
+human to look at it.
+
+Because my PR comes from a fork, CI doesn't even run automatically — a maintainer
+has to unblock it. And that's the easy gate. If you spend any time in Bun's
+Discord, you'll see a recurring theme: external contributors with correct,
+reviewed-once, changes-applied PRs sitting for **months**. Eight months. Nine
+months. People emailing maintainers, tagging users on GitHub, posting in Discord
+on a two-week cadence, and getting only bot activity in return.
+
+It's not malice, and I want to be fair about it: Bun is a small team moving
+extremely fast, and a Zig-to-Rust rewrite of the entire runtime is an enormous
+undertaking that understandably eats review bandwidth. The original author still
+commits constantly. But the lived experience for an outside contributor right now
+is that the automation — `robobun` and friends — is what engages with your PR,
+and internal work is (reasonably) prioritized over the queue of community fixes.
+
+If you contribute to Bun today, go in with that expectation. It changes how you
+should approach it.
+
+## How to actually contribute to Bun right now
+
+What I'd tell myself before starting:
+
+- **Target the Rust code, not Zig.** The runtime that ships is in `src/` as a
+  Cargo workspace. `bun create` lives in `src/runtime/cli/`. Find the layer that
+  actually compiles before you write a line.
+- **Fetch upstream first, always.** `main` moves fast enough that a week-old
+  checkout can be a different codebase. I learned this by arguing with a bot.
+- **Reduce to a minimal reproduction.** A tiny package that prints its argv made
+  my bug undeniable and made the fix obvious. This matters more when reviews are
+  scarce — a reviewer should be able to verify the problem in thirty seconds.
+- **Always include a regression test.** It's the difference between "trust me" and
+  "here's proof, and proof it stays fixed."
+- **Be honest in the PR about what you couldn't verify.** I couldn't build locally;
+  I said so. That's more useful to a reviewer than false confidence.
+- **Expect latency, and be politely persistent.** A clear PR description, linked
+  issues, and the occasional respectful nudge are all you can do. Don't spam.
+- **Use AI as a navigator, not an oracle.** Claude Code was genuinely useful for
+  moving a known fix across a language I don't write daily — once *I* understood
+  the invariant. It did not, and should not, replace understanding the change.
+
+## Where it stands
+
+The fix has now been written twice, in two different languages, for the same
+one-line behaviour: `bun create` should strip the first `--` before forwarding
+args. The Rust PR is open. CI is gated behind a maintainer. The three issues it
+closes ([#29087](https://github.com/oven-sh/bun/issues/29087),
+[#20314](https://github.com/oven-sh/bun/issues/20314),
+[#6566](https://github.com/oven-sh/bun/issues/6566)) are still open.
+
+The bot was right that my PR predated the rewrite. It just didn't mention that the
+bug predated it too — and outlived it. So I rewrote the fix in Rust and got back in
+the queue.
+
+Now, like everyone else, I wait.

@@ -1,0 +1,57 @@
+---
+import { CldImage } from 'astro-cloudinary'
+
+interface Props {
+  src: string
+  alt: string
+  width?: number
+  height?: number
+  loading?: 'eager' | 'lazy'
+  decoding?: 'async' | 'sync' | 'auto'
+  class?: string
+  sizes?: string
+}
+
+const {
+  src,
+  alt,
+  width = 1200,
+  height = 760,
+  loading = 'eager',
+  decoding = 'async',
+  class: className,
+  sizes,
+} = Astro.props
+
+// A "cloudinary:" prefix marks a Cloudinary public ID (e.g.
+// "cloudinary:blog/foo") and routes through CldImage for CDN delivery,
+// automatic format/quality, and responsive srcset. Anything else is treated
+// as a local asset in public/ (e.g. "/blog/foo.png") and rendered as <img>.
+const CLD_PREFIX = 'cloudinary:'
+const isCloudinary = src.startsWith(CLD_PREFIX)
+const publicId = isCloudinary ? src.slice(CLD_PREFIX.length) : src
+---
+
+{
+  isCloudinary ? (
+    <CldImage
+      src={publicId}
+      alt={alt}
+      width={width}
+      height={height}
+      loading={loading}
+      sizes={sizes}
+      class={className}
+    />
+  ) : (
+    <img
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      loading={loading}
+      decoding={decoding}
+      class={className}
+    />
+  )
+}

@@ -1,5 +1,6 @@
 ---
 import Layout from '/src/layouts/Layout.astro'
+import HeroImage from '/src/components/HeroImage.astro'
 import Comments from '/src/components/Comments.astro'
 import BlogPostExtras from '/src/components/BlogPostExtras.astro'
 import ZoomableImages from '/src/components/ZoomableImages.astro'
@@ -58,12 +59,11 @@ const ogImage = `/og/blog/ru/${post.slug.replace(/-ru$/, '')}.svg`
       </header>
       {post.data.imgSrc && (
         <div class="hero-img" data-zoomable-images>
-          <img
+          <HeroImage
             src={post.data.imgSrc}
             alt={post.data.imgAlt || post.data.title}
             width={1200}
             height={760}
-            decoding="async"
           />
         </div>
       )}
