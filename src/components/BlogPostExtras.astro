@@ -110,6 +110,13 @@ const labels = locale === 'ru'
     border-top: 1px solid var(--border);
   }
 
+  /* When no related/series panel follows the nav, drop its trailing divider
+     so it doesn't leave an empty gap where the related posts would be. */
+  .post-extras:not(:has(.post-panel)) :global(.adjacent-nav) {
+    margin-bottom: 0;
+    border-bottom: none;
+  }
+
   .related-card {
     border: 1px solid var(--border);
     border-radius: 8px;
