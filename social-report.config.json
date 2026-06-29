@@ -64,7 +64,7 @@
       "title": "Мошенники в LinkedIn: Фейковые рекрутеры из DeFi, которые хотят опустошить ваш кошелёк",
       "file": "src/content/blog/linkedin-defi-scammers-ru.mdx",
       "url": "https://antlis.is-a.dev/ru/blog/linkedin-defi-scammers",
-      "image": "https://antlis.is-a.dev/blog/linkedin-defi-scammers.png",
+      "image": "cloudinary:blog/linkedin-defi-scammers",
       "status": "posted",
       "mode": "photo",
       "repost": false,
@@ -130,7 +130,7 @@
       "title": "tg-mpv-bot: пульт от моего телевизора теперь — Telegram",
       "file": "src/content/blog/tg-mpv-bot-ru.mdx",
       "url": "https://antlis.is-a.dev/ru/blog/tg-mpv-bot",
-      "image": "https://antlis.is-a.dev/blog/tg-mpv-bot.png",
+      "image": "cloudinary:blog/tg-mpv-bot",
       "status": "posted",
       "mode": "photo",
       "repost": false,
@@ -196,7 +196,7 @@
       "title": "Как сломанная команда Nuxt привела к багу в Bun CLI",
       "file": "src/content/blog/nuxt-bun-create-open-source-ru.mdx",
       "url": "https://antlis.is-a.dev/ru/blog/nuxt-bun-create-open-source",
-      "image": "https://antlis.is-a.dev/blog/nuxt-bun-create-open-source.png",
+      "image": "cloudinary:art/bun-mascot.png",
       "status": "posted",
       "mode": "photo",
       "repost": false,
@@ -224,6 +224,17 @@
       "repost": false,
       "lastPostedAt": "2026-06-27T18:24:17.142Z",
       "messageId": 53
+    },
+    "/ru/blog/contributing-to-bun-after-the-rust-rewrite": {
+      "title": "Мой PR в Bun пережил язык, на котором был написан",
+      "file": "src/content/blog/contributing-to-bun-after-the-rust-rewrite-ru.mdx",
+      "url": "https://antlis.is-a.dev/ru/blog/contributing-to-bun-after-the-rust-rewrite",
+      "image": "https://antlis.is-a.dev/blog/contributing-to-bun-after-the-rust-rewrite.png",
+      "status": "posted",
+      "mode": "photo",
+      "repost": false,
+      "lastPostedAt": "2026-06-29T07:21:41.763Z",
+      "messageId": 56
     }
   }
 }
