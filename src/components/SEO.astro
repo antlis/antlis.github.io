@@ -42,6 +42,7 @@ const authorSchema = {
   sameAs: [
     'https://github.com/antlis',
     'https://www.linkedin.com/in/antlis/',
+    'https://x.com/antlis5',
   ],
 }
 
@@ -228,6 +229,8 @@ const schemas = buildJsonLd()
 {tags && tags.length > 0 && tags.map((tag) => <meta property="article:tag" content={tag} />)}
 
 <meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:site" content="@antlis5" />
+<meta name="twitter:creator" content="@antlis5" />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
