@@ -16,7 +16,7 @@ export const translations = {
     about: {
       title: 'About — Anton L | Frontend Developer',
       heading: 'About',
-      description: 'Anton L is a frontend developer with experience in Vue, Nuxt.js, React, Next.js, and TypeScript. Previously worked on high-traffic web platforms in the media and fintech space.',
+      description: 'Anton L — senior frontend developer (10+ years) in Vue, Nuxt, React, Next.js, and TypeScript, with full-stack Node.js/GraphQL work and AI integrations. Owns frontend architecture for high-traffic media, fintech, and product teams.',
       text: "I'm a developer passionate about building modern web apps. I love exploring new technologies, learning, and sharing knowledge through writing and open source.",
     },
     contact: {
@@ -58,7 +58,7 @@ export const translations = {
     about: {
       title: 'Обо мне — Антон Л | Фронтенд-разработчик',
       heading: 'Обо мне',
-      description: 'Антон Л — фронтенд-разработчик с опытом работы с Vue, Nuxt.js, React, Next.js и TypeScript. Работал над веб-платформами в медиа и финтехе.',
+      description: 'Антон Л — senior frontend-разработчик, 10+ лет с Vue, Nuxt, React, Next.js и TypeScript, плюс fullstack на Node.js/GraphQL и AI-интеграции. Отвечаю за фронтенд-архитектуру в медиа, финтехе и продуктовых командах.',
       text: 'Я разработчик, увлечённый созданием современных веб-приложений. Люблю изучать новые технологии, учиться и делиться знаниями через статьи и open source.',
     },
     contact: {
