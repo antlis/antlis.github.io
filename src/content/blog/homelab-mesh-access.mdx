@@ -1,0 +1,177 @@
+---
+title: "Reaching the Homelab From Anywhere (Without Two VPNs Fighting for the Same Slot)"
+description: "Building a self-hosted Tailscale-compatible mesh from Russia — CGNAT, DPI-blocked VPN handshakes, a DERP relay that silently only worked on the home LAN, an Android install gauntlet with four dead ends — and the final wrinkle: a phone that can only run one VPN app at a time, solved by making the DPI-bypass gateway itself a mesh peer."
+pubDate: 2026-07-02
+category: "Homelab"
+tags: ["homelab", "networking", "tailscale", "headscale", "vpn", "self-hosted", "nfs"]
+imgSrc: "/blog/homelab-mesh-access-architecture.svg"
+imgAlt: "Diagram showing a laptop reaching the home server directly over a self-hosted mesh, and a phone reaching it through a DPI-bypass tunnel whose VPS endpoint is itself now a mesh peer."
+---
+
+The [living-room home server](/blog/homelab-archcraft) is genuinely useful
+exactly until I leave the apartment. Music, the torrent box, a Nextcloud
+instance, some dashboards — all of it sitting behind a router that only
+speaks to itself. I wanted the same access from anywhere, which turned out to
+be a much longer project than "install a VPN app," for reasons that are
+mostly specific to doing this from Russia.
+
+## Why the easy options don't apply here
+
+The starting constraints:
+
+- **No usable inbound.** Residential connections here sit behind CGNAT — no
+  public IP to port-forward to, no DDNS trick that helps. The home side has
+  to *dial out* to somewhere reachable.
+- **DPI blocks plain VPN handshakes.** OpenVPN and WireGuard both get
+  fingerprinted and blocked on residential lines by Russia's traffic
+  inspection (TSPU) — a bare WireGuard peer link from home mostly just
+  doesn't form.
+- **Tailscale's own SaaS is the wrong shape for this.** Its coordination
+  server and public DERP relays are unreliable to reach from here, and
+  signing up needs a foreign SSO login — which itself needs a working VPN
+  first. Circular.
+
+So: self-host the control plane. **headscale** is an open-source
+reimplementation of Tailscale's coordination server, and stock Tailscale
+clients can point at it with `--login-server` instead of the default. I put
+it on a small VPS I already run in Poland, alongside an existing DPI-bypass
+proxy tier (Hysteria2/Reality-family — more on that later) that already had
+a proven track record of getting HTTPS out through the same ISP path. Every
+device — the home server, laptops, phone — dials *out* to that VPS over
+HTTPS, which sidesteps CGNAT and mostly doesn't look like "VPN traffic" to
+the inspection boxes in between.
+
+<figure className="architecture-diagram">
+  <img
+    src="/blog/homelab-mesh-access-architecture.svg"
+    alt="Diagram: a laptop's Tailscale client reaches the home server via a self-hosted control plane and DERP relay on a VPS; a phone running only a DPI-bypass tunnel reaches the same home server because that VPS is now also a mesh peer."
+    loading="lazy"
+  />
+  <figcaption>Two different transports from the client side, one mesh segment on the other side of the VPS.</figcaption>
+</figure>
+
+## The relay that worked at home and nowhere else
+
+Enrolling the home server and a laptop went fine — for weeks. Then a laptop
+roamed onto a different network and the mesh just... stopped. Not an error,
+not a timeout with a useful message. It simply couldn't see the home server
+anymore.
+
+The cause was almost embarrassing: the self-hosted DERP relay config still
+had the **example placeholder addresses** from the documentation —
+`198.51.100.1` and `2001:db8::1`, the RFC 5737 / RFC 3849 ranges reserved
+specifically so nobody accidentally routes real traffic to them. Every
+client dutifully tried to dial those unroutable addresses for relay
+fallback, failed silently, and fell back to... nothing. It had been masked
+the whole time because on the same LAN, WireGuard peers negotiate a **direct**
+connection and never need the relay at all. The bug only exists in the gap
+between "both devices are on the internet" and "both devices can see each
+other directly" — which describes almost every situation *except* two
+devices sharing a home network.
+
+The lesson, worth writing down because I'll forget it again: **"the mesh
+works at home but a device is unreachable literally everywhere else" is a
+relay problem, not a device problem.** `tailscale netcheck` (look for
+`Nearest DERP` and whether `UDP` reports true) and checking the relay's
+advertised IP against what it's actually reachable at will catch this in
+under a minute — a lot faster than the weeks it took to notice organically.
+
+## Getting an old Android phone onto it
+
+The phone is a 32-bit **armv7** device, which ruled out almost every
+sensible-looking option in sequence:
+
+- Termux's `tailscale` package only exists in the TUR repo, and TUR ships
+  **aarch64-only** builds — `unable to locate package` on armv7.
+- A NetBird-branded client that looked promising asked for a "management
+  server URL" and rejected headscale outright — different coordination
+  protocol entirely, just a naming coincidence.
+- The official static Tailscale binary for ARM is non-PIE, which modern
+  Android flatly refuses to execute.
+- A custom Bionic-targeted build got further, then hit `TLS segment
+  underaligned` — Android's C library wants a stricter alignment than a
+  stock Go cross-compile produces, and that collides with Go's own hard-coded
+  float ABI flag for 32-bit ARM. A known dead end, not worth retrying.
+
+What actually worked was almost sneaky: install the **official** Tailscale
+app (it does run fine on armv7), turn on the DPI-bypass tunnel just long
+enough to reach `login.tailscale.com`, and sign into a free Tailscale SaaS
+account. That first login is what *reveals* the otherwise-hidden "use an
+alternate coordination server" setting in the app. Point it at the
+self-hosted headscale instance, approve the registration on the server side,
+turn the DPI-bypass tunnel back off. Whole-phone VPN, running on hardware
+that every "just install Tailscale" guide implicitly assumes doesn't exist
+anymore.
+
+## Storage that only worked from the couch
+
+Separately: the home server's drives were mounted over NFS, automatically,
+lazily, on first access — nice setup, except the mount pointed at a hostname
+that only resolves on the home LAN. Off that network, the mount just hangs
+until its own timeout. The fix ended up being two clearly separate sets of
+mountpoints rather than one that tries to detect which network it's on:
+
+- LAN-only mounts, unchanged, full speed, no encryption overhead.
+- A second set of mountpoints pointed at the mesh address, for when the
+  laptop's away — a couple of NFS options bumped slightly (a longer mount
+  timeout) to tolerate internet-grade latency instead of LAN latency.
+
+Deliberately **not** one mountpoint that silently switches based on network
+detection: that's real complexity (constant reachability probing, a
+remount-on-change service) to save typing a different path when away from
+home, and it would mean routing bulk file transfers over an encrypted tunnel
+even when sitting three meters from the server. Two named paths, one obvious
+behavior each.
+
+The same "which hostname resolves where" problem showed up again for the web
+dashboards (Navidrome, the torrent client's UI, etc.), with one added
+wrinkle: the TLS certificate covering those dashboards is a wildcard for
+*one* hostname level, so unlike the NFS mounts, I couldn't give the mesh
+path a different, parallel name without the browser complaining about a
+certificate mismatch. For low-bandwidth control-plane UIs like these — as
+opposed to bulk file transfer — routing them through the mesh unconditionally
+turned out to be the simpler, entirely reasonable choice: the encryption
+overhead doesn't matter for a dashboard, and the mesh already negotiates a
+direct LAN-speed path when both sides happen to be on the same network
+anyway.
+
+## The actual punchline: one phone, one VPN slot
+
+Here's the thing that took the longest to actually name as a problem, even
+though it was there from the start: **Android only lets one app hold the VPN
+interface at a time.** Turning on Tailscale kills the DPI-bypass tunnel.
+Turning the DPI-bypass tunnel back on kills Tailscale. Not a bug in either
+app — it's how `VpnService` works on the platform, full stop.
+
+For a while the answer was just: toggle whichever one you need, manually,
+every time. Workable, mildly annoying, and it stopped being workable the
+moment I wanted both at once — general browsing through the DPI-bypass
+tunnel *and* a quick check of something on the home server, in the same
+session.
+
+The fix, once it clicked, was almost obvious in hindsight: **the phone
+doesn't need to be a mesh member at all if the thing it's already tunneling
+through is one.** The VPS running the DPI-bypass proxy was, until this point,
+purely a relay for internet traffic — it had never joined its own mesh as a
+node. Installing the Tailscale client there and enrolling it like any other
+device gave it a stable mesh address, and its proxy software's outbound
+connections — already unrestricted, already just using the box's normal
+network stack — started reaching the home server's mesh address
+transparently. No forwarding rules, no NAT tricks needed: once the VPS *is*
+a mesh peer, it just routes there like it would route anywhere else.
+
+So now: phone runs only the DPI-bypass app, full time, for everything. The
+handful of times I actually need something from the home server, it's
+already reachable through the same connection — no app-switching, no
+"wait, which one is on right now."
+
+## What's still a little rough
+
+Friendly hostnames (the `.lab`-style mesh-wide names set up for the
+dashboards) don't resolve for the phone in this mode, since MagicDNS is
+something headscale pushes to registered mesh *clients* — and the phone,
+deliberately, isn't one anymore. In practice that just means using a mesh IP
+address directly for the couple of services reached this way, which is a
+fair trade for not fighting over a VPN toggle. Everything else — the relay
+bug, the Android install path, the NFS split — turned out to be one-time
+costs. This part feels like the first genuinely finished piece.
