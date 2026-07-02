@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
   <title id="title">Схема доступа к домашнему серверу через mesh</title>
-  <desc id="desc">Ноутбук подключается к домашнему серверу напрямую через self-hosted mesh на базе Tailscale, а телефон, у которого активен только туннель для обхода DPI, доходит до него через тот же VPS — он теперь тоже участник mesh.</desc>
+  <desc id="desc">Ноутбук подключается к домашнему серверу напрямую через self-hosted mesh на базе Tailscale, а телефон, у которого активен только туннель обхода DPI, доходит до него через тот же VPS — теперь тоже участник mesh.</desc>
   <defs>
     <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
       <stop offset="0" stop-color="#0f172a"/>
@@ -34,72 +34,75 @@
       .tiny{font:600 12px Inter,Arial,sans-serif;fill:#93c5fd;text-transform:uppercase;letter-spacing:.06em}
       .wire{fill:none;stroke:#7dd3fc;stroke-width:4;stroke-linecap:round;stroke-dasharray:10 10;marker-end:url(#arrow)}
       .wire2{fill:none;stroke:#86efac;stroke-width:4;stroke-linecap:round;marker-end:url(#arrow2)}
+      .wireL{fill:none;stroke:#7dd3fc;stroke-width:4;stroke-linecap:round;stroke-dasharray:10 10}
+      .wire2L{fill:none;stroke:#86efac;stroke-width:4;stroke-linecap:round}
+      .link{fill:none;stroke:#475569;stroke-width:3;stroke-linecap:round}
       .chip{fill:#111827;stroke:#334155;stroke-width:1.5}
+      .hot{fill:#111827;stroke:url(#accent);stroke-width:2.5}
       .glow{fill:url(#accent);opacity:.16}
     </style>
   </defs>
 
   <rect width="1200" height="760" rx="32" fill="url(#bg)"/>
-  <circle class="glow" cx="600" cy="390" r="300"/>
+  <circle class="glow" cx="610" cy="390" r="280"/>
   <circle class="glow" cx="1000" cy="160" r="170"/>
 
   <text x="70" y="70" class="title">Доступ к домашнему серверу отовсюду</text>
-  <text x="70" y="102" class="subtitle">Self-hosted mesh, туннель для обхода DPI и телефон с одним слотом под VPN</text>
+  <text x="70" y="102" class="subtitle">Один self-hosted mesh · два пути внутрь · один VPN на телефоне</text>
 
   <!-- Ноутбук -->
-  <rect class="card" x="70" y="150" width="270" height="150" rx="22"/>
+  <rect class="card" x="70" y="150" width="270" height="145" rx="22"/>
   <text x="205" y="188" text-anchor="middle" class="tiny">устройство не дома</text>
   <text x="205" y="222" text-anchor="middle" class="label">Ноутбук</text>
   <text x="205" y="248" text-anchor="middle" class="small">клиент Tailscale,</text>
   <text x="205" y="270" text-anchor="middle" class="small">напрямую в mesh</text>
 
   <!-- Телефон -->
-  <rect class="card" x="70" y="460" width="270" height="150" rx="22"/>
+  <rect class="card" x="70" y="460" width="270" height="145" rx="22"/>
   <text x="205" y="498" text-anchor="middle" class="tiny">устройство не дома</text>
   <text x="205" y="532" text-anchor="middle" class="label">Телефон</text>
-  <text x="205" y="558" text-anchor="middle" class="small">только туннель для DPI —</text>
+  <text x="205" y="558" text-anchor="middle" class="small">только туннель обхода DPI —</text>
   <text x="205" y="580" text-anchor="middle" class="small">один слот VPN, без Tailscale</text>
 
   <!-- VPS -->
-  <rect class="card" x="465" y="255" width="290" height="340" rx="22"/>
-  <text x="610" y="292" text-anchor="middle" class="tiny">self-hosted, Польша</text>
-  <text x="610" y="325" text-anchor="middle" class="label">VPS: control plane + шлюз</text>
+  <rect class="card" x="470" y="195" width="285" height="370" rx="22"/>
+  <text x="612" y="232" text-anchor="middle" class="tiny">self-hosted · Польша</text>
+  <text x="612" y="266" text-anchor="middle" class="label">VPS</text>
 
-  <rect class="chip" x="500" y="350" width="220" height="42" rx="21"/>
-  <text x="610" y="376" text-anchor="middle" class="small">control plane headscale</text>
-  <rect class="chip" x="500" y="404" width="220" height="42" rx="21"/>
-  <text x="610" y="430" text-anchor="middle" class="small">свой DERP-релей</text>
-  <rect class="chip" x="500" y="458" width="220" height="42" rx="21"/>
-  <text x="610" y="484" text-anchor="middle" class="small">точка входа туннеля для DPI</text>
-  <rect class="chip" x="500" y="512" width="220" height="60" rx="21"/>
-  <text x="610" y="536" text-anchor="middle" class="small">теперь ещё и сам</text>
-  <text x="610" y="558" text-anchor="middle" class="small">участник mesh</text>
+  <rect class="chip" x="502" y="292" width="220" height="42" rx="21"/>
+  <text x="612" y="318" text-anchor="middle" class="small">control plane headscale</text>
+  <rect class="chip" x="502" y="346" width="220" height="42" rx="21"/>
+  <text x="612" y="372" text-anchor="middle" class="small">свой DERP-релей</text>
+  <rect class="chip" x="502" y="400" width="220" height="42" rx="21"/>
+  <text x="612" y="426" text-anchor="middle" class="small">точка входа DPI-туннеля</text>
+  <rect class="hot" x="502" y="454" width="220" height="60" rx="21"/>
+  <text x="612" y="478" text-anchor="middle" class="small">теперь ещё и сам</text>
+  <text x="612" y="500" text-anchor="middle" class="small">участник mesh</text>
 
   <!-- Домашний сервер -->
-  <rect class="card" x="880" y="255" width="250" height="200" rx="22"/>
-  <text x="1005" y="292" text-anchor="middle" class="tiny">дома, за CGNAT</text>
-  <text x="1005" y="325" text-anchor="middle" class="label">Archcraft</text>
-  <text x="1005" y="352" text-anchor="middle" class="small">постоянный адрес в mesh,</text>
-  <text x="1005" y="374" text-anchor="middle" class="small">доступен любым из путей</text>
+  <rect class="card" x="880" y="195" width="250" height="165" rx="22"/>
+  <text x="1005" y="232" text-anchor="middle" class="tiny">дома · за CGNAT</text>
+  <text x="1005" y="266" text-anchor="middle" class="label">Archcraft</text>
+  <text x="1005" y="294" text-anchor="middle" class="small">постоянный адрес в mesh,</text>
+  <text x="1005" y="316" text-anchor="middle" class="small">одна дверь для обоих путей</text>
 
-  <rect class="soft" x="880" y="480" width="250" height="86" rx="18"/>
-  <text x="1005" y="510" text-anchor="middle" class="tiny">приватные сервисы</text>
-  <text x="1005" y="536" text-anchor="middle" class="small">NFS · nginx (.lab) · Navidrome</text>
+  <!-- Сервисы -->
+  <rect class="soft" x="880" y="450" width="250" height="95" rx="18"/>
+  <text x="1005" y="482" text-anchor="middle" class="tiny">приватные сервисы</text>
+  <text x="1005" y="508" text-anchor="middle" class="small">NFS · nginx (.lab) · Navidrome</text>
 
-  <!-- Ноутбук -> VPS: mesh напрямую или через DERP -->
-  <path class="wire" d="M340 225 C 400 225 400 300 465 320"/>
-  <text x="352" y="205" class="small">WireGuard mesh</text>
-  <text x="352" y="333" class="small">(напрямую или через DERP)</text>
+  <path class="link" d="M1005 360 L1005 450"/>
+  <text x="1020" y="410" class="small">раздаёт</text>
 
-  <!-- Телефон -> VPS: туннель для обхода DPI -->
-  <path class="wire2" d="M340 535 C 400 535 400 480 465 465"/>
-  <text x="352" y="608" class="small">туннель Hysteria2</text>
-  <text x="352" y="630" class="small">(QUIC, устойчив к DPI)</text>
+  <!-- Провода -->
+  <path class="wire" d="M340 222 C 405 222 405 285 470 285"/>
+  <path class="wire2" d="M340 532 C 405 532 405 500 470 500"/>
+  <path class="wire" d="M755 290 C 818 290 818 265 880 265"/>
+  <path class="wire2" d="M755 478 C 830 478 830 322 880 322"/>
 
-  <!-- VPS -> домашний сервер: один mesh-сегмент для обоих путей -->
-  <path class="wire" d="M755 370 C 815 370 820 355 880 350"/>
-  <text x="765" y="410" class="small">WireGuard mesh</text>
-  <text x="765" y="430" class="small">(100.64.0.0/10)</text>
-
-  <path class="wire2" d="M755 500 C 815 500 820 500 880 495"/>
+  <!-- Легенда -->
+  <path class="wireL" d="M70 682 H130"/>
+  <text x="142" y="687" class="small">WireGuard mesh — напрямую, где возможно, иначе через свой DERP-релей</text>
+  <path class="wire2L" d="M70 714 H130"/>
+  <text x="142" y="719" class="small">туннель Hysteria2 — на QUIC, создан переживать DPI</text>
 </svg>

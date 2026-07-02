@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
   <title id="title">Homelab mesh access architecture</title>
-  <desc id="desc">A laptop reaches the home server directly over a self-hosted Tailscale mesh, while a phone with only a DPI-bypass tunnel reaches it by routing through the same VPS, which is itself now a mesh peer.</desc>
+  <desc id="desc">A laptop reaches the home server directly over a self-hosted Tailscale mesh, while a phone running only a DPI-bypass tunnel reaches it through the same VPS, which is itself now a mesh peer.</desc>
   <defs>
     <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
       <stop offset="0" stop-color="#0f172a"/>
@@ -34,72 +34,75 @@
       .tiny{font:600 12px Inter,Arial,sans-serif;fill:#93c5fd;text-transform:uppercase;letter-spacing:.08em}
       .wire{fill:none;stroke:#7dd3fc;stroke-width:4;stroke-linecap:round;stroke-dasharray:10 10;marker-end:url(#arrow)}
       .wire2{fill:none;stroke:#86efac;stroke-width:4;stroke-linecap:round;marker-end:url(#arrow2)}
+      .wireL{fill:none;stroke:#7dd3fc;stroke-width:4;stroke-linecap:round;stroke-dasharray:10 10}
+      .wire2L{fill:none;stroke:#86efac;stroke-width:4;stroke-linecap:round}
+      .link{fill:none;stroke:#475569;stroke-width:3;stroke-linecap:round}
       .chip{fill:#111827;stroke:#334155;stroke-width:1.5}
+      .hot{fill:#111827;stroke:url(#accent);stroke-width:2.5}
       .glow{fill:url(#accent);opacity:.16}
     </style>
   </defs>
 
   <rect width="1200" height="760" rx="32" fill="url(#bg)"/>
-  <circle class="glow" cx="600" cy="390" r="300"/>
+  <circle class="glow" cx="610" cy="390" r="280"/>
   <circle class="glow" cx="1000" cy="160" r="170"/>
 
   <text x="70" y="70" class="title">Reaching the Homelab From Anywhere</text>
-  <text x="70" y="102" class="subtitle">Self-hosted mesh, a DPI-bypass tunnel, and a phone with only one VPN slot</text>
+  <text x="70" y="102" class="subtitle">One self-hosted mesh · two ways in · one VPN app on the phone</text>
 
   <!-- Laptop -->
-  <rect class="card" x="70" y="150" width="270" height="150" rx="22"/>
+  <rect class="card" x="70" y="150" width="270" height="145" rx="22"/>
   <text x="205" y="188" text-anchor="middle" class="tiny">device, away from home</text>
   <text x="205" y="222" text-anchor="middle" class="label">Laptop</text>
-  <text x="205" y="248" text-anchor="middle" class="small">Tailscale client, joined</text>
-  <text x="205" y="270" text-anchor="middle" class="small">to the mesh directly</text>
+  <text x="205" y="248" text-anchor="middle" class="small">Tailscale client,</text>
+  <text x="205" y="270" text-anchor="middle" class="small">joined to the mesh directly</text>
 
   <!-- Phone -->
-  <rect class="card" x="70" y="460" width="270" height="150" rx="22"/>
+  <rect class="card" x="70" y="460" width="270" height="145" rx="22"/>
   <text x="205" y="498" text-anchor="middle" class="tiny">device, away from home</text>
   <text x="205" y="532" text-anchor="middle" class="label">Phone</text>
   <text x="205" y="558" text-anchor="middle" class="small">DPI-bypass tunnel only —</text>
   <text x="205" y="580" text-anchor="middle" class="small">one VPN slot, no Tailscale app</text>
 
   <!-- VPS -->
-  <rect class="card" x="465" y="255" width="290" height="340" rx="22"/>
-  <text x="610" y="292" text-anchor="middle" class="tiny">self-hosted, Poland</text>
-  <text x="610" y="325" text-anchor="middle" class="label">VPS: Control Plane + Gateway</text>
+  <rect class="card" x="470" y="195" width="285" height="370" rx="22"/>
+  <text x="612" y="232" text-anchor="middle" class="tiny">self-hosted · poland</text>
+  <text x="612" y="266" text-anchor="middle" class="label">VPS</text>
 
-  <rect class="chip" x="500" y="350" width="220" height="42" rx="21"/>
-  <text x="610" y="376" text-anchor="middle" class="small">headscale control plane</text>
-  <rect class="chip" x="500" y="404" width="220" height="42" rx="21"/>
-  <text x="610" y="430" text-anchor="middle" class="small">self-hosted DERP relay</text>
-  <rect class="chip" x="500" y="458" width="220" height="42" rx="21"/>
-  <text x="610" y="484" text-anchor="middle" class="small">DPI-bypass tunnel endpoint</text>
-  <rect class="chip" x="500" y="512" width="220" height="60" rx="21"/>
-  <text x="610" y="536" text-anchor="middle" class="small">also joined as</text>
-  <text x="610" y="558" text-anchor="middle" class="small">a mesh peer itself</text>
+  <rect class="chip" x="502" y="292" width="220" height="42" rx="21"/>
+  <text x="612" y="318" text-anchor="middle" class="small">headscale control plane</text>
+  <rect class="chip" x="502" y="346" width="220" height="42" rx="21"/>
+  <text x="612" y="372" text-anchor="middle" class="small">self-hosted DERP relay</text>
+  <rect class="chip" x="502" y="400" width="220" height="42" rx="21"/>
+  <text x="612" y="426" text-anchor="middle" class="small">DPI-bypass tunnel endpoint</text>
+  <rect class="hot" x="502" y="454" width="220" height="60" rx="21"/>
+  <text x="612" y="478" text-anchor="middle" class="small">now also a mesh</text>
+  <text x="612" y="500" text-anchor="middle" class="small">peer itself</text>
 
   <!-- Home server -->
-  <rect class="card" x="880" y="255" width="250" height="200" rx="22"/>
-  <text x="1005" y="292" text-anchor="middle" class="tiny">home, behind CGNAT</text>
-  <text x="1005" y="325" text-anchor="middle" class="label">Archcraft</text>
-  <text x="1005" y="352" text-anchor="middle" class="small">stable mesh address,</text>
-  <text x="1005" y="374" text-anchor="middle" class="small">reachable from either path</text>
+  <rect class="card" x="880" y="195" width="250" height="165" rx="22"/>
+  <text x="1005" y="232" text-anchor="middle" class="tiny">home · behind CGNAT</text>
+  <text x="1005" y="266" text-anchor="middle" class="label">Archcraft</text>
+  <text x="1005" y="294" text-anchor="middle" class="small">stable mesh address,</text>
+  <text x="1005" y="316" text-anchor="middle" class="small">one door for both paths</text>
 
-  <rect class="soft" x="880" y="480" width="250" height="86" rx="18"/>
-  <text x="1005" y="510" text-anchor="middle" class="tiny">private services</text>
-  <text x="1005" y="536" text-anchor="middle" class="small">NFS · nginx (.lab) · Navidrome</text>
+  <!-- Services -->
+  <rect class="soft" x="880" y="450" width="250" height="95" rx="18"/>
+  <text x="1005" y="482" text-anchor="middle" class="tiny">private services</text>
+  <text x="1005" y="508" text-anchor="middle" class="small">NFS · nginx (.lab) · Navidrome</text>
 
-  <!-- Laptop -> VPS: direct mesh, relayed when needed -->
-  <path class="wire" d="M340 225 C 400 225 400 300 465 320"/>
-  <text x="352" y="205" class="small">WireGuard mesh</text>
-  <text x="352" y="333" class="small">(direct, or via DERP)</text>
+  <path class="link" d="M1005 360 L1005 450"/>
+  <text x="1020" y="410" class="small">serves</text>
 
-  <!-- Phone -> VPS: DPI-bypass tunnel -->
-  <path class="wire2" d="M340 535 C 400 535 400 480 465 465"/>
-  <text x="352" y="608" class="small">Hysteria2 tunnel</text>
-  <text x="352" y="630" class="small">(QUIC, DPI-resistant)</text>
+  <!-- Wires -->
+  <path class="wire" d="M340 222 C 405 222 405 285 470 285"/>
+  <path class="wire2" d="M340 532 C 405 532 405 500 470 500"/>
+  <path class="wire" d="M755 290 C 818 290 818 265 880 265"/>
+  <path class="wire2" d="M755 478 C 830 478 830 322 880 322"/>
 
-  <!-- VPS -> Home server: single mesh segment carrying both -->
-  <path class="wire" d="M755 370 C 815 370 820 355 880 350"/>
-  <text x="765" y="410" class="small">WireGuard mesh</text>
-  <text x="765" y="430" class="small">(100.64.0.0/10)</text>
-
-  <path class="wire2" d="M755 500 C 815 500 820 500 880 495"/>
+  <!-- Legend -->
+  <path class="wireL" d="M70 682 H130"/>
+  <text x="142" y="687" class="small">WireGuard mesh — direct when possible, relayed via the self-hosted DERP when not</text>
+  <path class="wire2L" d="M70 714 H130"/>
+  <text x="142" y="719" class="small">Hysteria2 tunnel — QUIC-based, built to survive DPI</text>
 </svg>
