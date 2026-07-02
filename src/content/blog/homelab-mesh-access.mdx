@@ -1,175 +1,109 @@
 ---
-title: "The Homelab Mesh That Only Worked From the Couch"
-description: "A self-hosted Tailscale-compatible mesh, built from Russia: CGNAT, DPI-killed VPN handshakes, a relay misconfigured into silence, a 32-bit phone nobody builds for anymore — and Android's one-VPN-slot rule, finally beaten by making the DPI-bypass gateway itself a mesh peer."
+title: Running a mesh network behind CGNAT and DPI
+description: How I keep my homelab reachable from laptops and one old 32-bit Android phone that also has to be my DPI-bypass VPN device.
 pubDate: 2026-07-02
 category: "Homelab"
-tags: ["homelab", "networking", "tailscale", "headscale", "vpn", "self-hosted", "nfs"]
+tags: ["homelab", "networking", "headscale", "vpn", "self-hosted", "nfs"]
 imgSrc: "/blog/homelab-mesh-access-architecture.svg"
-imgAlt: "Diagram showing a laptop reaching the home server directly over a self-hosted mesh, and a phone reaching it through a DPI-bypass tunnel whose VPS endpoint is itself now a mesh peer."
+imgAlt: "Mesh access architecture with a VPS, DPI-bypass tunnel, and homelab clients"
 ---
 
-The [living-room home server](/blog/homelab-archcraft) has one design flaw:
-it assumes I'm in the living room. Music, torrents, Nextcloud, dashboards —
-all of it behind a router that doesn't answer to the outside world and was
-never going to. Getting the same access from anywhere sounds like a weekend
-of following a Tailscale tutorial. From Russia, it turned into a small saga:
-CGNAT, deep packet inspection, a config bug that hid for weeks, an ancient
-phone, and an Android platform limitation waiting at the end as the final
-boss.
+This started as a simple problem: I wanted reliable access to my homelab from anywhere.
 
-## Why the tutorial version doesn't work here
+In practice, the network was not simple at all. My home connection sits behind CGNAT. Public VPN protocols are often unreliable because of DPI filtering. And the main mobile client is an old 32-bit Android phone: modern mesh tools barely target that ARM generation anymore, but the same phone still has Android's one-VPN-slot limit.
 
-Three constraints, none of them negotiable:
+So the goal became more specific:
 
-- **Nothing gets in.** Residential connections sit behind CGNAT: no public
-  IP, nothing to port-forward, no DDNS trick to save you. Whatever the
-  architecture ends up being, the home side has to *dial out* to something
-  reachable.
-- **Plain VPNs don't get out.** Russia's traffic-inspection hardware (TSPU)
-  fingerprints and drops OpenVPN and WireGuard handshakes on residential
-  lines. A bare WireGuard link from home mostly never forms at all.
-- **Tailscale's SaaS is shaped wrong for this.** Its coordination server and
-  public DERP relays are unreliable to reach from here, and signing up
-  requires a foreign SSO login — which requires a working VPN first.
-  Circular.
+- keep the homelab reachable without opening ports at home
+- make the setup work through CGNAT
+- avoid relying on a public VPN protocol that gets blocked
+- keep the phone usable without switching VPN profiles all day
+- support one awkward 32-bit ARM client
 
-So: self-host the control plane. **headscale** reimplements Tailscale's
-coordination server, and stock Tailscale clients will happily point at it
-via `--login-server`. Mine went onto a small VPS in Poland I already run —
-the same box that hosts a DPI-bypass proxy tier (Hysteria2/Reality family,
-which will matter later) and has therefore already proven, daily, that HTTPS
-from my ISP to it survives. Every device — home server, laptops, phone —
-dials *out* to that VPS over HTTPS. CGNAT never comes up, and to the
-inspection boxes along the way it doesn't look much like a VPN.
+The result is not a beautiful one-click setup. It is a practical one.
 
-<figure className="architecture-diagram">
-  <img
-    src="/blog/homelab-mesh-access-architecture.svg"
-    alt="Diagram: a laptop's Tailscale client reaches the home server via a self-hosted control plane and DERP relay on a VPS; a phone running only a DPI-bypass tunnel reaches the same home server because that VPS is now also a mesh peer."
-    loading="lazy"
-  />
-  <figcaption>Two different transports on the client side; one mesh segment past the VPS.</figcaption>
+## The Shape Of The Setup
+
+I use a small VPS as the public entry point. The homelab connects out to it through a DPI-resistant tunnel. From there, a private mesh network handles the devices that need to talk to each other.
+
+<figure>
+  <img src="/blog/homelab-mesh-access-architecture.svg" alt="Mesh access architecture with a VPS, DPI-bypass tunnel, and homelab clients" />
+  <figcaption>The VPS is the stable public anchor. The homelab only makes outbound connections.</figcaption>
 </figure>
 
-## Weeks of it working, until it didn't
+The important part is direction. Nothing has to dial into my home network directly. The homelab initiates the connection, the VPS stays reachable, and clients can join the private network from wherever they are.
 
-Enrolling the home server and a laptop went smoothly, and the mesh ran fine —
-for weeks. Then a laptop roamed onto a different network and the whole thing
-just... stopped. No error, no useful timeout. The home server was simply
-gone.
+That one decision removes a lot of pain. CGNAT stops mattering. Home router port forwarding stops mattering. If the ISP changes something upstream, the public side of the system is still the VPS.
 
-The cause was dumb in the specific way these things always are: the
-self-hosted DERP relay — the fallback that carries traffic when two peers
-can't connect directly — still had the **example placeholder addresses**
-from the documentation in its config. `198.51.100.1` and `2001:db8::1` are
-the RFC 5737 / RFC 3849 ranges, reserved precisely so that no real traffic
-ever goes to them. Every client dutifully dialed an unroutable address for
-its relay fallback, failed silently, and fell back to nothing.
+## Why Not Just Use A VPN?
 
-What made it invisible: on the same LAN, WireGuard peers negotiate a
-**direct** connection and never touch the relay. The bug only lives in the
-gap between "both devices are online" and "both devices can see each other
-directly" — which is almost every situation *except* two machines sharing a
-home network. The mesh had been broken from day one, and home was the one
-place that couldn't reveal it.
+A regular VPN would be the obvious answer if the network were friendly.
 
-The lesson, written down because I will forget it: **"works at home,
-unreachable everywhere else" is a relay problem, not a device problem.**
-`tailscale netcheck` — does `UDP` report true, what's the `Nearest DERP` —
-plus a sanity check that the relay's advertised IP is one it's actually
-reachable at, catches this in a minute. Noticing it organically took weeks.
+Mine is not.
 
-## The 32-bit phone
+Some protocols work for a while and then disappear behind filtering. OpenVPN can be slow or blocked. WireGuard is excellent when UDP is allowed, but that assumption is not always safe. I wanted something that looked boring enough to survive transport-level filtering and stable enough that I would not have to babysit it.
 
-With the relay fixed, the laptops were done. The phone was not, because the
-phone is a 32-bit **armv7** device, and every sensible-looking path died in
-sequence:
+That is why the public transport is separate from the private mesh.
 
-- Termux's `tailscale` package lives in the TUR repo, which builds
-  **aarch64 only** — `unable to locate package`.
-- A NetBird-branded app that looked promising wanted a "management server
-  URL" and rejected headscale outright. Different coordination protocol;
-  the resemblance was only in the name.
-- The official static Tailscale binary for ARM isn't a PIE build, and
-  modern Android flatly refuses to execute it.
-- A custom Bionic-targeted build got the furthest, then died on `TLS
-  segment underaligned`: Android's C library demands stricter alignment
-  than a stock Go cross-compile emits, and fixing that collides with Go's
-  hard-coded float ABI for 32-bit ARM. Known dead end. Do not retry.
+The DPI-bypass tunnel gets me from the homelab to the VPS. The mesh handles identity, device routing, and friendly names. They solve different problems, and keeping them separate makes the whole thing easier to debug.
 
-What worked felt less like a fix than a loophole. The **official** Tailscale
-app runs fine on armv7 — it just hides its "custom coordination server"
-setting until you've logged in once. And logging in means reaching
-`login.tailscale.com`, which is blocked from here. So: DPI-bypass tunnel on,
-sign into a free Tailscale SaaS account, and the hidden **"use an alternate
-server"** option appears. Point it at headscale, approve the registration
-server-side, tunnel back off. Whole-phone mesh VPN on hardware that every
-"just install Tailscale" guide quietly assumes was recycled years ago.
+## The Mesh Layer
 
-## Mounts and names that assumed the LAN
+For the mesh, [Headscale](https://headscale.net/) gives me the control plane I want without depending on a third-party coordination service. Clients still get the [Tailscale](https://tailscale.com/)-style experience: devices join, names resolve, and routes are easy to reason about.
 
-The mesh now reached everything; not everything was ready to be reached. The
-home server's drives are NFS mounts on the laptop — automounted lazily on
-first access, a genuinely nice setup — except the mounts pointed at a
-hostname that only resolves on the home LAN. Anywhere else, touching the
-path meant hanging until the timeout.
+The VPS becomes the place where the mesh can rendezvous. The homelab advertises the routes I need. Laptops and phones join the same private network and reach services by mesh address or name instead of public IPs.
 
-The fix was two sets of mountpoints, not one clever one:
+For daily use, this matters more than it sounds. I do not want to remember where a service lives or which network I am currently on. I want to open the same address and get the same result.
 
-- The LAN mounts, unchanged: full speed, no encryption overhead.
-- A parallel set aimed at the mesh address, for when the laptop is away,
-  with the mount timeout bumped to survive internet latency instead of LAN
-  latency.
+## The Phone Is The Hard Part
 
-I specifically didn't want a single mountpoint that auto-detects the
-network. That's real machinery — reachability probes, a remount-on-change
-service — to avoid typing a different path a few times a month, and it
-would shove bulk file transfers through an encrypted tunnel while I sit
-three meters from the server. Two names, each doing one obvious thing.
+The awkward device in this setup is not a separate client or a spare board. It is the same phone I carry around.
 
-The web dashboards (Navidrome, the torrent UI, the rest) had the same
-which-name-resolves-where problem plus one extra constraint: their TLS
-certificate is a wildcard covering exactly one hostname level, so the NFS
-trick — a parallel mesh-only name — would make every browser complain about
-a mismatch. For these, the answer flipped: route them through the mesh
-*unconditionally*. A dashboard is a few kilobytes of HTML; the encryption
-tax is nothing, and when both ends are on the same LAN the mesh negotiates
-a direct local-speed path anyway.
+That matters because it has two unrelated problems at once. First, it is a 32-bit `armv7` Android phone, so a lot of modern builds simply do not target it anymore. Second, it still needs to run my DPI-bypass VPN for normal browsing, and Android only lets one app own the VPN interface at a time.
 
-## One phone, one VPN slot
+I tried the obvious Tailscale routes first. Stock binaries, packaged releases, and the easy cross-compile path all failed in different ways. Most of the ecosystem now assumes 64-bit ARM, which is reasonable in 2026 but not very helpful when the device in your hand is older and still works.
 
-Which leaves the problem that had been sitting there since the beginning,
-unnamed: **Android lets exactly one app hold the VPN interface.** Turn on
-Tailscale and the DPI-bypass tunnel dies. Turn the tunnel back on and
-Tailscale dies. Neither app is wrong — `VpnService` works this way, full
-stop.
+The practical path was to treat the phone as the constraint, not as an afterthought. The mesh design had to work with one Android VPN slot, not ask me to choose between internet access and homelab access every time I opened the phone.
 
-For a while the answer was to toggle. It was fine, in the way things are
-fine right up until they aren't: the moment I wanted normal browsing *and*
-a quick look at the home server in the same session, "fine" ended.
+## One Phone, One VPN
 
-The fix was obvious the second it clicked: **the phone doesn't need to be
-in the mesh if the thing it's already tunneling through is.** The VPS
-terminating the DPI-bypass tunnel had never joined its own mesh — it was
-purely an internet relay. Enroll it like any other device and it gets a
-mesh address of its own; from that moment its proxy's outbound connections,
-never restricted to begin with, reach the home server's mesh address like
-any other destination. No forwarding rules, no NAT tricks. A mesh peer
-doesn't need to be told how to route to the mesh.
+If the phone runs a DPI-bypass VPN app and a separate mesh VPN app, one of them loses. That is not a bug in either app; it is how Android's `VpnService` works.
 
-So the phone now runs one VPN app, permanently, for everything. On the rare
-occasion it needs the home server, the path is already there — inside the
-tunnel it was going to use anyway.
+The useful fix is to stop making the phone join the mesh directly. The phone keeps running the DPI-bypass tunnel it already needs. The VPS at the other end of that tunnel becomes a mesh peer. From there, outbound connections from the VPS can reach the homelab over the private mesh.
 
-## The one remaining rough spot
+So the phone remains just a phone with one active VPN. When I need a homelab service, the path is already there: phone to DPI-bypass VPS, then VPS to homelab through the mesh.
 
-The friendly mesh-wide hostnames (the `.lab` names the dashboards answer
-to) come from MagicDNS, which headscale pushes to registered mesh
-*clients* — and the phone, by design, no longer is one. So from the phone
-it's a raw mesh IP for the couple of services that need one. I'll take that
-trade over fighting a VPN toggle several times a day.
+That small shift is what makes the setup usable. The old 32-bit Android phone is not a second problem next to the VPN-slot problem; it is the same device forcing both constraints at once.
 
-Everything else on the list — the placeholder relay, the armv7 gauntlet,
-the split mounts — turned out to be a one-time cost. This is the first
-piece of the homelab that feels finished: not because nothing's left to
-improve, but because nothing's left that interrupts.
+## NFS And The Certificate Trick
+
+One nice side effect is that local services can stay local.
+
+For example, NFS does not need to become a public-facing service. The mesh carries the private traffic. For browser-facing tools, I can put a small HTTPS layer in front and use a wildcard certificate where it makes sense.
+
+The public internet sees very little. The private network still feels convenient. That is the balance I wanted.
+
+## What I Like About This Design
+
+It is boring in the right places.
+
+The VPS has a public address. The homelab connects outward. The mesh gives me device identity and stable names. The DPI-resistant tunnel deals with hostile transport. Each part has one job.
+
+When something breaks, I can ask a simple question:
+
+- is the tunnel from home to the VPS alive?
+- is the mesh control plane reachable?
+- did the client join the mesh?
+- is the route advertised?
+
+That is much easier than debugging one giant VPN configuration where transport, identity, routing, and device compatibility are all tangled together.
+
+## Trade-Offs
+
+There are trade-offs.
+
+The VPS is now important. If it goes down, remote access goes down with it. The setup also has more moving pieces than a normal home VPN. And supporting old 32-bit Android hardware adds maintenance that most people should probably avoid.
+
+For me, those costs are acceptable. I get stable remote access, no inbound ports at home, a working phone setup, and a path that survives the networks I actually use.
+
+That is the part that matters. A homelab is only useful remotely if you can reach it when conditions are bad, not just when everything is friendly.

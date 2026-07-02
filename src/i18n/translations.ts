@@ -14,10 +14,10 @@ export const translations = {
       viewAll: 'View all',
     },
     about: {
-      title: 'About — Anton L | Frontend Developer',
+      title: 'About Anton L — Frontend Developer',
       heading: 'About',
-      description: 'Anton L — senior frontend developer (10+ years) in Vue, Nuxt, React, Next.js, and TypeScript, with full-stack Node.js/GraphQL work and AI integrations. Owns frontend architecture for high-traffic media, fintech, and product teams.',
-      text: "I'm a developer passionate about building modern web apps. I love exploring new technologies, learning, and sharing knowledge through writing and open source.",
+      description: 'Anton L is a frontend developer focused on production web applications, developer tools, and practical self-hosted systems. He works mainly with Vue, React, TypeScript, Node.js, and GraphQL, with experience across media, fintech, and product teams.',
+      text: 'I build interfaces that have to survive real users, real data, and real deadlines. Most of my work is frontend, but I am comfortable crossing into Node.js, GraphQL, automation, and infrastructure when that is what the product needs. Outside client work, I write about the engineering details I had to figure out the hard way: browser behavior, terminal workflows, bots, homelab systems, and open-source tooling.',
     },
     contact: {
       title: 'Contact — Anton L',
@@ -56,10 +56,10 @@ export const translations = {
       viewAll: 'Все записи',
     },
     about: {
-      title: 'Обо мне — Антон Л | Фронтенд-разработчик',
+      title: 'Обо мне — Антон L | Frontend Developer',
       heading: 'Обо мне',
-      description: 'Антон Л — senior frontend-разработчик, 10+ лет с Vue, Nuxt, React, Next.js и TypeScript, плюс fullstack на Node.js/GraphQL и AI-интеграции. Отвечаю за фронтенд-архитектуру в медиа, финтехе и продуктовых командах.',
-      text: 'Я разработчик, увлечённый созданием современных веб-приложений. Люблю изучать новые технологии, учиться и делиться знаниями через статьи и open source.',
+      description: 'Антон L — frontend-разработчик, который делает продакшен веб-приложения, инструменты для разработчиков и практичные self-hosted системы. Основной стек: Vue, React, TypeScript, Node.js и GraphQL. Опыт — медиа, финтех и продуктовые команды.',
+      text: 'Я делаю интерфейсы, которые должны нормально жить с реальными пользователями, данными и сроками. В основном работаю на фронтенде, но спокойно захожу в Node.js, GraphQL, автоматизацию и инфраструктуру, если это помогает продукту. В блоге пишу о вещах, с которыми сам разбирался на практике: поведение браузеров, терминальные workflow, боты, homelab, open source и небольшие инженерные решения, которые обычно остаются за кадром.',
     },
     contact: {
       title: 'Контакты — Антон Л',
