@@ -1,5 +1,5 @@
 ---
-title: "Reaching the Homelab From Anywhere (Without Two VPNs Fighting for the Same Slot)"
+title: "The Homelab Mesh That Only Worked From the Couch"
 description: "Building a self-hosted Tailscale-compatible mesh from Russia — CGNAT, DPI-blocked VPN handshakes, a DERP relay that silently only worked on the home LAN, an Android install gauntlet with four dead ends — and the final wrinkle: a phone that can only run one VPN app at a time, solved by making the DPI-bypass gateway itself a mesh peer."
 pubDate: 2026-07-02
 category: "Homelab"
@@ -57,8 +57,9 @@ roamed onto a different network and the mesh just... stopped. Not an error,
 not a timeout with a useful message. It simply couldn't see the home server
 anymore.
 
-The cause was almost embarrassing: the self-hosted DERP relay config still
-had the **example placeholder addresses** from the documentation —
+The cause was dumb, in the specific way these things always are: the
+self-hosted DERP relay config still had the **example placeholder
+addresses** from the documentation —
 `198.51.100.1` and `2001:db8::1`, the RFC 5737 / RFC 3849 ranges reserved
 specifically so nobody accidentally routes real traffic to them. Every
 client dutifully tried to dial those unroutable addresses for relay
@@ -93,8 +94,9 @@ sensible-looking option in sequence:
   stock Go cross-compile produces, and that collides with Go's own hard-coded
   float ABI flag for 32-bit ARM. A known dead end, not worth retrying.
 
-What actually worked was almost sneaky: install the **official** Tailscale
-app (it does run fine on armv7), turn on the DPI-bypass tunnel just long
+What actually worked felt more like a loophole than a fix: install the
+**official** Tailscale app (it does run fine on armv7), turn on the
+DPI-bypass tunnel just long
 enough to reach `login.tailscale.com`, and sign into a free Tailscale SaaS
 account. That first login is what *reveals* the otherwise-hidden "use an
 alternate coordination server" setting in the app. Point it at the
@@ -130,7 +132,7 @@ wrinkle: the TLS certificate covering those dashboards is a wildcard for
 path a different, parallel name without the browser complaining about a
 certificate mismatch. For low-bandwidth control-plane UIs like these — as
 opposed to bulk file transfer — routing them through the mesh unconditionally
-turned out to be the simpler, entirely reasonable choice: the encryption
+was just the simpler, entirely reasonable choice: the encryption
 overhead doesn't matter for a dashboard, and the mesh already negotiates a
 direct LAN-speed path when both sides happen to be on the same network
 anyway.
@@ -149,8 +151,8 @@ moment I wanted both at once — general browsing through the DPI-bypass
 tunnel *and* a quick check of something on the home server, in the same
 session.
 
-The fix, once it clicked, was almost obvious in hindsight: **the phone
-doesn't need to be a mesh member at all if the thing it's already tunneling
+The fix, once it clicked, was obvious in hindsight: **the phone doesn't
+need to be a mesh member at all if the thing it's already tunneling
 through is one.** The VPS running the DPI-bypass proxy was, until this point,
 purely a relay for internet traffic — it had never joined its own mesh as a
 node. Installing the Tailscale client there and enrolling it like any other
