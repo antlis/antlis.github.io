@@ -1,9 +1,10 @@
 import rss from '@astrojs/rss'
 import { getCollection } from 'astro:content'
 import type { APIContext } from 'astro'
+import { isVisibleBlogPost } from '../utils/drafts'
 
 export async function GET(context: APIContext) {
-  const posts = await getCollection('blog', ({ data }) => (data.locale ?? 'en') === 'en' && !data.draft)
+  const posts = (await getCollection('blog', ({ data }) => (data.locale ?? 'en') === 'en')).filter(isVisibleBlogPost)
   const site = context.site!.toString().replace(/\/$/, '')
 
   return rss({

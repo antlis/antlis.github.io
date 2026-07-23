@@ -8,13 +8,14 @@ import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 import { localePath } from '/src/i18n/utils'
 import { getReadingTime } from '/src/utils/readingTime'
+import { isVisibleBlogPost } from '../../../utils/drafts'
 
 interface Props {
   post: CollectionEntry<'blog'>
 }
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog', ({ data }) => data.locale === 'ru' && !data.draft)
+  const posts = (await getCollection('blog', ({ data }) => data.locale === 'ru')).filter(isVisibleBlogPost)
 
   return posts.map((post) => ({
     params: { slug: post.slug.replace(/-ru$/, '') },
@@ -23,7 +24,7 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props
-const posts = await getCollection('blog', ({ data }) => data.locale === 'ru' && !data.draft)
+const posts = (await getCollection('blog', ({ data }) => data.locale === 'ru')).filter(isVisibleBlogPost)
 const { Content, headings } = await post.render()
 const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
 const readingTime = getReadingTime(post.body, 'ru')
@@ -48,6 +49,7 @@ const ogImage = `/og/blog/ru/${post.slug.replace(/-ru$/, '')}.svg`
           )}
         </div>
         <h1>{post.data.title}</h1>
+        {post.data.draft && <span class="post-draft-badge">Draft</span>}
         <p class="post-dek">{post.data.description}</p>
         {post.data.tags && post.data.tags.length > 0 && (
           <div class="tags">
@@ -871,5 +873,21 @@ const ogImage = `/og/blog/ru/${post.slug.replace(/-ru$/, '')}.svg`
       grid-template-columns: 1fr;
       gap: 0.65rem;
     }
+  }
+
+  .post-draft-badge {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    border-radius: 6px;
+    color: #92400e;
+    background: rgba(245, 158, 11, 0.12);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin-top: 0.75rem;
+    padding: 0.32rem 0.48rem;
+    text-transform: uppercase;
   }
 </style>

@@ -3,10 +3,11 @@ import Layout from '/src/layouts/Layout.astro'
 import BlogCard from '/src/components/BlogCard.astro'
 import { getCollection } from 'astro:content'
 import { t, localePath } from '/src/i18n/utils'
+import { isVisibleBlogPost } from '../../../utils/drafts'
 
 const locale = 'ru'
 const i = t(locale)
-const posts = await getCollection('blog', ({ data }) => data.locale === 'ru' && !data.draft)
+const posts = (await getCollection('blog', ({ data }) => data.locale === 'ru')).filter(isVisibleBlogPost)
 const sortedPosts = posts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
 const allCategories = [...new Set(sortedPosts.map((p) => p.data.category).filter(Boolean))].sort()
 const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort()
@@ -40,6 +41,7 @@ const tagCounts = allTags.map((tag) => ({
             imgSrc={post.data.imgSrc}
             imgAlt={post.data.imgAlt}
             date={post.data.pubDate.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' })}
+          draft={post.data.draft}
           />
         ))}
         <div class="no-results" id="no-results">
