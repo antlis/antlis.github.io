@@ -1,15 +1,16 @@
 ---
 import Layout from '/src/layouts/Layout.astro'
+import { Icon } from 'astro-icon/components'
 import { t } from '/src/i18n/utils'
 
 const i = t('ru')
 const platforms = [
-  { name: 'GitHub', url: 'https://github.com/antlis' },
-  { name: 'LinkedIn', url: 'https://www.linkedin.com/in/antlis/' },
-  { name: 'X', url: 'https://x.com/antlis5' },
-  { name: 'GitLab', url: 'https://gitlab.com/antlis' },
-  { name: 'StackOverflow', url: 'https://stackoverflow.com/users/2983061/antlis' },
-  { name: 'Telegram', url: 'https://t.me/Balkon1111' },
+  { name: 'GitHub', url: 'https://github.com/antlis', icon: 'simple-icons:github' },
+  { name: 'LinkedIn', url: 'https://www.linkedin.com/in/antlis/', icon: 'simple-icons:linkedin' },
+  { name: 'X', url: 'https://x.com/antlis5', icon: 'simple-icons:x' },
+  { name: 'GitLab', url: 'https://gitlab.com/antlis', icon: 'simple-icons:gitlab' },
+  { name: 'StackOverflow', url: 'https://stackoverflow.com/users/2983061/antlis', icon: 'simple-icons:stackoverflow' },
+  { name: 'Telegram', url: 'https://t.me/Balkon1111', icon: 'simple-icons:telegram' },
 ]
 ---
 
@@ -26,7 +27,10 @@ const platforms = [
 
     <div class="platforms" aria-label="Социальные платформы">
       {platforms.map((platform) => (
-        <a href={platform.url} target="_blank" rel="noopener">{platform.name}</a>
+        <a href={platform.url} target="_blank" rel="noopener">
+          <Icon name={platform.icon} size="16" aria-hidden="true" />
+          <span>{platform.name}</span>
+        </a>
       ))}
     </div>
 
@@ -191,6 +195,9 @@ const platforms = [
   }
 
   .platforms a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
     padding: 0.38rem 0.72rem;
     color: var(--text-secondary);
     background: var(--card-bg);

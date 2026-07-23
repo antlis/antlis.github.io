@@ -29,6 +29,7 @@ export const translations = {
       title: 'Blog — Anton L | Web Development, Tools & Security',
       heading: 'Blog',
       description: 'Articles about frontend development, developer tools, shell productivity, web security, and modern JavaScript/TypeScript by Anton L.',
+      intro: "This is my personal notebook — a place to save things I learn, break, and fix. Some articles are written from scratch, some are heavily edited with AI, and some are just small code snippets I want to keep handy. A lot of it is here so I remember it next time. Maybe someone else will find it useful too.",
       empty: 'No posts yet.',
     },
     portfolio: {
@@ -71,6 +72,7 @@ export const translations = {
       title: 'Блог — Антон Л | Веб-разработка, инструменты и безопасность',
       heading: 'Блог',
       description: 'Статьи о фронтенд-разработке, инструментах разработчика, продуктивности в терминале, веб-безопасности и современном JavaScript/TypeScript от Антона Л.',
+      intro: 'Это мой личный блокнот — место, где я сохраняю то, что узнаю, ломаю и чиню. Некоторые статьи написаны с нуля, некоторые серьёзно отредактированы с помощью ИИ, а некоторые — это просто небольшие фрагменты кода, которые я хочу держать под рукой. Многое написано здесь, чтобы я запомнил это на следующий раз. Возможно, кому-то ещё это пригодится.',
       empty: 'Записей пока нет.',
     },
     portfolio: {

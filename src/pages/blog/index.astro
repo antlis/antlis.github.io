@@ -20,6 +20,7 @@ const tagCounts = allTags.map((tag) => ({
 <Layout title={i.blog.title} description={i.blog.description} pageType="blog-listing">
   <div class="blog-page">
     <h1>{i.blog.heading}</h1>
+    <p class="intro">{i.blog.intro}</p>
     <label class="search-box" for="blog-search">
       <span>Search posts</span>
       <input id="blog-search" type="search" placeholder="Search by title, tag, or summary" autocomplete="off" />
@@ -99,6 +100,13 @@ const tagCounts = allTags.map((tag) => ({
 
   .blog-page h1 {
     margin: 0 0 0.75rem;
+  }
+
+  .intro {
+    max-width: 640px;
+    margin-bottom: 2.25rem;
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.1rem);
+    line-height: 1.75;
   }
 
   .search-box {
