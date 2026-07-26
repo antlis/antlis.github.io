@@ -219,6 +219,18 @@ const ARTICLES = [
       { t: "✓ PR #32954 open", c: "#39d353", size: 30, bold: true },
     ],
   },
+  {
+    slug: "x2x-sharing-keyboard-mouse",
+    pal: "shellTeal",
+    path: "~ — ssh x2x",
+    lines: [
+      { t: "$ ssh -YC archcraft-lan \\", c: "#2dd4bf", size: 28, bold: true },
+      { t: '    "/usr/bin/x2x -east -to :0"', c: "#e6edf3", size: 28 },
+      { t: "", size: 16 },
+      { t: "  laptop  ──▶  TV", c: "#2dd4bf", size: 40, bold: true },
+      { t: "  ◀── cursor slides east", dim: true, size: 26 },
+    ],
+  },
 ];
 
 for (const a of ARTICLES) {

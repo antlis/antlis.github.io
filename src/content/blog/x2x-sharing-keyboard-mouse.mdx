@@ -1,0 +1,199 @@
+---
+title: "x2x: One Keyboard, Two Screens"
+description: "How to share your keyboard and mouse between two X11 displays using x2x — no KVM switch, no remote desktop, just edge-of-screen cursor sliding."
+draft: true
+pubDate: 2026-07-26
+category: "Homelab"
+tags: ["x2x", "x11", "homelab", "linux", "keyboard-sharing", "mouse-sharing", "kvm", "ssh"]
+imgSrc: "/blog/x2x-sharing-keyboard-mouse.png"
+imgAlt: "Two monitors side by side with cursor moving between them"
+---
+
+## What x2x Does
+
+x2x connects two X displays so the keyboard and mouse on one can control the other. Move your cursor past the edge of your screen and it slides onto the second display. Type on your keyboard and the keystrokes go there too. Clipboard selections pass between displays as well.
+
+It has been around since 1996, originally written by David Chaiken at DEC. It uses the XTEST extension under the hood and works over regular X11 connections or SSH tunnels.
+
+No KVM switch. No remote desktop window eating half your screen. Just your cursor sliding from one monitor to another.
+
+## My Setup
+
+I have a ThinkPad T460s sitting on a bookshelf next to my TV. It runs Archcraft, is plugged into a docking station, and is connected to the TV over HDMI. From the couch I sit with my regular laptop. I run x2x from the laptop, and when I move the cursor past the right edge of my laptop screen, it appears on the TV. I can control the homeserver from there — open a browser, fix a stuck media player, inspect a desktop app — without reaching for a second keyboard.
+
+That is the whole point. One keyboard, one mouse, two screens.
+
+## Installation
+
+x2x is packaged in most distributions:
+
+```bash
+# Arch Linux / AUR
+yay -S x2x
+
+# Debian / Ubuntu
+sudo apt install x2x
+
+# Fedora
+sudo dnf install x2x
+
+# Gentoo
+sudo emerge x11-misc/x2x
+```
+
+Or build from source:
+
+```bash
+git clone https://github.com/dottedmag/x2x && cd x2x
+./bootstrap.sh
+./configure
+make && sudo make install
+```
+
+## Method 1: SSH (Simpler and More Secure)
+
+The easiest way is to SSH from your main machine to the homeserver with X forwarding enabled and run x2x there:
+
+```bash
+ssh -XC homeserver x2x -east -to :0.0
+```
+
+- `-X` enables X11 forwarding over SSH
+- `-C` enables compression
+- `-east` means the homeserver display is to the right (east) of your laptop
+- `-to :0.0` targets the default display on the remote machine
+
+If your laptop is on the right and the homeserver is on the left, use `-west` instead.
+
+You can also specify the full display address:
+
+```bash
+ssh -XC homeserver x2x -west -to homeserver:0.0
+```
+
+When you disconnect the SSH session, x2x stops automatically. No lingering processes.
+
+In practice, the command I actually run from my laptop is:
+
+```bash
+ssh -YC archcraft-lan "/usr/bin/x2x -east -to :0"
+```
+
+The full path to x2x matters because SSH does not source your login profile when you pass a command, so `PATH` may not find it otherwise. `-YC` enables forwarding with compression, `archcraft-lan` is the hostname on my LAN, and `-to :0` targets the homeserver's default display.
+
+## Method 2: Direct Connection with xauth
+
+If you want copy/paste between displays to work, or you want to avoid the SSH layer, you can run x2x locally and connect directly to the remote X server.
+
+First, copy the X11 authentication cookie from the homeserver to your laptop.
+
+On the homeserver:
+
+```bash
+# Check the current display
+echo $DISPLAY
+# :0.0
+
+# Extract the auth cookie
+xauth nextract - :0.0
+# Output: MIT-MAGIC-COOKIE-1 0412deadbeefcafe1234567890abcdef
+```
+
+On your laptop, add that cookie:
+
+```bash
+xauth nmerge - <paste the cookie here>
+```
+
+Then run x2x directly:
+
+```bash
+x2x -from :0 -to homeserver:0.0 -east
+```
+
+Where `:0` is your laptop display and `homeserver:0.0` is the remote display.
+
+You can verify your cookies are in place with:
+
+```bash
+xauth nlist
+```
+
+You also need X11 TCP port access open on both machines (port 6000+display number). Check `/etc/X11/xorg.conf` or your display manager settings for `Xlisten` or `XenableTCP`.
+
+## Method 3: xhost (Local Only, Quick and Dirty)
+
+For local use on a trusted network, you can skip cookie authentication entirely. On the homeserver, allow your laptop to connect:
+
+```bash
+xhost +laptop-ip-address
+```
+
+Then from your laptop:
+
+```bash
+x2x -from :0 -to homeserver:0.0 -east
+```
+
+This is the least secure option. Anyone on the network could connect to your X server. Fine for a home LAN you trust, not for anything exposed.
+
+## Useful Options
+
+```bash
+# Specify direction
+x2x -to server:0.0 -east    # server is to the right
+x2x -to server:0.0 -west    # server is to the left
+x2x -to server:0.0 -north   # server is above
+x2x -to server:0.0 -south   # server is below
+
+# Don't capture the mouse (keyboard only)
+x2x -to server:0.0 -east -nomouse
+
+# Disable clipboard sharing
+x2x -to server:0.0 -east -nosel
+
+# Wait for displays to be ready (useful in scripts)
+x2x -to server:0.0 -east -wait
+
+# Block cursor from sliding back while mouse buttons are pressed
+x2x -to server:0.0 -east -buttonblock
+```
+
+## The Cursor-Stuck Problem
+
+One real issue I have not fully solved: when the SSH connection drops (WiFi hiccup, sleep, whatever), the cursor can get stuck on the homeserver display. You cannot move it back to your laptop because x2x is no longer relaying mouse events, but the remote X server still thinks it owns the cursor.
+
+Workarounds:
+
+- **Kill and restart x2x.** If the SSH session is still alive, killing x2x on the remote side returns the cursor to the local display.
+- **SSH back in and run `xdotool mousemove`.** If you can get a shell on the homeserver, you can teleport the cursor back programmatically:
+  ```bash
+  ssh homeserver xdotool mousemove 0 0
+  ```
+- **Use `xhost +` from the homeserver directly.** If you have physical access, sit at the TV and type:
+  ```bash
+  # On the homeserver, kill any lingering x2x process
+  pkill x2x
+  ```
+
+If anyone has a cleaner solution for this, I would like to hear it.
+
+## When to Use x2x
+
+**Good for:**
+- Controlling a headless-ish machine next to your main workstation
+- A home server plugged into a TV that you occasionally need to interact with
+- Situations where you want screen real estate, not a remote desktop window
+- Quick two-machine setups that do not justify a KVM switch
+
+**Not great for:**
+- Machines far away on a slow network (latency matters here)
+- Wayland (x2x relies on X11 and XTEST)
+- Multi-monitor setups with complex layouts (it gets fiddly)
+
+x2x is a small, old tool that does one thing well. If you have two X displays next to each other and want one keyboard to control both, that is exactly what it is for.
+
+## See Also
+
+- [The $300 Living-Room Home Server on an Old ThinkPad T460s](/blog/homelab-archcraft) — the full story of the ThinkPad that x2x controls, including services, storage, Telegram bots, and the decision to move to NixOS.
+- [Running a Mesh Network Behind CGNAT and DPI](/blog/homelab-mesh-access) — how the homelab stays reachable from anywhere through a private mesh, CGNAT tunneling, and a DPI-bypass VPN.
