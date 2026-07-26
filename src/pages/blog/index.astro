@@ -20,7 +20,16 @@ const tagCounts = allTags.map((tag) => ({
 <Layout title={i.blog.title} description={i.blog.description} pageType="blog-listing">
   <div class="blog-page">
     <h1>{i.blog.heading}</h1>
-    <p class="intro">{i.blog.intro}</p>
+    <div class="intro-row">
+      <p class="intro">{i.blog.intro}</p>
+      <img
+        class="blog-hero"
+        src="https://res.cloudinary.com/dvbyognrh/image/upload/v1785081915/art/blog-cropped.png"
+        alt="Blog intro illustration"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </div>
     <label class="search-box" for="blog-search">
       <span>Search posts</span>
       <input id="blog-search" type="search" placeholder="Search by title, tag, or summary" autocomplete="off" />
@@ -102,11 +111,38 @@ const tagCounts = allTags.map((tag) => ({
     margin: 0 0 0.75rem;
   }
 
-  .intro {
-    max-width: 640px;
+  .intro-row {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
     margin-bottom: 2.25rem;
+  }
+
+  .intro {
+    flex: 1 1 0;
+    min-width: 0;
     font-size: clamp(1rem, 0.95rem + 0.25vw, 1.1rem);
     line-height: 1.75;
+  }
+
+  .blog-hero {
+    flex: 0 0 40%;
+    width: 40%;
+    height: auto;
+    border-radius: 10px;
+  }
+
+  @media (max-width: 640px) {
+    .intro-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.25rem;
+    }
+
+    .blog-hero {
+      flex: none;
+      width: 100%;
+    }
   }
 
   .search-box {
