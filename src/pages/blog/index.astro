@@ -30,10 +30,6 @@ const tagCounts = allTags.map((tag) => ({
         fetchpriority="high"
       />
     </div>
-    <label class="search-box" for="blog-search">
-      <span>Search posts</span>
-      <input id="blog-search" type="search" placeholder="Search by title, tag, or summary" autocomplete="off" />
-    </label>
     <div class="filter-status">
       <p id="filter-summary" aria-live="polite">Showing all posts</p>
       <button class="clear-filters" type="button" data-clear-filters hidden>Clear filters</button>
@@ -66,6 +62,10 @@ const tagCounts = allTags.map((tag) => ({
       </div>
 
       <aside class="sidebar">
+        <label class="search-box" for="blog-search">
+          <span>Search posts</span>
+          <input id="blog-search" type="search" placeholder="Search by title, tag, or summary" autocomplete="off" />
+        </label>
         {allCategories.length > 0 && (
           <div class="filter-group">
             <label class="sidebar-title" for="category-select">Categories</label>
