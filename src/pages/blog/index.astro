@@ -17,7 +17,7 @@ const tagCounts = allTags.map((tag) => ({
 }))
 ---
 
-<Layout title={i.blog.title} description={i.blog.description} pageType="blog-listing">
+<Layout title={i.blog.title} description={i.blog.description} pageType="blog-listing" image="https://res.cloudinary.com/dvbyognrh/image/upload/v1785081915/art/blog-cropped.png">
   <div class="blog-page">
     <h1>{i.blog.heading}</h1>
     <div class="intro-row">
@@ -64,7 +64,7 @@ const tagCounts = allTags.map((tag) => ({
       <aside class="sidebar">
         <label class="search-box" for="blog-search">
           <span>Search posts</span>
-          <input id="blog-search" type="search" placeholder="Search by title, tag, or summary" autocomplete="off" />
+          <input id="blog-search" type="search" placeholder="Search" autocomplete="off" />
         </label>
         {allCategories.length > 0 && (
           <div class="filter-group">
