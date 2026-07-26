@@ -1,7 +1,6 @@
 ---
 title: "x2x: One Keyboard, Two Screens"
 description: "How to share your keyboard and mouse between two X11 displays using x2x — no KVM switch, no remote desktop, just edge-of-screen cursor sliding."
-draft: true
 pubDate: 2026-07-26
 category: "Homelab"
 tags: ["x2x", "x11", "homelab", "linux", "keyboard-sharing", "mouse-sharing", "kvm", "ssh"]
@@ -188,10 +187,22 @@ If anyone has a cleaner solution for this, I would like to hear it.
 
 **Not great for:**
 - Machines far away on a slow network (latency matters here)
-- Wayland (x2x relies on X11 and XTEST)
+- Wayland — see below
 - Multi-monitor setups with complex layouts (it gets fiddly)
 
-x2x is a small, old tool that does one thing well. If you have two X displays next to each other and want one keyboard to control both, that is exactly what it is for.
+## Wayland: No Drop-In Replacement (Yet)
+
+x2x relies on X11's XTEST extension to inject input events into other windows. Wayland was designed with a stricter security model — one compositor cannot directly control or inject input into another. This breaks x2x's core functionality entirely.
+
+There is no direct Wayland equivalent today. The closest alternatives:
+
+- **Input Leap** (fork of Barrier/Synergy) — shares mouse and keyboard over the network, has better Wayland support than its predecessors. Works as a client/server model rather than raw input injection.
+- **Synergy / Barrier** — the older tools Input Leap forked from. Still around, still maintained, but Input Leap is generally preferred now.
+- **KVM switches or USB hub sharing** — hardware solution, no software involved. Fine if both machines are physically close.
+
+I have not tried any of these. My guess is none of them will feel as seamless as x2x — the cursor-sliding, the zero-config feeling, the "it just works" over SSH. These tools run as services, need configuration, and operate at a different layer. But if you are on Wayland, they are what you have.
+
+The Linux community is working on standardized protocols (like XDG-foreign) to allow controlled input and clipboard sharing between Wayland compositors, but nothing stable or widely available yet. Another option worth watching is [rkvm](https://github.com/htrefil/rkvm), a Wayland-native input sharing tool written in Rust.
 
 ## See Also
 
