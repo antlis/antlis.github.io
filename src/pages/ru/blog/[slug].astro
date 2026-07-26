@@ -3,6 +3,7 @@ import Layout from '/src/layouts/Layout.astro'
 import HeroImage from '/src/components/HeroImage.astro'
 import Comments from '/src/components/Comments.astro'
 import BlogPostExtras from '/src/components/BlogPostExtras.astro'
+import ShareButtons from '/src/components/ShareButtons.astro'
 import ZoomableImages from '/src/components/ZoomableImages.astro'
 import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
@@ -72,6 +73,7 @@ const ogImage = `/og/blog/ru/${post.slug.replace(/-ru$/, '')}.svg`
       <div class="content" data-zoomable-images>
         <Content />
       </div>
+      <ShareButtons title={post.data.title} />
       <BlogPostExtras posts={posts} currentSlug={post.slug} locale="ru" />
       <Comments lang="ru" />
     </article>
