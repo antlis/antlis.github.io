@@ -231,6 +231,19 @@ const ARTICLES = [
       { t: "  ◀── cursor slides east", dim: true, size: 26 },
     ],
   },
+  {
+    slug: "ai-harness-setup",
+    pal: "hermes",
+    path: "~/vault/ai — opencode",
+    lines: [
+      { t: "$ opencode", c: "#a78bfa", size: 32, bold: true },
+      { t: "  reading AI_CONTEXT.md…", dim: true, size: 26 },
+      { t: "  → skills/", c: "#e6edf3", size: 28 },
+      { t: "  → devices/", c: "#e6edf3", size: 28 },
+      { t: "  → playbooks/", c: "#e6edf3", size: 28 },
+      { t: "✓ context loaded", c: "#39d353", size: 34, bold: true },
+    ],
+  },
 ];
 
 for (const a of ARTICLES) {
