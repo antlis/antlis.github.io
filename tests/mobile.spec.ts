@@ -22,7 +22,7 @@ test('mobile menu has navigation links', async ({ page }) => {
   const hamburger = page.locator('button.menu-toggle');
   await hamburger.click();
 
-  for (const label of ['About', 'Blog', 'Portfolio', 'Contact']) {
+  for (const label of ['About', 'Blog', 'Projects', 'Contact']) {
     const link = page.locator(`.mobile-link:has-text("${label}")`).first();
     await expect(link).toBeVisible();
   }
@@ -51,8 +51,8 @@ test('contact form is usable on mobile', async ({ page }) => {
   await expect(page.locator('textarea[name="message"], #message')).toBeVisible();
 });
 
-test('portfolio page is usable on mobile', async ({ page }) => {
-  await page.goto('/portfolio', { waitUntil: 'domcontentloaded' });
+test('projects page is usable on mobile', async ({ page }) => {
+  await page.goto('/projects', { waitUntil: 'domcontentloaded' });
   const items = page.locator('a.project');
   const count = await items.count();
   expect(count).toBeGreaterThan(0);

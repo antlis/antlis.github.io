@@ -48,14 +48,14 @@ test('RU blog listing has Russian content', async ({ page }) => {
   expect(text).toMatch(/[а-яА-Я]/);
 });
 
-test('EN portfolio listing has English content', async ({ page }) => {
-  await page.goto('/portfolio');
+test('EN projects listing has English content', async ({ page }) => {
+  await page.goto('/projects');
   const text = await page.locator('body').textContent();
   expect(text).not.toMatch(/[а-яА-Я]/);
 });
 
-test('RU portfolio listing has Russian content', async ({ page }) => {
-  await page.goto('/ru/portfolio');
+test('RU projects listing has Russian content', async ({ page }) => {
+  await page.goto('/ru/projects');
   const text = await page.locator('body').textContent();
   expect(text).toMatch(/[а-яА-Я]/);
 });

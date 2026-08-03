@@ -1,0 +1,17 @@
+---
+title: "telescope-gist"
+description: "Neovim Telescope extension for GitHub Gists — list, preview with syntax highlighting, edit as buffers, and sync back to GitHub."
+category: "projects"
+imgSrc: "/blog/telescope-gist.png"
+imgAlt: "Neovim Telescope picker showing GitHub Gists"
+href: "https://github.com/antlis/telescope-gist"
+blogHref: "/blog/telescope-gist"
+stack: ["Lua", "Neovim", "Telescope", "GitHub API"]
+year: "2025"
+scope: ["Telescope picker with multi-file gist listing", "Syntax-highlighted preview using buffer filetype", "Edit gist files as Neovim buffers, sync on :w", "Create gists from visual selections", "Delete, yank URL, two-layer cache"]
+highlights: ["Built a Telescope sorter that ranks gists by recent access.", "Used GitHub API raw endpoints for fast file content retrieval.", "Implemented a write-through cache so edits persist across picker sessions."]
+outcome: "A fast, keyboard-driven Gist workflow that lives inside Neovim — no browser context switching."
+improvements: "Add gist forking, multi-account support, and async delete confirmation."
+---
+
+A small Neovim plugin that brings GitHub Gists into the Telescope picker. The idea was simple: I open Telescope, type a partial filename or description, pick a gist, preview it with syntax highlighting, and open multi-file gists as editable buffers. Changes sync back to GitHub on `:w`.

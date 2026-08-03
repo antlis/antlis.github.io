@@ -5,7 +5,7 @@ test('desktop navigation links exist', async ({ page }) => {
   const nav = page.locator('header').first();
   await expect(nav).toBeVisible();
 
-  for (const label of ['About', 'Blog', 'Portfolio', 'Contact']) {
+  for (const label of ['About', 'Blog', 'Projects', 'Contact']) {
     const link = page.locator(`a:has-text("${label}")`).first();
     await expect(link).toBeVisible();
   }

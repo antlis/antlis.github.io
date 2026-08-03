@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-const enRoutes = ['/', '/about', '/blog', '/portfolio', '/contact'];
-const ruRoutes = ['/ru/', '/ru/about', '/ru/blog', '/ru/portfolio', '/ru/contact'];
+const enRoutes = ['/', '/about', '/blog', '/projects', '/contact'];
+const ruRoutes = ['/ru/', '/ru/about', '/ru/blog', '/ru/projects', '/ru/contact'];
 
 for (const route of enRoutes) {
   test(`EN page ${route} loads`, async ({ page }) => {
@@ -39,8 +39,8 @@ test('blog post detail page loads', async ({ page }) => {
   await expect(page.locator('h1').first()).toBeVisible();
 });
 
-test('portfolio listing shows items', async ({ page }) => {
-  await page.goto('/portfolio', { waitUntil: 'domcontentloaded' });
+test('projects listing shows items', async ({ page }) => {
+  await page.goto('/projects', { waitUntil: 'domcontentloaded' });
   const items = page.locator('a.project');
   const count = await items.count();
   expect(count).toBeGreaterThan(0);

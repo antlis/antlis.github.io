@@ -10,7 +10,7 @@ interface Props {
   type?: 'website' | 'article'
   publishedTime?: Date
   modifiedTime?: Date
-  pageType?: 'home' | 'about' | 'contact' | 'blog-listing' | 'portfolio-listing' | 'blog-post'
+  pageType?: 'home' | 'about' | 'contact' | 'blog-listing' | 'projects-listing' | 'blog-post'
   tags?: string[]
   category?: string
   readingTime?: string
@@ -47,8 +47,8 @@ const authorSchema = {
 }
 
 const breadcrumbLabels: Record<string, Record<string, string>> = {
-  en: { home: 'Home', blog: 'Blog', portfolio: 'Portfolio', about: 'About', contact: 'Contact' },
-  ru: { home: 'Главная', blog: 'Блог', portfolio: 'Портфолио', about: 'Обо мне', contact: 'Контакты' },
+  en: { home: 'Home', blog: 'Blog', projects: 'Projects', about: 'About', contact: 'Contact' },
+  ru: { home: 'Главная', blog: 'Блог', projects: 'Проекты', about: 'Обо мне', contact: 'Контакты' },
 }
 
 function buildJsonLd() {
@@ -104,7 +104,7 @@ function buildJsonLd() {
     })
   }
 
-  if (pageType === 'blog-listing' || pageType === 'portfolio-listing') {
+  if (pageType === 'blog-listing' || pageType === 'projects-listing') {
     schemas.push({
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',

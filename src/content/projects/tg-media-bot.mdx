@@ -1,0 +1,17 @@
+---
+title: "tg-media-bot"
+description: "Telegram bot that downloads media from 1000+ sites with yt-dlp and sends it back — tagged MP3s, inline video, 2 GB uploads."
+category: "projects"
+imgSrc: "/blog/tg-media-bot.png"
+imgAlt: "Terminal showing tg-media-bot fetching a link"
+href: "https://github.com/antlis/tg-media-bot"
+blogHref: "/blog/tg-media-bot"
+stack: ["Python", "aiogram", "yt-dlp", "Docker"]
+year: "2025"
+scope: ["Telegram bot interface with inline progress bar", "yt-dlp integration for 1000+ site support", "MP3 conversion with automatic ID3 tagging", "Inline video playback for short clips", "2 GB upload support via Telegram Bot API"]
+highlights: ["Built a streaming progress bar that updates in-place during downloads.", "Implemented cookies.txt injection for age-restricted and geo-locked sites.", "Added retry logic for transient network failures during large uploads."]
+outcome: "A personal media bot that handles any link I throw at it — music, video, podcasts — and sends the file back in the right format."
+improvements: "Add playlist support, scheduled downloads, and a web dashboard for history."
+---
+
+A Telegram bot that acts as a personal media downloader. Send it a link from YouTube, SoundCloud, or a thousand other sites, and it downloads the content with [yt-dlp](https://github.com/yt-dlp/yt-dlp), converts if needed, and sends the file back through Telegram. MP3s come tagged, short videos play inline, and large files upload up to 2 GB.

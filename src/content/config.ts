@@ -18,14 +18,16 @@ const blogCollection = defineCollection({
   }),
 })
 
-const portfolioCollection = defineCollection({
+const projectsCollection = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string(),
     locale: z.enum(['en', 'ru']).default('en'),
+    category: z.enum(['projects', 'portfolio']).default('portfolio'),
     imgSrc: z.string().optional(),
     imgAlt: z.string().optional(),
     href: z.string().optional(),
+    blogHref: z.string().optional(),
     stack: z.array(z.string()).optional(),
     year: z.string().optional(),
     role: z.string().optional(),
@@ -57,6 +59,6 @@ const interviewPrepCollection = defineCollection({
 
 export const collections = {
   blog: blogCollection,
-  portfolio: portfolioCollection,
+  projects: projectsCollection,
   'interview-prep': interviewPrepCollection,
 }

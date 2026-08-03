@@ -1,14 +1,14 @@
 ---
-import PortfolioProject from '/src/components/PortfolioProject.astro'
+import ProjectCard from '/src/components/ProjectCard.astro'
 import { getCollection } from 'astro:content'
 import type { CollectionEntry } from 'astro:content'
 
 interface Props {
-  post: CollectionEntry<'portfolio'>
+  post: CollectionEntry<'projects'>
 }
 
 export async function getStaticPaths() {
-  const posts = await getCollection('portfolio', ({ data }) => data.locale === 'ru')
+  const posts = await getCollection('projects', ({ data }) => data.locale === 'ru')
 
   return posts.map((post) => ({
     params: { slug: post.slug.replace(/-ru$/, '') },
@@ -17,10 +17,10 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props
-const projects = await getCollection('portfolio', ({ data }) => data.locale === 'ru')
+const projects = await getCollection('projects', ({ data }) => data.locale === 'ru')
 const { Content } = await post.render()
 ---
 
-<PortfolioProject post={post} projects={projects} locale="ru">
+<ProjectCard post={post} projects={projects} locale="ru">
   <Content />
-</PortfolioProject>
+</ProjectCard>

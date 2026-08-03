@@ -3,7 +3,7 @@ export const translations = {
     nav: {
       about: 'About',
       blog: 'Blog',
-      portfolio: 'Portfolio',
+      projects: 'Projects',
       contact: 'Contact',
     },
     home: {
@@ -32,11 +32,21 @@ export const translations = {
       intro: "This is my personal notebook — a place to save things I learn, break, and fix. Some articles are written from scratch, some are heavily edited with AI, and some are just small code snippets I want to keep handy. A lot of it is here so I remember it next time. Maybe someone else will find it useful too.",
       empty: 'No posts yet.',
     },
-    portfolio: {
-      title: 'Portfolio — Anton L | Web Development Projects',
-      heading: 'Portfolio',
+    projects: {
+      title: 'Projects — Anton L | Web Development Projects',
+      heading: 'Projects',
       description: 'Frontend development projects by Anton L — production web applications built with Vue, Nuxt.js, React, Next.js, and TypeScript.',
       intro: "Most of my commercial work is under NDA, so it can't be shown here. What you see below is a selection of personal and open-source projects — some of them are pretty old, but each one was built either entirely from scratch or with the frontend part done solo. They reflect how I approach problems, build UIs, and ship things end to end.",
+      sections: {
+        projects: {
+          heading: 'Projects',
+          intro: 'Open-source tools, plugins, and bots — things I build for myself and share with others.',
+        },
+        portfolio: {
+          heading: 'Portfolio',
+          intro: "Most of my commercial work is under NDA, so it can't be shown here. What you see below is a selection of client projects — each one was built either entirely from scratch or with the frontend part done solo.",
+        },
+      },
     },
     footer: {
       copyright: 'antlis',
@@ -46,7 +56,7 @@ export const translations = {
     nav: {
       about: 'Обо мне',
       blog: 'Блог',
-      portfolio: 'Портфолио',
+      projects: 'Проекты',
       contact: 'Контакты',
     },
     home: {
@@ -75,11 +85,21 @@ export const translations = {
       intro: 'Это мой личный блокнот — место, где я сохраняю то, что узнаю, ломаю и чиню. Некоторые статьи написаны с нуля, некоторые серьёзно отредактированы с помощью ИИ, а некоторые — это просто небольшие фрагменты кода, которые я хочу держать под рукой. Многое написано здесь, чтобы я запомнил это на следующий раз. Возможно, кому-то ещё это пригодится.',
       empty: 'Записей пока нет.',
     },
-    portfolio: {
-      title: 'Портфолио — Антон Л | Проекты веб-разработки',
-      heading: 'Портфолио',
+    projects: {
+      title: 'Проекты — Антон Л | Проекты веб-разработки',
+      heading: 'Проекты',
       description: 'Проекты фронтенд-разработки Антона Л — продакшен веб-приложения на Vue, Nuxt.js, React, Next.js и TypeScript.',
       intro: 'Большинство коммерческих проектов находятся под NDA, поэтому их нельзя показать. Ниже — подборка личных и open-source проектов, некоторые из них довольно старые, но каждый был создан либо полностью с нуля, либо фронтенд-часть была сделана самостоятельно. Они отражают мой подход к решению задач, построению интерфейсов и доставке продукта.',
+      sections: {
+        projects: {
+          heading: 'Проекты',
+          intro: 'Open-source инструменты, плагины и боты — то, что я делаю для себя и делюсь с другими.',
+        },
+        portfolio: {
+          heading: 'Портфолио',
+          intro: 'Большинство коммерческих проектов находятся под NDA, поэтому их нельзя показать. Ниже — подборка клиентских проектов, каждый был создан либо полностью с нуля, либо фронтенд-часть была сделана самостоятельно.',
+        },
+      },
     },
     footer: {
       copyright: 'antlis',

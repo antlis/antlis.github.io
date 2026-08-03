@@ -1,6 +1,6 @@
 ---
 import Layout from '/src/layouts/Layout.astro'
-import { CldImage } from 'astro-cloudinary'
+import HeroImage from '/src/components/HeroImage.astro'
 import type { CollectionEntry } from 'astro:content'
 import { localePath } from '/src/i18n/utils'
 import type { Locale } from '/src/i18n/translations'
@@ -9,16 +9,17 @@ import ZoomableImages from './ZoomableImages.astro'
 import TechStackBadges from './TechStackBadges.astro'
 
 interface Props {
-  post: CollectionEntry<'portfolio'>
-  projects: CollectionEntry<'portfolio'>[]
+  post: CollectionEntry<'projects'>
+  projects: CollectionEntry<'projects'>[]
   locale: Locale
 }
 
 const { post, projects, locale } = Astro.props
 const labels = {
   en: {
-    titleSuffix: 'Portfolio',
+    titleSuffix: 'Projects',
     visit: 'Visit project',
+    blog: 'Read more',
     stack: 'Tech stack',
     facts: 'Project facts',
     built: 'Built',
@@ -31,13 +32,12 @@ const labels = {
     more: 'More projects',
     previous: 'Previous',
     next: 'Next',
-    contactTitle: 'Need a frontend like this?',
-    contactText: 'I can help turn product and business requirements into clear, production-ready interfaces.',
-    contactLink: 'Contact me',
+
   },
   ru: {
-    titleSuffix: 'Портфолио',
+    titleSuffix: 'Проекты',
     visit: 'Перейти к проекту',
+    blog: 'Подробнее',
     stack: 'Технологический стек',
     facts: 'О проекте',
     built: 'Сделано',
@@ -50,13 +50,12 @@ const labels = {
     more: 'Другие проекты',
     previous: 'Предыдущий',
     next: 'Следующий',
-    contactTitle: 'Нужен похожий фронтенд?',
-    contactText: 'Я могу помочь превратить продуктовые и бизнес-требования в понятный продакшен-интерфейс.',
-    contactLink: 'Связаться',
+
   },
 }[locale]
 
-const sortedProjects = projects
+const sameCategory = projects.filter(p => p.data.category === post.data.category)
+const sortedProjects = sameCategory
   .slice()
   .sort((a, b) => {
     const yearDiff = Number(b.data.year ?? 0) - Number(a.data.year ?? 0)
@@ -68,9 +67,9 @@ const currentIndex = sortedProjects.findIndex((project) => project.slug === post
 const previousProject = currentIndex > 0 ? sortedProjects[currentIndex - 1] : undefined
 const nextProject = currentIndex >= 0 && currentIndex < sortedProjects.length - 1 ? sortedProjects[currentIndex + 1] : undefined
 
-function portfolioHref(project: CollectionEntry<'portfolio'>) {
+function projectHref(project: CollectionEntry<'projects'>) {
   const slug = locale === 'ru' ? project.slug.replace(/-ru$/, '') : project.slug
-  return localePath(`/portfolio/${slug}`, locale)
+  return localePath(`/projects/${slug}`, locale)
 }
 
 ---
@@ -117,20 +116,31 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
         </div>
       )}
 
-      {post.data.href && (
-        <a href={post.data.href} target="_blank" rel="noopener" class="link">
-          {labels.visit}
-          <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M7 17 17 7" />
-            <path d="M7 7h10v10" />
-          </svg>
-        </a>
-      )}
+      <div class="project-links">
+        {post.data.href && (
+          <a href={post.data.href} target="_blank" rel="noopener" class="link">
+            {labels.visit}
+            <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 17 17 7" />
+              <path d="M7 7h10v10" />
+            </svg>
+          </a>
+        )}
+        {post.data.blogHref && (
+          <a href={post.data.blogHref} class="link">
+            {labels.blog}
+            <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 17 17 7" />
+              <path d="M7 7h10v10" />
+            </svg>
+          </a>
+        )}
+      </div>
     </header>
 
     {post.data.imgSrc && (
       <figure class="hero-image" data-zoomable-images>
-        <CldImage
+        <HeroImage
           src={post.data.imgSrc}
           alt={post.data.imgAlt || post.data.title}
           width={960}
@@ -183,19 +193,11 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
       </div>
     </section>
 
-    <section class="contact-cta" aria-labelledby="portfolio-contact-title">
-      <div>
-        <h2 id="portfolio-contact-title">{labels.contactTitle}</h2>
-        <p>{labels.contactText}</p>
-      </div>
-      <a href={localePath('/contact', locale)}>{labels.contactLink}</a>
-    </section>
-
     <div class="project-nav-wrap">
       <AdjacentNav
         ariaLabel={labels.more}
-        previous={previousProject && { href: portfolioHref(previousProject), label: labels.previous, title: previousProject.data.title, direction: 'previous' }}
-        next={nextProject && { href: portfolioHref(nextProject), label: labels.next, title: nextProject.data.title, direction: 'next' }}
+        previous={previousProject && { href: projectHref(previousProject), label: labels.previous, title: previousProject.data.title, direction: 'previous' }}
+        next={nextProject && { href: projectHref(nextProject), label: labels.next, title: nextProject.data.title, direction: 'next' }}
       />
     </div>
   </article>
@@ -255,11 +257,16 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
     margin: 0 0 1.55rem;
   }
 
+  .project-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+
   .link {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    margin-top: 0.1rem;
     color: var(--accent);
     font-size: 0.92rem;
     font-weight: 750;
@@ -442,33 +449,6 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
     margin-top: 0.45rem;
   }
 
-  .contact-cta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.25rem;
-    margin: 2.75rem 0 0;
-    padding: 1.2rem 1.25rem;
-    border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border));
-    border-radius: 8px;
-    background:
-      linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent 58%),
-      var(--card-bg);
-  }
-
-  .contact-cta h2 {
-    margin: 0 0 0.35rem;
-    font-size: 1.08rem;
-    letter-spacing: -0.01em;
-  }
-
-  .contact-cta p {
-    max-width: 58ch;
-    margin: 0;
-    font-size: 0.92rem;
-    line-height: 1.6;
-  }
-
   .project-nav-wrap {
     margin-top: 3rem;
     padding-top: 0.25rem;
@@ -511,11 +491,6 @@ function portfolioHref(project: CollectionEntry<'portfolio'>) {
 
     .detail-grid {
       grid-template-columns: 1fr;
-    }
-
-    .contact-cta {
-      align-items: flex-start;
-      flex-direction: column;
     }
   }
 </style>

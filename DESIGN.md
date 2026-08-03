@@ -1,6 +1,6 @@
 ---
 name: antlis.is-a.dev
-description: Personal blog and portfolio for a frontend developer — precise, technical, understated.
+description: Personal blog and projects for a frontend developer — precise, technical, understated.
 colors:
   ink: "#1a1a1a"
   ink-dark: "#e5e5e5"
@@ -143,8 +143,8 @@ A near-monochrome ink-on-paper palette with one accent; the accent's scarcity is
 Flat by default, shadow-on-hover. Cards, buttons, and tags carry a 1px hairline border and no shadow at rest. On hover/focus, a soft ambient shadow plus a 1px `translateY(-1px)` lift signals interactivity; the shadow is the *response* to a state change, never a resting decoration. Dark mode uses the same mechanism with black shadows.
 
 ### Shadow Vocabulary
-- **Card hover** (`box-shadow: 0 14px 34px color-mix(in srgb, #000 8%, transparent)`): blog/portfolio card hover state.
-- **Accent CTA hover** (`box-shadow: 0 14px 30px color-mix(in srgb, var(--accent) 22%, transparent)`): primary portfolio CTA hover — the one place the accent tints a shadow.
+- **Card hover** (`box-shadow: 0 14px 34px color-mix(in srgb, #000 8%, transparent)`): blog/projects card hover state.
+- **Accent CTA hover** (`box-shadow: 0 14px 30px color-mix(in srgb, var(--accent) 22%, transparent)`): primary projects CTA hover — the one place the accent tints a shadow.
 - **Popover / dropdown** (`box-shadow: 0 12px 34px color-mix(in srgb, #000 16%, transparent)`): tag filter dropdown, share menu.
 - **Media frame** (`box-shadow: 0 12px 32px color-mix(in srgb, #000 10%, transparent)`): hero images and code-block frames.
 
@@ -164,7 +164,7 @@ Flat by default, shadow-on-hover. Cards, buttons, and tags carry a 1px hairline 
 - **State:** tag filters toggle to a filled `var(--card-hover)` background when active.
 
 ### Cards / Containers
-- **Corner Style:** 8px for blog/portfolio cards; 10px for the larger PortfolioProject detail cards and code frames; 12px for hero images.
+- **Corner Style:** 8px for blog/projects cards; 10px for the larger ProjectCard detail cards and code frames; 12px for hero images.
 - **Background:** `var(--card-bg)` — one step lighter (light mode) / lighter-than-page (dark mode) off `var(--bg)`.
 - **Shadow Strategy:** flat at rest, see Elevation.
 - **Border:** 1px `var(--border)` always; on hover, blends toward Signal Blue via `color-mix(... 36%, var(--border))`.

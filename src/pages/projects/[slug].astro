@@ -1,0 +1,26 @@
+---
+import ProjectCard from '/src/components/ProjectCard.astro'
+import { getCollection } from 'astro:content'
+import type { CollectionEntry } from 'astro:content'
+
+interface Props {
+  post: CollectionEntry<'projects'>
+}
+
+export async function getStaticPaths() {
+  const posts = await getCollection('projects', ({ data }) => (data.locale ?? 'en') === 'en')
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }))
+}
+
+const { post } = Astro.props
+const projects = await getCollection('projects', ({ data }) => (data.locale ?? 'en') === 'en')
+const { Content } = await post.render()
+---
+
+<ProjectCard post={post} projects={projects} locale="en">
+  <Content />
+</ProjectCard>

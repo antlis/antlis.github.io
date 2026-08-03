@@ -1,11 +1,11 @@
 # antlis.is-a.dev
 
-Personal blog and portfolio website built with [Astro](https://astro.build/).
+Personal blog and projects website built with [Astro](https://astro.build/).
 
 ## Features
 
 - Blog with recent posts
-- Portfolio section
+- Projects section
 - About and Contact pages
 - i18n support (English and Russian)
 - Dark/Light theme toggle
