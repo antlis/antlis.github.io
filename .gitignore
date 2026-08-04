@@ -30,3 +30,7 @@ pnpm-debug.log*
 
 # serena
 .serena/
+
+# playwright
+playwright-report/
+test-results/
