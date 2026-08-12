@@ -61,6 +61,7 @@ const toolsCollection = defineCollection({
   schema: z.object({
     name: z.string(),
     description: z.string(),
+    descriptionRu: z.string().optional(),
     url: z.string(),
     category: z.enum(['terminal', 'cli', 'api-clients', 'system']),
     usage: z.enum(['daily', 'rarely', 'previous']),

@@ -37,7 +37,7 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
                 <h3>{tool.data.name}</h3>
                 <span class="external-link">↗</span>
               </div>
-              <p>{tool.data.description}</p>
+              <p>{tool.data.descriptionRu || tool.data.description}</p>
               <div class="badges">
                 {tool.data.ai && <span class="badge ai">AI</span>}
                 {tool.data.openSource && <span class="badge">Open Source</span>}
@@ -59,7 +59,7 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
                 <h3>{tool.data.name}</h3>
                 <span class="external-link">↗</span>
               </div>
-              <p>{tool.data.description}</p>
+              <p>{tool.data.descriptionRu || tool.data.description}</p>
               <div class="badges">
                 {tool.data.ai && <span class="badge ai">AI</span>}
                 {tool.data.openSource && <span class="badge">Open Source</span>}
@@ -81,7 +81,7 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
                 <h3>{tool.data.name}</h3>
                 <span class="external-link">↗</span>
               </div>
-              <p>{tool.data.description}</p>
+              <p>{tool.data.descriptionRu || tool.data.description}</p>
               <div class="badges">
                 <span class="badge muted">Больше не использую</span>
                 {tool.data.ai && <span class="badge ai">AI</span>}
