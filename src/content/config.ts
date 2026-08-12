@@ -66,6 +66,7 @@ const toolsCollection = defineCollection({
     usage: z.enum(['daily', 'rarely', 'previous']),
     openSource: z.boolean().optional().default(false),
     cli: z.boolean().optional().default(false),
+    ai: z.boolean().optional().default(false),
   }),
 })
 
