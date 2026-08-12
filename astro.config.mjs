@@ -16,8 +16,38 @@ export default defineConfig({
   integrations: [
     icon({
       include: {
-        devicon: ['astro', 'bun', 'css3', 'docker', 'git', 'html5', 'javascript', 'neovim', 'nextjs', 'nodejs', 'nuxtjs', 'php', 'python', 'react', 'sass', 'typescript', 'vuejs', 'webpack'],
-        'simple-icons': ['ejs', 'github', 'gitlab', 'graphql', 'linkedin', 'nixos', 'stackoverflow', 'telegram', 'x'],
+        devicon: [
+          'astro',
+          'bun',
+          'css3',
+          'docker',
+          'git',
+          'html5',
+          'javascript',
+          'neovim',
+          'nextjs',
+          'nodejs',
+          'nuxtjs',
+          'php',
+          'python',
+          'react',
+          'sass',
+          'typescript',
+          'vuejs',
+          'webpack',
+          'tailwindcss'
+        ],
+        'simple-icons': [
+          'ejs',
+          'github',
+          'gitlab',
+          'graphql',
+          'linkedin',
+          'nixos',
+          'stackoverflow',
+          'telegram',
+          'x'
+        ],
       },
     }),
     expressiveCode({

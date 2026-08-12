@@ -2,10 +2,9 @@
 import Layout from '/src/layouts/Layout.astro'
 import TechStackBadges from '/src/components/TechStackBadges.astro'
 import { t } from '/src/i18n/utils'
+import { primaryStack, toolingStack } from '/src/data/techStack'
 
 const i = t('ru')
-const primaryStack = ['TypeScript', 'JavaScript', 'Vue', 'Nuxt', 'React', 'Next.js']
-const toolingStack = ['Astro', 'Node.js', 'Bun', 'Docker', 'Git', 'Neovim', 'SASS']
 ---
 
 <Layout title={i.about.title} description={i.about.description} pageType="about">
