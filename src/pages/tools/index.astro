@@ -1,0 +1,246 @@
+---
+import Layout from '/src/layouts/Layout.astro'
+import { getCollection } from 'astro:content'
+import { t } from '/src/i18n/utils'
+
+const locale = 'en'
+const i = t(locale)
+const allTools = (await getCollection('tools')).sort((a, b) => {
+  const order = { daily: 0, rarely: 1, previous: 2 }
+  return order[a.data.usage] - order[b.data.usage]
+})
+
+const dailyTools = allTools.filter(t => t.data.usage === 'daily')
+const rarelyTools = allTools.filter(t => t.data.usage === 'rarely')
+const previousTools = allTools.filter(t => t.data.usage === 'previous')
+---
+
+<Layout title={i.tools.title} description={i.tools.description} pageType="about">
+  <div class="tools-page">
+    <h1>{i.tools.heading}</h1>
+    <div class="intro-row">
+      <p class="intro">{i.tools.intro}</p>
+      <div class="tools-hero">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+      </div>
+    </div>
+
+    {dailyTools.length > 0 && (
+      <section class="tools-section">
+        <h2>{i.tools.sections.daily}</h2>
+        <div class="grid">
+          {dailyTools.map(tool => (
+            <a href={tool.data.url} target="_blank" rel="noopener noreferrer" class="tool-card">
+              <div class="tool-header">
+                <h3>{tool.data.name}</h3>
+                <span class="external-link">↗</span>
+              </div>
+              <p>{tool.data.description}</p>
+              <div class="badges">
+                {tool.data.openSource && <span class="badge">Open Source</span>}
+                {tool.data.cli && <span class="badge">CLI</span>}
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {rarelyTools.length > 0 && (
+      <section class="tools-section">
+        <h2>{i.tools.sections.rarely}</h2>
+        <div class="grid">
+          {rarelyTools.map(tool => (
+            <a href={tool.data.url} target="_blank" rel="noopener noreferrer" class="tool-card">
+              <div class="tool-header">
+                <h3>{tool.data.name}</h3>
+                <span class="external-link">↗</span>
+              </div>
+              <p>{tool.data.description}</p>
+              <div class="badges">
+                {tool.data.openSource && <span class="badge">Open Source</span>}
+                {tool.data.cli && <span class="badge">CLI</span>}
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+
+    {previousTools.length > 0 && (
+      <section class="tools-section">
+        <h2>{i.tools.sections.previous}</h2>
+        <div class="grid">
+          {previousTools.map(tool => (
+            <a href={tool.data.url} target="_blank" rel="noopener noreferrer" class="tool-card previous">
+              <div class="tool-header">
+                <h3>{tool.data.name}</h3>
+                <span class="external-link">↗</span>
+              </div>
+              <p>{tool.data.description}</p>
+              <div class="badges">
+                <span class="badge muted">No longer in use</span>
+                {tool.data.openSource && <span class="badge">Open Source</span>}
+                {tool.data.cli && <span class="badge">CLI</span>}
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+</Layout>
+
+<style>
+  .tools-page {
+    padding-top: 2rem;
+  }
+
+  .tools-page h1 {
+    margin: 0 0 0.75rem;
+  }
+
+  .intro-row {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .intro {
+    flex: 1 1 0;
+    min-width: 0;
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.1rem);
+    line-height: 1.75;
+  }
+
+  .tools-hero {
+    flex: 0 0 40%;
+    width: 40%;
+    aspect-ratio: 16 / 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-bg);
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    color: var(--text-secondary);
+  }
+
+  .tools-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .tools-section h2 {
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.1rem;
+  }
+
+  .tool-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  }
+
+  .tool-card:hover {
+    background: color-mix(in srgb, var(--card-bg) 84%, var(--card-hover));
+    border-color: color-mix(in srgb, var(--accent) 36%, var(--border));
+    box-shadow: 0 14px 34px color-mix(in srgb, #000 8%, transparent);
+    transform: translateY(-1px);
+  }
+
+  .tool-card.previous {
+    opacity: 0.7;
+  }
+
+  .tool-card.previous:hover {
+    opacity: 1;
+  }
+
+  .tool-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 0.4rem;
+  }
+
+  .tool-header h3 {
+    margin: 0;
+    font-size: 1.02rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .external-link {
+    color: var(--accent);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .tool-card p {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    border-radius: 999px;
+  }
+
+  .badge.muted {
+    color: var(--text-secondary);
+    background: var(--card-hover);
+  }
+
+  @media (max-width: 640px) {
+    .intro-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1.25rem;
+    }
+
+    .tools-hero {
+      flex: none;
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

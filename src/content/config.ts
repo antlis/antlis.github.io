@@ -57,8 +57,21 @@ const interviewPrepCollection = defineCollection({
   }),
 })
 
+const toolsCollection = defineCollection({
+  schema: z.object({
+    name: z.string(),
+    description: z.string(),
+    url: z.string(),
+    category: z.enum(['terminal', 'cli', 'api-clients', 'system']),
+    usage: z.enum(['daily', 'rarely', 'previous']),
+    openSource: z.boolean().optional().default(false),
+    cli: z.boolean().optional().default(false),
+  }),
+})
+
 export const collections = {
   blog: blogCollection,
   projects: projectsCollection,
   'interview-prep': interviewPrepCollection,
+  tools: toolsCollection,
 }

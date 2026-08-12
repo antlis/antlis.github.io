@@ -4,6 +4,7 @@ export const translations = {
       about: 'About',
       blog: 'Blog',
       projects: 'Projects',
+      tools: 'Tools',
       contact: 'Contact',
     },
     home: {
@@ -48,6 +49,17 @@ export const translations = {
         },
       },
     },
+    tools: {
+      title: 'Tools',
+      heading: 'Tools',
+      description: 'Tools and apps I use for development, terminal, and system setup.',
+      intro: "Some of these tools I use every day, some rarely, and some I used before but stopped — still worth mentioning because they're great at what they do.",
+      sections: {
+        daily: 'Tools I use daily',
+        rarely: 'Tools I use occasionally',
+        previous: 'Tools I used before',
+      },
+    },
     footer: {
       copyright: 'antlis',
     },
@@ -57,6 +69,7 @@ export const translations = {
       about: 'Обо мне',
       blog: 'Блог',
       projects: 'Проекты',
+      tools: 'Инструменты',
       contact: 'Контакты',
     },
     home: {
@@ -99,6 +112,17 @@ export const translations = {
           heading: 'Портфолио',
           intro: 'Большинство коммерческих проектов находятся под NDA, поэтому их нельзя показать. Ниже — подборка клиентских проектов, каждый был создан либо полностью с нуля, либо фронтенд-часть была сделана самостоятельно.',
         },
+      },
+    },
+    tools: {
+      title: 'Инструменты',
+      heading: 'Инструменты',
+      description: 'Инструменты и приложения, которые я использую для разработки, терминала и настройки системы.',
+      intro: 'Некоторые из этих инструментов я использую каждый день, некоторые — иногда, а некоторые использовал раньше, но перестал — но стоит упомянуть, потому что они отличные.',
+      sections: {
+        daily: 'Использую каждый день',
+        rarely: 'Использую иногда',
+        previous: 'Раньше использовал',
       },
     },
     footer: {
