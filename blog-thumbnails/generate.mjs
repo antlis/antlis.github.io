@@ -101,6 +101,18 @@ function term({ pal, path, lines, focus }) {
 
 const ARTICLES = [
   {
+    slug: "brave-rofi-rust",
+    pal: "rust",
+    path: "brave-rofi — rofi",
+    lines: [
+      { t: "Tabs: 7", c: "#ffa657", size: 36, bold: true },
+      { t: "> gh", dim: true, size: 28 },
+      { t: "▌1. GitHub — brave-rofi-rust", c: "#e6edf3", size: 28 },
+      { t: "  2. Astro docs", dim: true, size: 28 },
+      { t: "  - Bookmarks    - History", dim: true, size: 26 },
+    ],
+  },
+  {
     slug: "brave-fzf-history",
     pal: "shellTeal",
     path: "brave-history — fzf",

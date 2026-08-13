@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" role="img" aria-labelledby="title desc">
+  <title id="title">Архитектура brave-rofi-rust</title>
+  <desc id="desc">Хоткей rofi, нажатый из любого окна, запускает brave-rofi: он получает список вкладок по Chrome DevTools Protocol на localhost:9222, открывает закладки из файла surfraw или запись истории из sqlite браузера, а затем хук после переключения (например, i3-msg) поднимает окно браузера.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.52" stop-color="#111827"/>
+      <stop offset="1" stop-color="#3a1a0b"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e293b"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#020617" flood-opacity="0.45"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#22d3ee"/>
+    </marker>
+    <marker id="arrowP" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#a78bfa"/>
+    </marker>
+    <style>
+      .label{font:700 24px Inter,Arial,sans-serif;fill:#e5eefb}
+      .sub{font:500 15px Inter,Arial,sans-serif;fill:#94a3b8}
+      .tiny{font:600 14px Inter,Arial,sans-serif;fill:#67e8f9}
+      .tinyp{font:600 14px Inter,Arial,sans-serif;fill:#c4b5fd}
+      .mono{font:600 16px ui-monospace,SFMono-Regular,Menlo,monospace;fill:#cbd5e1}
+      .box{fill:url(#panel);stroke:#334155;stroke-width:2}
+      .accent{fill:url(#panel);stroke:#9a3412;stroke-width:2}
+      .chip{fill:#0b1220;stroke:#155e75;stroke-width:1.5}
+      .line{fill:none;stroke:#22d3ee;stroke-width:4;stroke-linecap:round;marker-end:url(#arrow)}
+      .return{fill:none;stroke:#a78bfa;stroke-width:4;stroke-linecap:round;marker-end:url(#arrowP)}
+    </style>
+  </defs>
+
+  <rect x="0" y="0" width="1200" height="640" rx="34" fill="url(#bg)"/>
+
+  <!-- Любое окно -->
+  <g filter="url(#shadow)">
+    <rect x="44" y="252" width="224" height="132" rx="22" class="box"/>
+    <text x="156" y="304" text-anchor="middle" class="label">Любое окно</text>
+    <text x="156" y="334" text-anchor="middle" class="sub">редактор · терминал · …</text>
+    <text x="156" y="362" text-anchor="middle" class="tiny">хоткей WM</text>
+  </g>
+
+  <!-- brave-rofi core -->
+  <g filter="url(#shadow)">
+    <rect x="406" y="238" width="290" height="172" rx="22" class="accent"/>
+    <text x="551" y="296" text-anchor="middle" class="label">brave-rofi</text>
+    <text x="551" y="326" text-anchor="middle" class="sub">меню rofi (Rust · CDP)</text>
+    <rect x="451" y="348" width="200" height="38" rx="9" class="chip"/>
+    <text x="551" y="373" text-anchor="middle" class="mono">$mod+b</text>
+  </g>
+
+  <!-- Браузер / CDP -->
+  <g filter="url(#shadow)">
+    <rect x="884" y="70" width="272" height="132" rx="22" class="box"/>
+    <text x="1020" y="122" text-anchor="middle" class="label">Браузер</text>
+    <text x="1020" y="152" text-anchor="middle" class="sub">Brave · Chromium</text>
+    <text x="1020" y="180" text-anchor="middle" class="tiny">CDP · localhost:9222</text>
+  </g>
+
+  <!-- Закладки -->
+  <g filter="url(#shadow)">
+    <rect x="884" y="256" width="252" height="98" rx="20" class="box"/>
+    <text x="1010" y="298" text-anchor="middle" class="label">Закладки</text>
+    <text x="1010" y="326" text-anchor="middle" class="sub">файл закладок surfraw</text>
+  </g>
+
+  <!-- История -->
+  <g filter="url(#shadow)">
+    <rect x="884" y="382" width="252" height="98" rx="20" class="box"/>
+    <text x="1010" y="424" text-anchor="middle" class="label">История</text>
+    <text x="1010" y="452" text-anchor="middle" class="sub">sqlite истории · только чтение</text>
+  </g>
+
+  <!-- хук после переключения -->
+  <g filter="url(#shadow)">
+    <rect x="406" y="470" width="290" height="120" rx="22" class="box"/>
+    <text x="551" y="512" text-anchor="middle" class="label">хук после переключения</text>
+    <rect x="436" y="532" width="230" height="38" rx="9" class="chip"/>
+    <text x="551" y="557" text-anchor="middle" class="mono">i3-msg … focus</text>
+  </g>
+
+  <!-- стрелки -->
+  <path d="M268 318 C330 318 352 320 402 320" class="line"/>
+  <text x="335" y="304" text-anchor="middle" class="tiny">хоткей</text>
+
+  <path d="M696 296 C790 236 838 158 880 142" class="line"/>
+  <text x="792" y="196" text-anchor="middle" class="tiny">curl /json</text>
+
+  <path d="M880 176 C806 220 764 260 700 300" class="return"/>
+  <text x="800" y="270" text-anchor="middle" class="tinyp">список вкладок</text>
+
+  <path d="M696 330 C784 320 826 308 880 306" class="line"/>
+  <path d="M696 362 C784 402 826 420 880 428" class="line"/>
+  <text x="792" y="382" text-anchor="middle" class="tiny">открыть url</text>
+
+  <path d="M551 410 L551 466" class="line"/>
+  <text x="600" y="444" text-anchor="middle" class="tiny">по выбору</text>
+
+  <path d="M696 548 C960 616 1168 604 1170 452 C1172 336 1150 250 1120 206" class="return"/>
+  <text x="1010" y="612" text-anchor="middle" class="tinyp">поднять окно браузера</text>
+</svg>
