@@ -30,7 +30,7 @@ export const translations = {
       title: 'Blog — Anton L | Web Development, Tools & Security',
       heading: 'Blog',
       description: 'Articles about frontend development, developer tools, shell productivity, web security, and modern JavaScript/TypeScript by Anton L.',
-      intro: "This is my personal notebook — a place to save things I learn, break, and fix. Some articles are written from scratch, some are heavily edited with AI, and some are just small code snippets I want to keep handy. A lot of it is here so I remember it next time. Maybe someone else will find it useful too.",
+      intro: "My personal notebook — a place to save things I learn, break, and fix. Some articles are written from scratch, some are heavily edited with AI, and some are just small code snippets I want to keep handy. A lot of it is here so I remember it next time. Maybe someone else will find it useful too.",
       empty: 'No posts yet.',
     },
     projects: {
@@ -53,7 +53,7 @@ export const translations = {
       title: 'Tools',
       heading: 'Tools',
       description: 'Tools and apps I use for development, terminal, and system setup.',
-      intro: "Some of these tools I use every day, some rarely, and some I used before but stopped — still worth mentioning because they're great at what they do.",
+      intro: "This is a collection of tools I use for work, personal projects, and everyday life. Some are part of my daily workflow, some I only use from time to time, and others are tools I’ve used in the past but still think are worth mentioning because they’re genuinely great at what they do. It’s not meant to be a definitive list or a collection of recommendations — just a selection of tools I’ve found useful along the way.",
       sections: {
         daily: 'Tools I use daily',
         rarely: 'Tools I use occasionally',
@@ -95,7 +95,7 @@ export const translations = {
       title: 'Блог — Антон Л | Веб-разработка, инструменты и безопасность',
       heading: 'Блог',
       description: 'Статьи о фронтенд-разработке, инструментах разработчика, продуктивности в терминале, веб-безопасности и современном JavaScript/TypeScript от Антона Л.',
-      intro: 'Это мой личный блокнот — место, где я сохраняю то, что узнаю, ломаю и чиню. Некоторые статьи написаны с нуля, некоторые серьёзно отредактированы с помощью ИИ, а некоторые — это просто небольшие фрагменты кода, которые я хочу держать под рукой. Многое написано здесь, чтобы я запомнил это на следующий раз. Возможно, кому-то ещё это пригодится.',
+      intro: 'Мой личный блокнот, куда я складываю всё, что изучаю, пробую, ломаю и чиню. Здесь есть полноценные статьи, заметки, небольшие эксперименты и просто куски кода, которые хочется сохранить под рукой. Часть материалов я пишу сам, часть дорабатываю с помощью ИИ. Многие заметки появляются здесь просто потому, что я не хочу второй раз наступать на те же грабли. А если что-то из этого пригодится кому-то ещё — тем лучше.',
       empty: 'Записей пока нет.',
     },
     projects: {
@@ -118,7 +118,7 @@ export const translations = {
       title: 'Инструменты',
       heading: 'Инструменты',
       description: 'Инструменты и приложения, которые я использую для разработки, терминала и настройки системы.',
-      intro: 'Некоторые из этих инструментов я использую каждый день, некоторые — иногда, а некоторые использовал раньше, но перестал — но стоит упомянуть, потому что они отличные.',
+      intro: 'Это подборка инструментов, которыми я пользуюсь в работе, личных проектах и повседневной жизни. Какие-то из них входят в мой ежедневный рабочий процесс, какие-то я открываю время от времени, а какими-то пользовался раньше, но всё равно считаю достойными упоминания — просто потому, что они действительно хорошо делают то, для чего созданы. Это не рейтинг и не список рекомендаций, а скорее моя личная подборка инструментов, которые так или иначе оказались мне полезны.',
       sections: {
         daily: 'Использую каждый день',
         rarely: 'Использую иногда',
