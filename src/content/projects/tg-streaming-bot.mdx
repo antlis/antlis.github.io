@@ -1,0 +1,17 @@
+---
+title: "tg-streaming-bot"
+description: "Self-hosted Telegram bot that streams movies, music, radio and live TV into a group voice chat — so friends in different cities watch together, in sync."
+category: "projects"
+imgSrc: "/blog/tg-streaming-bot.png"
+imgAlt: "Terminal card: tg-streaming-bot playing a movie into a Telegram voice chat"
+href: "https://github.com/antlis/tg-streaming-bot"
+blogHref: "/blog/tg-streaming-bot"
+stack: ["Python", "Pyrogram", "py-tgcalls", "yt-dlp", "ffmpeg"]
+year: "2026"
+scope: ["Streams video/audio into Telegram group voice chats via py-tgcalls", "Bot + assistant-account architecture (a bot can't join a call)", "Sources: YouTube, radio, IPTV (50k+ channels), files, live m3u8", "Shared inline transport: pause/seek/master-volume for the whole room", "Reality-VPN sidecar tunnelling signaling + voice UDP"]
+highlights: ["Solved the bot-can't-join-a-call problem with a py-tgcalls assistant account.", "Made YouTube reliable with a download-then-stream pipeline (android_vr client).", "Realised voice runs on UDP and shipped a full-tunnel VPN sidecar, not a proxy."]
+outcome: "A synchronized watch party over Telegram — movies, radio and live TV in one group call, controlled from any phone."
+improvements: "Stream-while-downloading, richer queue management, and more sources (Spotify/SoundCloud routing)."
+---
+
+A self-hosted Telegram bot that turns a group voice chat into a shared watch party. Play movies, YouTube, internet radio or live TV into the call and everyone sees the same frames, in sync, from a phone or desktop. Built on Pyrogram + py-tgcalls, with yt-dlp fetching and ffmpeg transcoding — plus an optional Reality-VPN sidecar for networks where Telegram voice is filtered.

@@ -196,6 +196,18 @@ const ARTICLES = [
     ],
   },
   {
+    slug: "tg-streaming-bot",
+    pal: "dockerBlue",
+    path: "tg-streaming-bot — telegram",
+    lines: [
+      { t: "> /vplay dune", c: "#e6edf3", size: 30 },
+      { t: "▶ in voice chat", c: "#38bdf8", size: 40, bold: true },
+      { t: "  4 friends watching", dim: true, size: 28 },
+      { t: "  ◀◀   ‖   ▶▶", dim: true, size: 30 },
+      { t: "  bot → assistant → call", dim: true, size: 26 },
+    ],
+  },
+  {
     slug: "telescope-gist",
     pal: "nvim",
     path: "nvim — telescope gist",
