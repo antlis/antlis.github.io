@@ -27,6 +27,7 @@ const P = {
   nvim: { a: "#57a143", a2: "#2d8fdd", bg0: "#07160f", bg1: "#050b14", glow: "#1f6feb" },
   nuxt: { a: "#00dc82", a2: "#00a86b", bg0: "#07140f", bg1: "#050b14", glow: "#00dc82" },
   rust: { a: "#ffa657", a2: "#f74c00", bg0: "#1a0f08", bg1: "#120804", glow: "#9a3412" },
+  telegram: { a: "#4bb3ec", a2: "#229ed9", bg0: "#08141f", bg1: "#040e18", glow: "#1c6ea8" },
 };
 
 const esc = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -100,6 +101,18 @@ function term({ pal, path, lines, focus }) {
 }
 
 const ARTICLES = [
+  {
+    slug: "telepad",
+    pal: "telegram",
+    path: "telepad — rofi",
+    lines: [
+      { t: "Jump: sig", c: "#4bb3ec", size: 36, bold: true },
+      { t: "▌[Crypto] Trading > Signals  topic", c: "#e6edf3", size: 27 },
+      { t: "  [Work]  dev-general        group", dim: true, size: 27 },
+      { t: "  [Personal] Mom             dm", dim: true, size: 27 },
+      { t: "  Archived  173 chats", dim: true, size: 26 },
+    ],
+  },
   {
     slug: "brave-rofi-rust",
     pal: "rust",
@@ -270,7 +283,9 @@ const ARTICLES = [
   },
 ];
 
+const only = process.env.ONLY;
 for (const a of ARTICLES) {
+  if (only && a.slug !== only) continue;
   const svg = term(a);
   await sharp(Buffer.from(svg), { density: 144 })
     .resize(W, H)
