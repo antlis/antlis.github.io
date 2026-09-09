@@ -239,8 +239,9 @@ const tagCounts = allTags.map((tag) => ({
     }
 
     .sidebar {
-      position: static;
+      position: relative;
       order: -1;
+      z-index: 1;
     }
   }
 
@@ -248,7 +249,7 @@ const tagCounts = allTags.map((tag) => ({
     position: sticky;
     top: 5rem;
     padding: 0.85rem;
-    background: color-mix(in srgb, var(--card-bg) 86%, transparent);
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 8px;
   }

@@ -33,6 +33,11 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
         <div class="grid">
           {dailyTools.map(tool => (
             <a href={tool.data.url} target="_blank" rel="noopener noreferrer" class="tool-card">
+              {tool.data.icon ? (
+                <img src={`https://cdn.simpleicons.org/${tool.data.icon}`} alt="" class="tool-icon" width="40" height="40" />
+              ) : (
+                <span class="tool-icon placeholder">{tool.data.name.charAt(0)}</span>
+              )}
               <div class="tool-header">
                 <h3>{tool.data.name}</h3>
                 <span class="external-link">↗</span>
@@ -55,6 +60,11 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
         <div class="grid">
           {rarelyTools.map(tool => (
             <a href={tool.data.url} target="_blank" rel="noopener noreferrer" class="tool-card">
+              {tool.data.icon ? (
+                <img src={`https://cdn.simpleicons.org/${tool.data.icon}`} alt="" class="tool-icon" width="40" height="40" />
+              ) : (
+                <span class="tool-icon placeholder">{tool.data.name.charAt(0)}</span>
+              )}
               <div class="tool-header">
                 <h3>{tool.data.name}</h3>
                 <span class="external-link">↗</span>
@@ -77,6 +87,11 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
         <div class="grid">
           {previousTools.map(tool => (
             <a href={tool.data.url} target="_blank" rel="noopener noreferrer" class="tool-card previous">
+              {tool.data.icon ? (
+                <img src={`https://cdn.simpleicons.org/${tool.data.icon}`} alt="" class="tool-icon" width="40" height="40" />
+              ) : (
+                <span class="tool-icon placeholder">{tool.data.name.charAt(0)}</span>
+              )}
               <div class="tool-header">
                 <h3>{tool.data.name}</h3>
                 <span class="external-link">↗</span>
@@ -170,6 +185,26 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
 
   .tool-card.previous:hover {
     opacity: 1;
+  }
+
+  .tool-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    margin-bottom: 0.4rem;
+  }
+
+  .tool-icon.placeholder {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border-radius: 8px;
   }
 
   .tool-header {

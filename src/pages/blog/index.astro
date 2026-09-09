@@ -237,20 +237,22 @@ const tagCounts = allTags.map((tag) => ({
       grid-template-columns: 1fr;
       gap: 1.25rem;
     }
-
-    .sidebar {
-      position: static;
-      order: -1;
-    }
   }
 
   .sidebar {
     position: sticky;
     top: 5rem;
     padding: 0.85rem;
-    background: color-mix(in srgb, var(--card-bg) 86%, transparent);
+    background: var(--card-bg);
     border: 1px solid var(--border);
     border-radius: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar {
+      position: static;
+      order: -1;
+    }
   }
 
   .filter-group + .filter-group {

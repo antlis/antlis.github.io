@@ -63,6 +63,7 @@ const toolsCollection = defineCollection({
     description: z.string(),
     descriptionRu: z.string().optional(),
     url: z.string(),
+    icon: z.string().optional(),
     category: z.enum(['terminal', 'cli', 'api-clients', 'system']),
     usage: z.enum(['daily', 'rarely', 'previous']),
     openSource: z.boolean().optional().default(false),
