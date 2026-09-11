@@ -126,26 +126,25 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     border-color: var(--accent);
   }
 
-  .chat-msg {
+  :global(.chat-msg) {
     margin-bottom: 1rem;
     max-width: 88%;
   }
 
-  .chat-msg.user {
-    margin-left: auto;
+  :global(.chat-msg.user) {
   }
 
-  .chat-msg-label {
+  :global(.chat-msg-label) {
     font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: 0.3rem;
+    font-weight: 700;
+    margin-bottom: 0.45rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    color: var(--text-secondary);
   }
 
-  .chat-msg.user .chat-msg-label {
-    text-align: right;
+  :global(.chat-msg.user .chat-msg-label) {
+    color: var(--accent);
   }
 
   .chat-msg-bubble {
@@ -276,6 +275,7 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
 
   .chat-input-form {
     display: flex;
+    align-items: center;
     gap: 0.5rem;
     padding: 0.75rem;
     border-top: 1px solid var(--border);
@@ -328,14 +328,24 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
 
   @media (max-width: 640px) {
     .chat-widget {
-      margin: 1.5rem -1rem;
-      border-radius: 0;
-      border-left: none;
-      border-right: none;
+      margin: 1.5rem 0;
     }
 
     .chat-body {
-      height: 360px;
+      height: 380px;
+    }
+
+    .chat-msg {
+      max-width: 95%;
+    }
+
+    .suggestion-btn {
+      font-size: 0.84rem;
+      padding: 0.55rem 0.75rem;
+    }
+
+    .chat-input {
+      font-size: 16px;
     }
   }
 </style>
@@ -362,7 +372,7 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     const div = document.createElement('div')
     div.className = 'chat-msg user'
     div.innerHTML = `
-      <div class="chat-msg-label">You</div>
+      <div class="chat-msg-label">You:</div>
       <div class="chat-msg-bubble">${escapeHtml(text)}</div>
     `
     messages.appendChild(div)
@@ -373,7 +383,7 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     const div = document.createElement('div')
     div.className = 'chat-msg assistant'
     div.innerHTML = `
-      <div class="chat-msg-label">Assistant</div>
+      <div class="chat-msg-label">Assistant:</div>
       <div class="chat-msg-bubble">${escapeHtml(text)}</div>
     `
     messages.appendChild(div)
@@ -421,7 +431,7 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     div.className = 'chat-msg assistant'
     div.id = 'typing-indicator'
     div.innerHTML = `
-      <div class="chat-msg-label">Assistant</div>
+      <div class="chat-msg-label">Assistant:</div>
       <div class="chat-typing"><span></span><span></span><span></span></div>
     `
     messages.appendChild(div)
