@@ -25,6 +25,8 @@
     "astro-expressive-code": "^0.42.0",
     "astro-icon": "^1.1.5",
     "astro-theme-toggle": "^0.8.0",
+    "dompurify": "^3.4.15",
+    "marked": "^18.0.12",
     "medium-zoom": "^1.1.0",
     "modern-css-reset": "^1.4.0",
     "typescript": "^5.5.4",
