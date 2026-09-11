@@ -105,7 +105,9 @@ const labels = locale === 'ru'
 
 <style>
   .post-extras {
-    margin-top: 3.25rem;
+    /* Matches ShareButtons' padding-top so the share row sits centered
+       between its top border and this one (equal gap above and below). */
+    margin-top: 1.5rem;
     padding-top: 0.4rem;
     border-top: 1px solid var(--border);
   }
@@ -198,7 +200,7 @@ const labels = locale === 'ru'
 
   .related-grid {
     display: grid;
-    gap: 0.45rem;
+    gap: 1.15rem;
   }
 
   .related-card {
@@ -249,12 +251,5 @@ const labels = locale === 'ru'
     color: var(--text-secondary);
     font-size: 0.82rem;
     line-height: 1.5;
-  }
-
-  @media (max-width: 560px) {
-    .post-extras {
-      margin-top: 2.5rem;
-    }
-
   }
 </style>
