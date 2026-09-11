@@ -276,6 +276,18 @@ The source code is available on GitHub: [antlis/antlis-mcp](https://github.com/a
 
 So now I can ask the bot something about my own projects, and instead of relying only on whatever context it already has, it can go and query the actual source.
 
+## Try it yourself
+
+Instead of just explaining what the MCP does, I embedded a small client for it right here. Ask it something about the website.
+
+import ChatWidget from '../../components/ChatWidget.astro'
+
+<ChatWidget />
+
+The widget sends your question to an LLM, which decides which MCP tools to call, fetches the data from the server, and answers based on what it finds. You can expand the tool call cards to see exactly what was queried and what came back.
+
+## Where it stands now
+
 That is enough for now.
 
 I will probably keep extending it as I find interesting things to try with MCP.

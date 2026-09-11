@@ -1,0 +1,503 @@
+---
+interface Props {
+  apiBase?: string
+}
+
+const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
+---
+
+<div id="chat-widget" class="chat-widget">
+  <div class="chat-header">
+    <span class="chat-title">Ask about this site</span>
+    <button class="chat-toggle" aria-label="Toggle chat" id="chat-toggle">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="chat-body" id="chat-body">
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-suggestions" id="chat-suggestions">
+        <p class="suggestions-label">Ask about this website</p>
+        <button class="suggestion-btn" data-q="What projects use React?">What projects use React?</button>
+        <button class="suggestion-btn" data-q="What have I written about AI?">What have I written about AI?</button>
+        <button class="suggestion-btn" data-q="Tell me about the MCP server">How does the MCP work?</button>
+        <button class="suggestion-btn" data-q="What are the most interesting projects?">Show me interesting projects</button>
+      </div>
+    </div>
+
+    <form class="chat-input-form" id="chat-form">
+      <input
+        type="text"
+        id="chat-input"
+        class="chat-input"
+        placeholder="Ask a question..."
+        autocomplete="off"
+        disabled
+      />
+      <button type="submit" class="chat-send" id="chat-send" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+</div>
+
+<style>
+  .chat-widget {
+    position: relative;
+    max-width: 640px;
+    margin: 2.5rem 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card-bg);
+    overflow: hidden;
+  }
+
+  .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--card-bg);
+  }
+
+  .chat-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .chat-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.25rem;
+  }
+
+  .chat-body {
+    display: flex;
+    flex-direction: column;
+    height: 420px;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    scroll-behavior: smooth;
+  }
+
+  .chat-suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 0;
+  }
+
+  .suggestions-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+  }
+
+  .suggestion-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.6rem 0.85rem;
+    font-size: 0.88rem;
+    color: var(--accent);
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+
+  .suggestion-btn:hover {
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+    border-color: var(--accent);
+  }
+
+  .chat-msg {
+    margin-bottom: 1rem;
+    max-width: 88%;
+  }
+
+  .chat-msg.user {
+    margin-left: auto;
+  }
+
+  .chat-msg-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 0.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .chat-msg.user .chat-msg-label {
+    text-align: right;
+  }
+
+  .chat-msg-bubble {
+    padding: 0.65rem 0.9rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    border-radius: 10px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .chat-msg.user .chat-msg-bubble {
+    background: var(--accent);
+    color: #fff;
+    border-bottom-right-radius: 2px;
+  }
+
+  .chat-msg.assistant .chat-msg-bubble {
+    background: var(--border);
+    color: var(--text);
+    border-bottom-left-radius: 2px;
+  }
+
+  .tool-call {
+    margin: 0.5rem 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.82rem;
+  }
+
+  .tool-call-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.7rem;
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    cursor: pointer;
+    user-select: none;
+    color: var(--text-secondary);
+  }
+
+  .tool-call-header:hover {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+  }
+
+  .tool-call-icon {
+    font-size: 0.85rem;
+  }
+
+  .tool-call-name {
+    font-weight: 600;
+    color: var(--accent);
+    font-family: monospace;
+    font-size: 0.8rem;
+  }
+
+  .tool-call-arrow {
+    margin-left: auto;
+    transition: transform 0.2s;
+    font-size: 0.7rem;
+  }
+
+  .tool-call.open .tool-call-arrow {
+    transform: rotate(90deg);
+  }
+
+  .tool-call-body {
+    display: none;
+    padding: 0.6rem 0.7rem;
+    border-top: 1px solid var(--border);
+    font-family: monospace;
+    font-size: 0.78rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .tool-call.open .tool-call-body {
+    display: block;
+  }
+
+  .tool-call-section {
+    margin-bottom: 0.5rem;
+  }
+
+  .tool-call-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .tool-call-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    margin-bottom: 0.2rem;
+    font-family: sans-serif;
+  }
+
+  .tool-call pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .chat-typing {
+    display: flex;
+    gap: 0.3rem;
+    padding: 0.65rem 0.9rem;
+  }
+
+  .chat-typing span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-secondary);
+    animation: typing 1.2s infinite ease-in-out;
+  }
+
+  .chat-typing span:nth-child(2) { animation-delay: 0.15s; }
+  .chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes typing {
+    0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+    30% { opacity: 1; transform: translateY(-3px); }
+  }
+
+  .chat-input-form {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .chat-input {
+    flex: 1;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.88rem;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .chat-input:focus {
+    border-color: var(--accent);
+  }
+
+  .chat-input:disabled {
+    opacity: 0.5;
+  }
+
+  .chat-send {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .chat-send:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .chat-send:not(:disabled):hover {
+    opacity: 0.85;
+  }
+
+  @media (max-width: 640px) {
+    .chat-widget {
+      margin: 1.5rem -1rem;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+    }
+
+    .chat-body {
+      height: 360px;
+    }
+  }
+</style>
+
+<script define:vars={{ apiBase }}>
+  const messages = document.getElementById('chat-messages')
+  const form = document.getElementById('chat-form')
+  const input = document.getElementById('chat-input')
+  const sendBtn = document.getElementById('chat-send')
+  const suggestions = document.getElementById('chat-suggestions')
+
+  let conversation = []
+  let isLoading = false
+
+  input.disabled = false
+  sendBtn.disabled = false
+  input.focus()
+
+  function scrollToBottom() {
+    messages.scrollTop = messages.scrollHeight
+  }
+
+  function addUserMessage(text) {
+    const div = document.createElement('div')
+    div.className = 'chat-msg user'
+    div.innerHTML = `
+      <div class="chat-msg-label">You</div>
+      <div class="chat-msg-bubble">${escapeHtml(text)}</div>
+    `
+    messages.appendChild(div)
+    scrollToBottom()
+  }
+
+  function addAssistantMessage(text) {
+    const div = document.createElement('div')
+    div.className = 'chat-msg assistant'
+    div.innerHTML = `
+      <div class="chat-msg-label">Assistant</div>
+      <div class="chat-msg-bubble">${escapeHtml(text)}</div>
+    `
+    messages.appendChild(div)
+    scrollToBottom()
+  }
+
+  function addToolCall(name, input_args, output) {
+    const div = document.createElement('div')
+    div.className = 'tool-call'
+    const inputStr = JSON.stringify(input_args, null, 2)
+    let outputStr = output
+    try {
+      outputStr = JSON.stringify(JSON.parse(output), null, 2)
+    } catch {}
+    if (outputStr.length > 600) outputStr = outputStr.slice(0, 600) + '\n...'
+
+    div.innerHTML = `
+      <div class="tool-call-header">
+        <span class="tool-call-icon">\u{1F527}</span>
+        <span class="tool-call-name">${escapeHtml(name)}</span>
+        <span class="tool-call-arrow">\u25B6</span>
+      </div>
+      <div class="tool-call-body">
+        <div class="tool-call-section">
+          <div class="tool-call-label">Input</div>
+          <pre>${escapeHtml(inputStr)}</pre>
+        </div>
+        <div class="tool-call-section">
+          <div class="tool-call-label">Result</div>
+          <pre>${escapeHtml(outputStr)}</pre>
+        </div>
+      </div>
+    `
+
+    div.querySelector('.tool-call-header').addEventListener('click', () => {
+      div.classList.toggle('open')
+    })
+
+    messages.appendChild(div)
+    scrollToBottom()
+  }
+
+  function showTyping() {
+    const div = document.createElement('div')
+    div.className = 'chat-msg assistant'
+    div.id = 'typing-indicator'
+    div.innerHTML = `
+      <div class="chat-msg-label">Assistant</div>
+      <div class="chat-typing"><span></span><span></span><span></span></div>
+    `
+    messages.appendChild(div)
+    scrollToBottom()
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typing-indicator')
+    if (el) el.remove()
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div')
+    div.textContent = str
+    return div.innerHTML
+  }
+
+  async function sendMessage(text) {
+    if (isLoading || !text.trim()) return
+    isLoading = true
+    input.value = ''
+    input.disabled = true
+    sendBtn.disabled = true
+
+    if (suggestions) suggestions.style.display = 'none'
+
+    addUserMessage(text)
+    conversation.push({ role: 'user', content: text })
+
+    showTyping()
+
+    try {
+      const res = await fetch(apiBase + '/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: conversation }),
+      })
+
+      removeTyping()
+
+      if (!res.ok) {
+        addAssistantMessage('Something went wrong. Please try again later.')
+        conversation.pop()
+        return
+      }
+
+      const data = await res.json()
+
+      if (data.toolCalls) {
+        for (const tc of data.toolCalls) {
+          addToolCall(tc.name, tc.input, tc.output)
+        }
+      }
+
+      addAssistantMessage(data.response)
+      conversation.push({ role: 'assistant', content: data.response })
+    } catch {
+      removeTyping()
+      addAssistantMessage('Network error. Please try again.')
+      conversation.pop()
+    } finally {
+      isLoading = false
+      input.disabled = false
+      sendBtn.disabled = false
+      input.focus()
+    }
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault()
+    sendMessage(input.value)
+  })
+
+  document.querySelectorAll('.suggestion-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      sendMessage(btn.dataset.q)
+    })
+  })
+</script>
