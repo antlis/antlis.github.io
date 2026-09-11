@@ -1,0 +1,17 @@
+---
+title: "telepad"
+description: "Discord-style Ctrl+K quick-jump for Telegram — fuzzy-search any chat, group, channel, or topic from any window on i3, across multiple accounts."
+category: "projects"
+imgSrc: "/blog/telepad.png"
+imgAlt: "Rofi menu listing Telegram chats across multiple accounts"
+href: "https://github.com/antlis/telepad"
+blogHref: "/blog/telepad"
+stack: ["Rust", "tokio", "grammers", "rofi", "D-Bus", "xdotool"]
+year: "2026"
+scope: ["Global Telegram chat switcher from any window via rofi", "Multi-account support with automatic account switching", "Forum topics, chat folders, and archive as searchable rows", "MTProto-based chat list sync via grammers"]
+highlights: ["Solved external Telegram control by delivering URLs over D-Bus instead of xdg-open to avoid spawning a second instance.", "Worked around account-switch crash by injecting keypresses via xdotool instead of using tg:// deep links.", "Built fuzzy-searchable flat list of all chats, topics, and folders across multiple accounts."]
+outcome: "A global hotkey that opens a rofi menu with every Telegram chat — type a few letters, hit Enter, jump there."
+improvements: "Add Wayland support, WM-agnostic window focusing, vanilla Telegram Desktop compatibility."
+---
+
+A small Rust program that puts every Telegram chat into a rofi menu you can summon from any window. It's a Discord-style Ctrl+K quick-switcher for Telegram — fuzzy-jump to any chat, group, channel, contact, forum topic, or archived chat across multiple accounts. Bind it to a hotkey and jump to any conversation without leaving your current context.

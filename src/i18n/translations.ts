@@ -37,7 +37,7 @@ export const translations = {
       title: 'Projects — Anton L | Web Development Projects',
       heading: 'Projects',
       description: 'Frontend development projects by Anton L — production web applications built with Vue, Nuxt.js, React, Next.js, and TypeScript.',
-      intro: "Most of my commercial work is under NDA, so it can't be shown here. What you see below is a selection of personal and open-source projects — some of them are pretty old, but each one was built either entirely from scratch or with the frontend part done solo. They reflect how I approach problems, build UIs, and ship things end to end.",
+      intro: "Most of my commercial work is under NDA, so it can't be shown here. What you see below is a selection of personal and open-source projects — most of them are pretty old, but each one was built either entirely from scratch or with the frontend part done solo. They reflect how I approach problems, build UIs, and ship things end to end.",
       sections: {
         projects: {
           heading: 'Projects',
@@ -45,7 +45,7 @@ export const translations = {
         },
         portfolio: {
           heading: 'Portfolio',
-          intro: "Most of my commercial work is under NDA, so it can't be shown here. What you see below is a selection of client projects — each one was built either entirely from scratch or with the frontend part done solo.",
+          intro: "Most of my commercial work is under NDA, so it can't be shown here. What you see below is a selection of client projects — some of them are pretty old, but each one was built either entirely from scratch or with the frontend part done solo.",
         },
       },
     },
@@ -102,7 +102,7 @@ export const translations = {
       title: 'Проекты — Антон Л | Проекты веб-разработки',
       heading: 'Проекты',
       description: 'Проекты фронтенд-разработки Антона Л — продакшен веб-приложения на Vue, Nuxt.js, React, Next.js и TypeScript.',
-      intro: 'Большинство коммерческих проектов находятся под NDA, поэтому их нельзя показать. Ниже — подборка личных и open-source проектов, некоторые из них довольно старые, но каждый был создан либо полностью с нуля, либо фронтенд-часть была сделана самостоятельно. Они отражают мой подход к решению задач, построению интерфейсов и доставке продукта.',
+      intro: 'Большинство коммерческих проектов находятся под NDA, поэтому их нельзя показать. Ниже — подборка личных и open-source проектов, большинство из них довольно старые, но каждый был создан либо полностью с нуля, либо фронтенд-часть была сделана самостоятельно. Они отражают мой подход к решению задач, построению интерфейсов и доставке продукта.',
       sections: {
         projects: {
           heading: 'Проекты',
@@ -110,7 +110,7 @@ export const translations = {
         },
         portfolio: {
           heading: 'Портфолио',
-          intro: 'Большинство коммерческих проектов находятся под NDA, поэтому их нельзя показать. Ниже — подборка клиентских проектов, каждый был создан либо полностью с нуля, либо фронтенд-часть была сделана самостоятельно.',
+          intro: 'Большинство коммерческих проектов находятся под NDA, поэтому их нельзя показать. Ниже — подборка клиентских проектов, некоторые из них довольно старые, но каждый был создан либо полностью с нуля, либо фронтенд-часть была сделана самостоятельно.',
         },
       },
     },
