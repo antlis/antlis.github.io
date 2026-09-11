@@ -168,89 +168,6 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     border-bottom-left-radius: 2px;
   }
 
-  .tool-call {
-    margin: 0.5rem 0;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
-    font-size: 0.82rem;
-  }
-
-  .tool-call-header {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.45rem 0.7rem;
-    background: color-mix(in srgb, var(--accent) 8%, transparent);
-    cursor: pointer;
-    user-select: none;
-    color: var(--text-secondary);
-  }
-
-  .tool-call-header:hover {
-    background: color-mix(in srgb, var(--accent) 12%, transparent);
-  }
-
-  .tool-call-icon {
-    font-size: 0.85rem;
-  }
-
-  .tool-call-name {
-    font-weight: 600;
-    color: var(--accent);
-    font-family: monospace;
-    font-size: 0.8rem;
-  }
-
-  .tool-call-arrow {
-    margin-left: auto;
-    transition: transform 0.2s;
-    font-size: 0.7rem;
-  }
-
-  .tool-call.open .tool-call-arrow {
-    transform: rotate(90deg);
-  }
-
-  .tool-call-body {
-    display: none;
-    padding: 0.6rem 0.7rem;
-    border-top: 1px solid var(--border);
-    font-family: monospace;
-    font-size: 0.78rem;
-    line-height: 1.55;
-    color: var(--text-secondary);
-    max-height: 200px;
-    overflow-y: auto;
-  }
-
-  .tool-call.open .tool-call-body {
-    display: block;
-  }
-
-  .tool-call-section {
-    margin-bottom: 0.5rem;
-  }
-
-  .tool-call-section:last-child {
-    margin-bottom: 0;
-  }
-
-  .tool-call-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-secondary);
-    margin-bottom: 0.2rem;
-    font-family: sans-serif;
-  }
-
-  .tool-call pre {
-    margin: 0;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
   .chat-typing {
     display: flex;
     gap: 0.3rem;
@@ -389,42 +306,6 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     scrollToBottom()
   }
 
-  function addToolCall(name, input_args, output) {
-    const div = document.createElement('div')
-    div.className = 'tool-call'
-    const inputStr = JSON.stringify(input_args, null, 2)
-    let outputStr = output
-    try {
-      outputStr = JSON.stringify(JSON.parse(output), null, 2)
-    } catch {}
-    if (outputStr.length > 600) outputStr = outputStr.slice(0, 600) + '\n...'
-
-    div.innerHTML = `
-      <div class="tool-call-header">
-        <span class="tool-call-icon">\u{1F527}</span>
-        <span class="tool-call-name">${escapeHtml(name)}</span>
-        <span class="tool-call-arrow">\u25B6</span>
-      </div>
-      <div class="tool-call-body">
-        <div class="tool-call-section">
-          <div class="tool-call-label">Input</div>
-          <pre>${escapeHtml(inputStr)}</pre>
-        </div>
-        <div class="tool-call-section">
-          <div class="tool-call-label">Result</div>
-          <pre>${escapeHtml(outputStr)}</pre>
-        </div>
-      </div>
-    `
-
-    div.querySelector('.tool-call-header').addEventListener('click', () => {
-      div.classList.toggle('open')
-    })
-
-    messages.appendChild(div)
-    scrollToBottom()
-  }
-
   function showTyping() {
     const div = document.createElement('div')
     div.className = 'chat-msg assistant'
@@ -478,12 +359,6 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
       }
 
       const data = await res.json()
-
-      if (data.toolCalls) {
-        for (const tc of data.toolCalls) {
-          addToolCall(tc.name, tc.input, tc.output)
-        }
-      }
 
       addAssistantMessage(data.response)
       conversation.push({ role: 'assistant', content: data.response })
