@@ -396,7 +396,7 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     return DOMPurify.sanitize(marked.parse(text ?? '', { async: false }))
   }
 
-  function addAssistantMessage(text: string) {
+  function createAssistantBubble(): HTMLElement {
     const div = document.createElement('div')
     div.className = 'chat-msg assistant'
     const label = document.createElement('div')
@@ -404,10 +404,14 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     label.textContent = 'Assistant:'
     const bubble = document.createElement('div')
     bubble.className = 'chat-msg-bubble markdown'
-    bubble.innerHTML = renderMarkdown(text)
     div.append(label, bubble)
     messages.appendChild(div)
     scrollToBottom()
+    return bubble
+  }
+
+  function addAssistantMessage(text: string) {
+    createAssistantBubble().innerHTML = renderMarkdown(text)
   }
 
   function showTyping() {
@@ -433,6 +437,107 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     return div.innerHTML
   }
 
+  // Stream the reply from /api/stream. Returns true if anything was shown,
+  // false if nothing streamed (caller falls back to /api/chat).
+  async function streamReply(): Promise<boolean> {
+    let res: Response
+    try {
+      res = await fetch(apiBase + '/api/stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: conversation }),
+      })
+    } catch {
+      return false
+    }
+
+    if (!res.ok || !res.body) return false
+
+    const reader = res.body.getReader()
+    const decoder = new TextDecoder()
+    let sseBuffer = ''
+    let answer = ''
+    let bubble: HTMLElement | null = null
+    let raf = 0
+
+    const flush = () => {
+      raf = 0
+      if (bubble) bubble.innerHTML = renderMarkdown(answer)
+      scrollToBottom()
+    }
+    const scheduleRender = () => {
+      if (!raf) raf = requestAnimationFrame(flush)
+    }
+
+    try {
+      while (true) {
+        const { value, done } = await reader.read()
+        if (done) break
+        sseBuffer += decoder.decode(value, { stream: true })
+        const lines = sseBuffer.split('\n')
+        sseBuffer = lines.pop() ?? ''
+
+        for (const line of lines) {
+          const trimmed = line.trim()
+          if (!trimmed.startsWith('data:')) continue
+          const payload = trimmed.slice(5).trim()
+          if (!payload || payload === '[DONE]') continue
+
+          let evt: any
+          try {
+            evt = JSON.parse(payload)
+          } catch {
+            continue
+          }
+
+          if (evt.type === 'delta') {
+            if (!bubble) {
+              removeTyping()
+              bubble = createAssistantBubble()
+            }
+            answer += evt.text
+            scheduleRender()
+          } else if (evt.type === 'error' && !bubble) {
+            return false
+          }
+        }
+      }
+    } catch {
+      if (!bubble) return false // mid-stream failure before anything shown
+    }
+
+    if (raf) cancelAnimationFrame(raf)
+    if (!bubble || !answer) return false
+
+    flush() // ensure the final buffer is rendered
+    conversation.push({ role: 'assistant', content: answer })
+    return true
+  }
+
+  // Non-streaming fallback against the original /api/chat endpoint.
+  async function fallbackReply() {
+    try {
+      const res = await fetch(apiBase + '/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: conversation }),
+      })
+
+      if (!res.ok) {
+        addAssistantMessage('Something went wrong. Please try again later.')
+        conversation.pop()
+        return
+      }
+
+      const data = await res.json()
+      addAssistantMessage(data.response)
+      conversation.push({ role: 'assistant', content: data.response })
+    } catch {
+      addAssistantMessage('Network error. Please try again.')
+      conversation.pop()
+    }
+  }
+
   async function sendMessage(text: string) {
     if (isLoading || !text.trim()) return
     isLoading = true
@@ -448,29 +553,10 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     showTyping()
 
     try {
-      const res = await fetch(apiBase + '/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: conversation }),
-      })
-
-      removeTyping()
-
-      if (!res.ok) {
-        addAssistantMessage('Something went wrong. Please try again later.')
-        conversation.pop()
-        return
-      }
-
-      const data = await res.json()
-
-      addAssistantMessage(data.response)
-      conversation.push({ role: 'assistant', content: data.response })
-    } catch {
-      removeTyping()
-      addAssistantMessage('Network error. Please try again.')
-      conversation.pop()
+      const streamed = await streamReply()
+      if (!streamed) await fallbackReply()
     } finally {
+      removeTyping()
       isLoading = false
       input.disabled = false
       sendBtn.disabled = false
