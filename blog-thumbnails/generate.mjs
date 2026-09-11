@@ -281,6 +281,19 @@ const ARTICLES = [
       { t: "✓ context loaded", c: "#39d353", size: 34, bold: true },
     ],
   },
+  {
+    slug: "streaming-chat-widget",
+    pal: "hermes",
+    path: "api/stream — sse",
+    lines: [
+      { t: "$ curl -N /api/stream", c: "#a78bfa", size: 30, bold: true },
+      { t: 'data: {"type":"delta","text":"Anton "}', dim: true, size: 24 },
+      { t: 'data: {"type":"delta","text":"is a "}', dim: true, size: 24 },
+      { t: 'data: {"type":"delta","text":"senior…"}', dim: true, size: 24 },
+      { t: 'data: {"type":"done"}', c: "#39d353", size: 27, bold: true },
+      { t: "▌ typing…", c: "#e6edf3", size: 26 },
+    ],
+  },
 ];
 
 const only = process.env.ONLY;
