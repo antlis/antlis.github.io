@@ -33,6 +33,7 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
         <div class="grid">
           {dailyTools.map(tool => (
             <a href={tool.data.url} target="_blank" rel="noopener noreferrer" class="tool-card">
+              <span class="external-link">↗</span>
               {tool.data.icon ? (
                 <img src={`https://cdn.simpleicons.org/${tool.data.icon}`} alt="" class="tool-icon" width="40" height="40" />
               ) : (
@@ -40,7 +41,6 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
               )}
               <div class="tool-header">
                 <h3>{tool.data.name}</h3>
-                <span class="external-link">↗</span>
               </div>
               <p>{tool.data.description}</p>
               <div class="badges">
@@ -60,6 +60,7 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
         <div class="grid">
           {rarelyTools.map(tool => (
             <a href={tool.data.url} target="_blank" rel="noopener noreferrer" class="tool-card">
+              <span class="external-link">↗</span>
               {tool.data.icon ? (
                 <img src={`https://cdn.simpleicons.org/${tool.data.icon}`} alt="" class="tool-icon" width="40" height="40" />
               ) : (
@@ -67,7 +68,6 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
               )}
               <div class="tool-header">
                 <h3>{tool.data.name}</h3>
-                <span class="external-link">↗</span>
               </div>
               <p>{tool.data.description}</p>
               <div class="badges">
@@ -87,6 +87,7 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
         <div class="grid">
           {previousTools.map(tool => (
             <a href={tool.data.url} target="_blank" rel="noopener noreferrer" class="tool-card previous">
+              <span class="external-link">↗</span>
               {tool.data.icon ? (
                 <img src={`https://cdn.simpleicons.org/${tool.data.icon}`} alt="" class="tool-icon" width="40" height="40" />
               ) : (
@@ -94,7 +95,6 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
               )}
               <div class="tool-header">
                 <h3>{tool.data.name}</h3>
-                <span class="external-link">↗</span>
               </div>
               <p>{tool.data.description}</p>
               <div class="badges">
@@ -163,6 +163,7 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
   }
 
   .tool-card {
+    position: relative;
     display: flex;
     flex-direction: column;
     padding: 1.25rem;
@@ -191,7 +192,12 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
     width: 40px;
     height: 40px;
     border-radius: 8px;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.75rem;
+  }
+
+  :root[data-theme='dark'] .tool-icon[src*="github"],
+  :root[data-theme='dark'] .tool-icon[src*="opencode"] {
+    filter: invert(1);
   }
 
   .tool-icon.placeholder {
@@ -210,8 +216,7 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
   .tool-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin: 0 0 0.4rem;
+    margin: 0 0 0.75rem;
   }
 
   .tool-header h3 {
@@ -222,6 +227,9 @@ const previousTools = allTools.filter(t => t.data.usage === 'previous')
   }
 
   .external-link {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.85rem;
     color: var(--accent);
     font-size: 0.9rem;
     font-weight: 600;
