@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 380" width="460" height="380">
+  <defs>
+    <linearGradient id="bg4" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0c1a2e"/>
+      <stop offset="100%" style="stop-color:#162032"/>
+    </linearGradient>
+  </defs>
+  <rect width="460" height="380" fill="url(#bg4)" rx="8"/>
+
+  <!-- Telegram -->
+  <rect x="110" y="30" width="240" height="50" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="230" y="52" font-family="system-ui, sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle" font-weight="600">Telegram</text>
+  <text x="230" y="70" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">user sends message</text>
+
+  <line x1="230" y1="80" x2="230" y2="112" stroke="#f59e0b" stroke-width="1.5"/>
+  <polygon points="225,110 230,118 235,110" fill="#f59e0b"/>
+
+  <!-- AI bot -->
+  <rect x="110" y="120" width="240" height="50" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="230" y="142" font-family="system-ui, sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle" font-weight="600">AI Bot</text>
+  <text x="230" y="160" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">Hermes + LLM</text>
+
+  <line x1="230" y1="170" x2="230" y2="202" stroke="#f59e0b" stroke-width="1.5"/>
+  <polygon points="225,200 230,208 235,200" fill="#f59e0b"/>
+  <rect x="242" y="184" width="40" height="16" rx="3" fill="#1e293b"/>
+  <text x="262" y="195" font-family="monospace" font-size="9" fill="#f59e0b" text-anchor="middle">MCP</text>
+
+  <!-- antlis-mcp -->
+  <rect x="110" y="210" width="240" height="50" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="230" y="232" font-family="system-ui, sans-serif" font-size="15" fill="#f59e0b" text-anchor="middle" font-weight="700">antlis-mcp</text>
+  <text x="230" y="250" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">Vercel Function</text>
+
+  <line x1="230" y1="260" x2="230" y2="292" stroke="#f59e0b" stroke-width="1.5"/>
+  <polygon points="225,290 230,298 235,290" fill="#f59e0b"/>
+
+  <!-- GitHub -->
+  <rect x="110" y="300" width="240" height="50" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="230" y="322" font-family="system-ui, sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle" font-weight="600">GitHub</text>
+  <text x="230" y="340" font-family="system-ui, sans-serif" font-size="10" fill="#64748b" text-anchor="middle">antlis.github.io</text>
+</svg>

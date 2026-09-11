@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 500" width="520" height="500">
+  <defs>
+    <linearGradient id="bg5" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+  </defs>
+  <rect width="520" height="500" fill="url(#bg5)" rx="8"/>
+
+  <text x="260" y="32" font-family="system-ui, sans-serif" font-size="12" fill="#94a3b8" text-anchor="middle" font-weight="500">request → response</text>
+
+  <!-- Steps -->
+  <g font-family="system-ui, sans-serif" font-size="12" text-anchor="middle">
+    <rect x="120" y="52" width="280" height="38" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+    <text x="260" y="76" fill="#f8fafc" font-weight="600">Telegram message</text>
+
+    <line x1="260" y1="90" x2="260" y2="108" stroke="#f59e0b" stroke-width="1.5"/>
+    <polygon points="255,106 260,114 265,106" fill="#f59e0b"/>
+
+    <rect x="120" y="116" width="280" height="38" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+    <text x="260" y="140" fill="#f8fafc" font-weight="600">AI model</text>
+
+    <line x1="260" y1="154" x2="260" y2="172" stroke="#f59e0b" stroke-width="1.5"/>
+    <polygon points="255,170 260,178 265,170" fill="#f59e0b"/>
+
+    <rect x="120" y="180" width="280" height="38" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="260" y="204" fill="#f59e0b" font-weight="600" font-family="monospace" font-size="11">search_projects("React")</text>
+
+    <line x1="260" y1="218" x2="260" y2="236" stroke="#f59e0b" stroke-width="1.5"/>
+    <polygon points="255,234 260,242 265,234" fill="#f59e0b"/>
+
+    <rect x="120" y="244" width="280" height="38" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+    <text x="260" y="268" fill="#f59e0b" font-weight="700">antlis-mcp</text>
+
+    <line x1="260" y1="282" x2="260" y2="300" stroke="#f59e0b" stroke-width="1.5"/>
+    <polygon points="255,298 260,306 265,298" fill="#f59e0b"/>
+
+    <rect x="120" y="308" width="280" height="38" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+    <text x="260" y="332" fill="#f8fafc" font-weight="600">GitHub / MDX</text>
+
+    <line x1="260" y1="346" x2="260" y2="364" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <polygon points="255,362 260,370 265,362" fill="#22c55e"/>
+
+    <rect x="120" y="372" width="280" height="38" rx="6" fill="#052e16" stroke="#22c55e" stroke-width="1"/>
+    <text x="260" y="396" fill="#22c55e" font-weight="600">project data</text>
+
+    <line x1="260" y1="410" x2="260" y2="428" stroke="#22c55e" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <polygon points="255,426 260,434 265,426" fill="#22c55e"/>
+
+    <rect x="120" y="436" width="280" height="38" rx="6" fill="#052e16" stroke="#22c55e" stroke-width="1"/>
+    <text x="260" y="460" fill="#22c55e" font-weight="600">Telegram response</text>
+  </g>
+</svg>

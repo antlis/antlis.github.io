@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 400" width="600" height="400">
+  <defs>
+    <linearGradient id="bg1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#1e293b"/>
+    </linearGradient>
+    <filter id="sh1"><feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#000" flood-opacity="0.4"/></filter>
+  </defs>
+  <rect width="600" height="400" fill="url(#bg1)"/>
+
+  <!-- Title -->
+  <text x="300" y="36" font-family="system-ui, sans-serif" font-size="13" fill="#94a3b8" text-anchor="middle" font-weight="500">Architecture</text>
+  <line x1="260" y1="44" x2="340" y2="44" stroke="#f59e0b" stroke-width="1" opacity="0.4"/>
+
+  <!-- GitHub -->
+  <rect x="180" y="64" width="240" height="54" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="300" y="88" font-family="system-ui, sans-serif" font-size="15" fill="#f8fafc" text-anchor="middle" font-weight="600">GitHub</text>
+  <text x="300" y="106" font-family="system-ui, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">antlis.github.io</text>
+
+  <!-- Arrow -->
+  <line x1="300" y1="118" x2="300" y2="152" stroke="#f59e0b" stroke-width="2"/>
+  <polygon points="294,149 300,160 306,149" fill="#f59e0b"/>
+  <rect x="312" y="132" width="72" height="18" rx="4" fill="#1e293b"/>
+  <text x="348" y="145" font-family="monospace" font-size="10" fill="#f59e0b" text-anchor="middle">MDX files</text>
+
+  <!-- antlis-mcp -->
+  <rect x="180" y="162" width="240" height="54" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="300" y="186" font-family="system-ui, sans-serif" font-size="16" fill="#f59e0b" text-anchor="middle" font-weight="700">antlis-mcp</text>
+  <text x="300" y="204" font-family="system-ui, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">Vercel Function</text>
+
+  <!-- Arrow -->
+  <line x1="300" y1="216" x2="300" y2="250" stroke="#f59e0b" stroke-width="2"/>
+  <polygon points="294,247 300,258 306,247" fill="#f59e0b"/>
+  <rect x="312" y="232" width="44" height="18" rx="4" fill="#1e293b"/>
+  <text x="334" y="245" font-family="monospace" font-size="10" fill="#f59e0b" text-anchor="middle">MCP</text>
+
+  <!-- AI Agent -->
+  <rect x="180" y="260" width="240" height="54" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+  <text x="300" y="284" font-family="system-ui, sans-serif" font-size="15" fill="#f8fafc" text-anchor="middle" font-weight="600">AI Agent</text>
+  <text x="300" y="302" font-family="system-ui, sans-serif" font-size="11" fill="#64748b" text-anchor="middle">Claude / ChatGPT</text>
+
+  <!-- Bottom hint -->
+  <text x="300" y="360" font-family="monospace" font-size="11" fill="#475569" text-anchor="middle">$ search_projects("React")</text>
+</svg>

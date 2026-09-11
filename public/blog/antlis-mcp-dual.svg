@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" width="480" height="300">
+  <defs>
+    <linearGradient id="bg6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1c1917"/>
+      <stop offset="100%" style="stop-color:#292524"/>
+    </linearGradient>
+  </defs>
+  <rect width="480" height="300" fill="url(#bg6)" rx="8"/>
+
+  <text x="240" y="32" font-family="system-ui, sans-serif" font-size="12" fill="#a8a29e" text-anchor="middle" font-weight="500">two interfaces</text>
+
+  <!-- Top: Website content -->
+  <rect x="120" y="50" width="240" height="42" rx="6" fill="#0c0a09" stroke="#57534e" stroke-width="1"/>
+  <text x="240" y="76" font-family="system-ui, sans-serif" font-size="13" fill="#fafaf9" text-anchor="middle" font-weight="600">Website content</text>
+
+  <!-- Split lines -->
+  <line x1="240" y1="92" x2="120" y2="132" stroke="#f59e0b" stroke-width="1.5"/>
+  <line x1="240" y1="92" x2="360" y2="132" stroke="#f59e0b" stroke-width="1.5"/>
+  <polygon points="116,130 120,138 128,131" fill="#f59e0b"/>
+  <polygon points="352,130 360,138 364,131" fill="#f59e0b"/>
+
+  <!-- Left: Astro -->
+  <rect x="50" y="140" width="140" height="46" rx="6" fill="#0c0a09" stroke="#57534e" stroke-width="1"/>
+  <text x="120" y="160" font-family="system-ui, sans-serif" font-size="13" fill="#fafaf9" text-anchor="middle" font-weight="600">Astro</text>
+  <text x="120" y="178" font-family="system-ui, sans-serif" font-size="10" fill="#78716c" text-anchor="middle">website</text>
+
+  <!-- Right: MCP -->
+  <rect x="290" y="140" width="140" height="46" rx="6" fill="#0c0a09" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="360" y="160" font-family="system-ui, sans-serif" font-size="13" fill="#f59e0b" text-anchor="middle" font-weight="600">MCP</text>
+  <text x="360" y="178" font-family="system-ui, sans-serif" font-size="10" fill="#78716c" text-anchor="middle">AI interface</text>
+
+  <!-- Arrows down -->
+  <line x1="120" y1="186" x2="120" y2="216" stroke="#57534e" stroke-width="1.5"/>
+  <polygon points="115,214 120,222 125,214" fill="#57534e"/>
+  <line x1="360" y1="186" x2="360" y2="216" stroke="#f59e0b" stroke-width="1.5"/>
+  <polygon points="355,214 360,222 365,214" fill="#f59e0b"/>
+
+  <!-- Left: Humans -->
+  <rect x="50" y="224" width="140" height="40" rx="6" fill="#0c0a09" stroke="#57534e" stroke-width="1"/>
+  <text x="120" y="248" font-family="system-ui, sans-serif" font-size="12" fill="#fafaf9" text-anchor="middle" font-weight="600">Humans</text>
+
+  <!-- Right: AI agents -->
+  <rect x="290" y="224" width="140" height="40" rx="6" fill="#0c0a09" stroke="#57534e" stroke-width="1"/>
+  <text x="360" y="248" font-family="system-ui, sans-serif" font-size="12" fill="#fafaf9" text-anchor="middle" font-weight="600">AI agents</text>
+</svg>
