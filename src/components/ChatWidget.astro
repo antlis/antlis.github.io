@@ -258,26 +258,38 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     text-align: left;
   }
 
+  /* Standalone "thinking" indicator (before the first token / during tool calls) */
   :global(.chat-typing) {
-    display: flex;
-    gap: 0.3rem;
-    padding: 0.65rem 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.8rem 0.9rem;
+    background: var(--border);
+    border-radius: 10px;
+    border-bottom-left-radius: 2px;
+  }
+
+  /* Trailing indicator shown inside the bubble while the answer streams in */
+  :global(.chat-typing-inline) {
+    padding: 0.4rem 0 0.1rem;
+    background: none;
+    border-radius: 0;
   }
 
   :global(.chat-typing span) {
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: var(--text-secondary);
-    animation: typing 1.2s infinite ease-in-out;
+    animation: typing 1.4s infinite ease-in-out both;
   }
 
-  :global(.chat-typing span:nth-child(2)) { animation-delay: 0.15s; }
-  :global(.chat-typing span:nth-child(3)) { animation-delay: 0.3s; }
+  :global(.chat-typing span:nth-child(2)) { animation-delay: 0.2s; }
+  :global(.chat-typing span:nth-child(3)) { animation-delay: 0.4s; }
 
   @keyframes typing {
-    0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
-    30% { opacity: 1; transform: translateY(-3px); }
+    0%, 70%, 100% { opacity: 0.25; transform: translateY(0) scale(0.85); }
+    35% { opacity: 1; transform: translateY(-4px) scale(1); }
   }
 
   .chat-input-form {
@@ -460,10 +472,16 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     let bubble: HTMLElement | null = null
     let raf = 0
 
+    const DOTS =
+      '<span class="chat-typing chat-typing-inline"><span></span><span></span><span></span></span>'
+    const render = (streaming: boolean) => {
+      if (!bubble) return
+      bubble.innerHTML = renderMarkdown(answer) + (streaming ? DOTS : '')
+      scrollToBottom()
+    }
     const flush = () => {
       raf = 0
-      if (bubble) bubble.innerHTML = renderMarkdown(answer)
-      scrollToBottom()
+      render(true)
     }
     const scheduleRender = () => {
       if (!raf) raf = requestAnimationFrame(flush)
@@ -509,7 +527,7 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     if (raf) cancelAnimationFrame(raf)
     if (!bubble || !answer) return false
 
-    flush() // ensure the final buffer is rendered
+    render(false) // final render without the trailing dots
     conversation.push({ role: 'assistant', content: answer })
     return true
   }
