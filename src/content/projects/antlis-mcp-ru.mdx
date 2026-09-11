@@ -1,0 +1,18 @@
+---
+title: "antlis-mcp"
+description: "MCP-сервер: делает моё портфолио доступным для AI-ассистентов — проекты, блог и опыт через Model Context Protocol."
+locale: "ru"
+category: "projects"
+imgSrc: "cloudinary:blog/antlis-mcp"
+imgAlt: "Диаграмма архитектуры antlis-mcp"
+href: "https://github.com/antlis/antlis-mcp"
+blogHref: "/blog/antlis-mcp"
+stack: ["TypeScript", "MCP SDK", "Vercel", "GitHub API", "MDX"]
+year: "2026"
+scope: ["MCP-сервер, развёрнутый как Vercel-функция", "Читает данные портфолио напрямую из Git-репозитория", "Инструменты: about_me, search_projects, get_project, search_blog, get_article", "Streamable HTTP транспорт для MCP-клиентов"]
+highlights: ["Никакой базы данных — Git-репозиторий является единственным источником правды", "Подключён к Telegram AI-боту через Hermes для запросов портфолио в реальном времени", "Намеренно простой: без векторной БД, эмбеддингов и RAG-пайплайна"]
+outcome: "AI-ассистенты теперь могут запрашивать моё портфолио напрямую через MCP вместо парсинга сайта."
+improvements: "Добавить инструмент recommend_for_role, MCP-ресурсы и промпты, сопоставление проектов с навыками."
+---
+
+MCP-сервер, который предоставляет моё портфолио разработчика AI-ассистентам. Вместо того чтобы AI-агент парсил мой сайт и угадывал связи между проектами и технологиями, он может напрямую запрашивать портфолио через инструменты Model Context Protocol. Развёрнут на Vercel, работает из того же Git-репозитория, что и сайт.

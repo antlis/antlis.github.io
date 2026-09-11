@@ -1,0 +1,17 @@
+---
+title: "antlis-mcp"
+description: "MCP server that makes my developer portfolio queryable by AI assistants — projects, blog, and experience exposed through Model Context Protocol."
+category: "projects"
+imgSrc: "cloudinary:blog/antlis-mcp"
+imgAlt: "Architecture diagram of antlis-mcp"
+href: "https://github.com/antlis/antlis-mcp"
+blogHref: "/blog/antlis-mcp"
+stack: ["TypeScript", "MCP SDK", "Vercel", "GitHub API", "MDX"]
+year: "2026"
+scope: ["MCP server deployed as Vercel function", "Reads portfolio data directly from GitHub repository", "Tools: about_me, search_projects, get_project, search_blog, get_article", "Streamable HTTP transport for MCP clients"]
+highlights: ["No database or CMS — GitHub repo is the single source of truth", "Connects to a Telegram AI bot via Hermes for real-time portfolio queries", "Deliberately simple: no vector DB, no embeddings, no RAG pipeline"]
+outcome: "AI assistants can now query my portfolio directly through MCP instead of crawling the website."
+improvements: "Add recommend_for_role tool, MCP resources and prompts, project-to-skill matching."
+---
+
+MCP server that exposes my developer portfolio to AI assistants. Instead of an AI agent crawling my website and guessing relationships between projects and technologies, it can query the portfolio directly through Model Context Protocol tools. Deployed on Vercel, backed by the same Git repository as the website.
