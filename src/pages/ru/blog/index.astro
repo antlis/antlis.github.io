@@ -392,7 +392,10 @@ const tagCounts = allTags.map((tag) => ({
 </style>
 
 <script is:inline>
-  (function() {
+  // Bound to astro:page-load so filters re-wire after View Transitions
+  // navigation (the inline script itself only runs once). The filtersReady
+  // guard keeps a given .blog-page from binding twice.
+  function initBlogFilters() {
     var root = document.querySelector('.blog-page')
     if (!root || root.dataset.filtersReady === 'true') return
     root.dataset.filtersReady = 'true'
@@ -542,5 +545,7 @@ const tagCounts = allTags.map((tag) => ({
     activeTags = uniqueTags(params.getAll('tag'))
     if (searchInput) searchInput.value = params.get('q') || ''
     applyFilters()
-  })()
+  }
+
+  document.addEventListener('astro:page-load', initBlogFilters)
 </script>
