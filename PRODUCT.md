@@ -5,10 +5,10 @@
 brand
 
 ## Users
-Hiring managers, recruiters, and engineering peers evaluating Anton L for freelance/full-time frontend work; developers reading the blog for Vue/React/TypeScript, terminal workflow, and self-hosted/homelab content. Context is typically a quick credibility scan (projects, about) or a focused technical read (blog post).
+Hiring managers, recruiters, and engineering peers evaluating Anton L for freelance/full-time software work (frontend-focused, full-stack when needed); developers reading the blog for Vue/React/TypeScript, terminal workflow, and self-hosted/homelab content. Context is typically a quick credibility scan (projects, about) or a focused technical read (blog post).
 
 ## Product Purpose
-A personal blog and projects section that establishes engineering credibility: showcase production frontend work (Vue, Nuxt, React, Next.js, TypeScript), share practical technical writing, and make it easy to get in touch for freelance/full-time opportunities. Success = a visitor trusts the skill level fast and either reads a post, browses a project, or reaches out.
+A personal blog and projects section that establishes engineering credibility: showcase production software work — frontend-focused, full-stack when needed (Vue, Nuxt, React, Next.js, TypeScript, Node.js, GraphQL), share practical technical writing, and make it easy to get in touch for freelance/full-time opportunities. Success = a visitor trusts the skill level fast and either reads a post, browses a project, or reaches out.
 
 ## Brand Personality
 Precise, technical, understated. Quiet engineering confidence — no marketing gloss, no hype copy. Voice is direct and detail-oriented (the README, about page, and "details that usually get skipped" framing all confirm this).

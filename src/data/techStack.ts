@@ -1,25 +1,7 @@
-// Single source of truth for the About page tech-stack badges.
-// Shared across all locales — technology names are language-neutral;
-// only the surrounding labels are translated per page.
-export const primaryStack = [
-  'TypeScript',
-  'JavaScript',
-  'Vue',
-  'Nuxt',
-  'React',
-  'Next.js',
-  'Tailwind',
-  'GraphQL',
-  'SASS',
-]
+// Tech-stack badges for the About page.
+// The canonical lists live in profile.json (single source of truth shared with
+// the MCP server); re-exported here so existing imports keep working.
+import profile from './profile.json'
 
-export const toolingStack = [
-  'Astro',
-  'Node.js',
-  'Bun',
-  'Docker',
-  'Nix',
-  'Python',
-  'Git',
-  'Neovim',
-]
+export const primaryStack = profile.stack.primary
+export const toolingStack = profile.stack.tooling

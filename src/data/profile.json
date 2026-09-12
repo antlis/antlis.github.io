@@ -1,0 +1,45 @@
+{
+  "name": "Anton",
+  "title": "Software Developer",
+  "focus": "frontend, comfortable across the full stack",
+  "website": "https://antlis.is-a.dev",
+  "availability": "Open to freelance and full-time frontend work; usually works in English-speaking international teams.",
+  "bio": "Software developer with over a decade of experience, focused on frontend and comfortable across the full stack — building Vue/Nuxt and React/Next apps, the TypeScript-heavy interfaces on top, the Node.js/GraphQL services behind them, plus small CLI utilities, editor integrations, and self-hosted systems.",
+  "specialties": [
+    "Vue & Nuxt with TypeScript, and equally React & Next.js",
+    "migrating legacy UIs to modern stacks and typing JavaScript end to end",
+    "frontend architecture at scale: feature-sliced design, micro-frontends with Module Federation, backend-for-frontend layers, Storybook UI kits",
+    "Node.js/TypeScript backends, GraphQL and REST APIs",
+    "AI integrations, including streaming model output straight into the interface"
+  ],
+  "domains": ["media", "fintech", "telecom", "security"],
+  "alsoDoes": [
+    "CI/CD pipelines, unit and end-to-end tests, quality gates",
+    "small open-source tools: Telegram media bots, terminal helpers, editor plugins, self-hosting experiments"
+  ],
+  "interests": [
+    "frontend engineering",
+    "AI tooling",
+    "Linux",
+    "homelab",
+    "open source",
+    "Telegram bots"
+  ],
+  "stack": {
+    "primary": ["TypeScript", "JavaScript", "Vue", "Nuxt", "React", "Next.js", "Tailwind", "GraphQL", "SASS"],
+    "tooling": ["Astro", "Node.js", "Bun", "Docker", "Nix", "Python", "Git", "Neovim"]
+  },
+  "contact": {
+    "preferred": "Telegram",
+    "telegram": "https://t.me/Balkon1111",
+    "contactPage": "https://antlis.is-a.dev/contact",
+    "platforms": [
+      { "name": "GitHub", "url": "https://github.com/antlis", "icon": "simple-icons:github" },
+      { "name": "LinkedIn", "url": "https://www.linkedin.com/in/antlis/", "icon": "simple-icons:linkedin" },
+      { "name": "X", "url": "https://x.com/antlis5", "icon": "simple-icons:x" },
+      { "name": "GitLab", "url": "https://gitlab.com/antlis", "icon": "simple-icons:gitlab" },
+      { "name": "StackOverflow", "url": "https://stackoverflow.com/users/2983061/antlis", "icon": "simple-icons:stackoverflow" },
+      { "name": "Telegram", "url": "https://t.me/Balkon1111", "icon": "simple-icons:telegram" }
+    ]
+  }
+}

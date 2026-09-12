@@ -1,6 +1,6 @@
 ---
 name: antlis.is-a.dev
-description: Personal blog and projects for a frontend developer — precise, technical, understated.
+description: Personal blog and projects for a software developer (frontend-focused, full-stack) — precise, technical, understated.
 colors:
   ink: "#1a1a1a"
   ink-dark: "#e5e5e5"

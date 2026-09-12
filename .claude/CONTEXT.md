@@ -4,7 +4,7 @@ Working context for `antlis.is-a.dev`. For the *how* (stack, structure) see `ARC
 
 ## What this is
 
-Anton L's personal site: a blog + projects portfolio that establishes frontend engineering credibility. Static Astro site, bilingual EN/RU, hosted on GitHub Pages at `https://antlis.is-a.dev`.
+Anton L's personal site: a blog + projects portfolio that establishes software-engineering credibility (frontend-focused, full-stack when needed). Static Astro site, bilingual EN/RU, hosted on GitHub Pages at `https://antlis.is-a.dev`.
 
 Success = a visitor trusts the skill level fast and then does one of: reads a post, browses a project, or reaches out.
 

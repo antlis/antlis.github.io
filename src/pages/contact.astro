@@ -2,16 +2,10 @@
 import Layout from '/src/layouts/Layout.astro'
 import { Icon } from 'astro-icon/components'
 import { t } from '/src/i18n/utils'
+import profile from '/src/data/profile.json'
 
 const i = t('en')
-const platforms = [
-  { name: 'GitHub', url: 'https://github.com/antlis', icon: 'simple-icons:github' },
-  { name: 'LinkedIn', url: 'https://www.linkedin.com/in/antlis/', icon: 'simple-icons:linkedin' },
-  { name: 'X', url: 'https://x.com/antlis5', icon: 'simple-icons:x' },
-  { name: 'GitLab', url: 'https://gitlab.com/antlis', icon: 'simple-icons:gitlab' },
-  { name: 'StackOverflow', url: 'https://stackoverflow.com/users/2983061/antlis', icon: 'simple-icons:stackoverflow' },
-  { name: 'Telegram', url: 'https://t.me/Balkon1111', icon: 'simple-icons:telegram' },
-]
+const platforms = profile.contact.platforms
 ---
 
 <Layout title={i.contact.title} description={i.contact.description} pageType="contact">
@@ -20,7 +14,7 @@ const platforms = [
       <h1>{i.contact.heading}</h1>
       <p>
         The quickest way to reach me is via
-        <a href="https://t.me/Balkon1111" target="_blank" rel="noopener">Telegram</a>.
+        <a href={profile.contact.telegram} target="_blank" rel="noopener">Telegram</a>.
         You can also use the form below or find me on any of these platforms.
       </p>
     </header>
