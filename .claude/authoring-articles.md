@@ -40,6 +40,10 @@ draft: true                  # optional. draft posts show in `npm run dev`,
 ---
 ```
 
+**Undrafting rule:** when publishing a draft (removing/setting `draft: false`), first bump
+`pubDate` to the publish date (today's date) — a draft's `pubDate` is stale by the time it
+goes live. Do this on both the EN and RU files.
+
 ## 3. Body conventions (MDX)
 
 Astro MDX — JSX allowed, use `className` (not `class`).
