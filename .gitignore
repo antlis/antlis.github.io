@@ -41,3 +41,6 @@ pnpm-debug.log*
 # playwright
 playwright-report/
 test-results/
+
+# VS Code (unused; Astro starter default)
+.vscode/
