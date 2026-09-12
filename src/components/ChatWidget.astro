@@ -1,15 +1,56 @@
 ---
 interface Props {
   apiBase?: string
+  locale?: 'en' | 'ru'
 }
 
-const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
+const { apiBase = 'https://antlis-mcp.vercel.app', locale = 'en' } = Astro.props
+
+const strings = {
+  en: {
+    title: 'Ask about this site',
+    toggle: 'Toggle chat',
+    suggestionsLabel: 'Ask about this website',
+    suggestions: [
+      { q: 'What projects use React?', label: 'What projects use React?' },
+      { q: 'What have I written about AI?', label: 'What have I written about AI?' },
+      { q: 'Tell me about the MCP server', label: 'How does the MCP work?' },
+      { q: 'What are the most interesting projects?', label: 'Show me interesting projects' },
+    ],
+    placeholder: 'Ask a question...',
+    you: 'You:',
+    assistant: 'Assistant:',
+    error: 'Network error. Please try again.',
+  },
+  ru: {
+    title: 'Спросите об этом сайте',
+    toggle: 'Открыть чат',
+    suggestionsLabel: 'Спросите об этом сайте',
+    suggestions: [
+      { q: 'Какие проекты используют React?', label: 'Какие проекты на React?' },
+      { q: 'Что я писал про AI?', label: 'Что я писал про AI?' },
+      { q: 'Расскажи про MCP-сервер', label: 'Как работает MCP?' },
+      { q: 'Какие проекты самые интересные?', label: 'Покажи интересные проекты' },
+    ],
+    placeholder: 'Задайте вопрос...',
+    you: 'Вы:',
+    assistant: 'Ассистент:',
+    error: 'Ошибка сети. Попробуйте ещё раз.',
+  },
+}[locale]
 ---
 
-<div id="chat-widget" class="chat-widget" data-api-base={apiBase}>
+<div
+  id="chat-widget"
+  class="chat-widget"
+  data-api-base={apiBase}
+  data-you={strings.you}
+  data-assistant={strings.assistant}
+  data-error={strings.error}
+>
   <div class="chat-header">
-    <span class="chat-title">Ask about this site</span>
-    <button class="chat-toggle" aria-label="Toggle chat" id="chat-toggle">
+    <span class="chat-title">{strings.title}</span>
+    <button class="chat-toggle" aria-label={strings.toggle} id="chat-toggle">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
       </svg>
@@ -19,11 +60,10 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
   <div class="chat-body" id="chat-body">
     <div class="chat-messages" id="chat-messages">
       <div class="chat-suggestions" id="chat-suggestions">
-        <p class="suggestions-label">Ask about this website</p>
-        <button class="suggestion-btn" data-q="What projects use React?">What projects use React?</button>
-        <button class="suggestion-btn" data-q="What have I written about AI?">What have I written about AI?</button>
-        <button class="suggestion-btn" data-q="Tell me about the MCP server">How does the MCP work?</button>
-        <button class="suggestion-btn" data-q="What are the most interesting projects?">Show me interesting projects</button>
+        <p class="suggestions-label">{strings.suggestionsLabel}</p>
+        {strings.suggestions.map((s) => (
+          <button class="suggestion-btn" data-q={s.q}>{s.label}</button>
+        ))}
       </div>
     </div>
 
@@ -32,7 +72,7 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
         type="text"
         id="chat-input"
         class="chat-input"
-        placeholder="Ask a question..."
+        placeholder={strings.placeholder}
         autocomplete="off"
         disabled
       />
@@ -376,8 +416,18 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
 
   marked.setOptions({ breaks: true, gfm: true })
 
-  const widget = document.getElementById('chat-widget')!
+  // Runs on initial load and after every View Transitions navigation
+  // (astro:page-load). Guarded so a given widget only wires up once.
+  function initChatWidget() {
+  const widget = document.getElementById('chat-widget') as HTMLElement | null
+  if (!widget || widget.dataset.ready === 'true') return
+  widget.dataset.ready = 'true'
   const apiBase = widget.dataset.apiBase
+  const i18n = {
+    you: widget.dataset.you ?? 'You:',
+    assistant: widget.dataset.assistant ?? 'Assistant:',
+    error: widget.dataset.error ?? 'Network error. Please try again.',
+  }
   const messages = document.getElementById('chat-messages')!
   const form = document.getElementById('chat-form')!
   const input = document.getElementById('chat-input') as HTMLInputElement
@@ -398,7 +448,7 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     const div = document.createElement('div')
     div.className = 'chat-msg user'
     div.innerHTML = `
-      <div class="chat-msg-label">You:</div>
+      <div class="chat-msg-label">${i18n.you}</div>
       <div class="chat-msg-bubble">${escapeHtml(text)}</div>
     `
     messages.appendChild(div)
@@ -414,7 +464,7 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     div.className = 'chat-msg assistant'
     const label = document.createElement('div')
     label.className = 'chat-msg-label'
-    label.textContent = 'Assistant:'
+    label.textContent = i18n.assistant
     const bubble = document.createElement('div')
     bubble.className = 'chat-msg-bubble markdown'
     div.append(label, bubble)
@@ -432,7 +482,7 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     div.className = 'chat-msg assistant'
     div.id = 'typing-indicator'
     div.innerHTML = `
-      <div class="chat-msg-label">Assistant:</div>
+      <div class="chat-msg-label">${i18n.assistant}</div>
       <div class="chat-typing"><span></span><span></span><span></span></div>
     `
     messages.appendChild(div)
@@ -552,7 +602,7 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
       addAssistantMessage(data.response)
       conversation.push({ role: 'assistant', content: data.response })
     } catch {
-      addAssistantMessage('Network error. Please try again.')
+      addAssistantMessage(i18n.error)
       conversation.pop()
     }
   }
@@ -588,9 +638,12 @@ const { apiBase = 'https://antlis-mcp.vercel.app' } = Astro.props
     sendMessage(input.value)
   })
 
-  document.querySelectorAll('.suggestion-btn').forEach((btn) => {
+  widget.querySelectorAll('.suggestion-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       sendMessage((btn as HTMLElement).dataset.q ?? '')
     })
   })
+  }
+
+  document.addEventListener('astro:page-load', initChatWidget)
 </script>
