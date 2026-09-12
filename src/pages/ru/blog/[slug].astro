@@ -10,6 +10,7 @@ import type { CollectionEntry } from 'astro:content'
 import { localePath } from '/src/i18n/utils'
 import { getReadingTime } from '/src/utils/readingTime'
 import { isVisibleBlogPost } from '../../../utils/drafts'
+import { ogImageFor } from '/src/utils/ogImage'
 
 interface Props {
   post: CollectionEntry<'blog'>
@@ -29,7 +30,7 @@ const posts = (await getCollection('blog', ({ data }) => data.locale === 'ru')).
 const { Content, headings } = await post.render()
 const tocHeadings = headings.filter((h: { depth: number }) => h.depth === 2)
 const readingTime = getReadingTime(post.body, 'ru')
-const ogImage = `/og/blog/ru/${post.slug.replace(/-ru$/, '')}.svg`
+const ogImage = ogImageFor(post.data.imgSrc)
 ---
 
 <Layout title={`${post.data.title} | Антон Л`} description={post.data.description} image={ogImage} type="article" publishedTime={post.data.pubDate} modifiedTime={post.data.modifiedDate} pageType="blog-post" tags={post.data.tags} category={post.data.category} readingTime={readingTime.isoDuration} author={post.data.author} summary={post.data.summary} keywords={post.data.keywords}>
