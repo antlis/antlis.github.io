@@ -1,0 +1,42 @@
+---
+// GoatCounter analytics (privacy-friendly, cookieless).
+// - Bundled module <script>: runs once and is NOT re-executed on View
+//   Transitions navigations, so count.js is injected a single time.
+// - We disable GoatCounter's auto onload count and instead count on every
+//   astro:page-load, so client-side (ClientRouter) navigations are recorded.
+// - Guarded to the production domain, so dev/localhost/previews never track.
+---
+
+<script>
+  const PROD_HOST = 'antlis.is-a.dev'
+  const ENDPOINT = 'https://antlis.goatcounter.com/count'
+  const w = window as any
+
+  function inject() {
+    if (location.hostname !== PROD_HOST || w.__gcInjected) return
+    w.__gcInjected = true
+    w.goatcounter = w.goatcounter || {}
+    w.goatcounter.no_onload = true // we send pageviews manually, per navigation
+    const s = document.createElement('script')
+    s.async = true
+    s.src = 'https://gc.zgo.at/count.js'
+    s.setAttribute('data-goatcounter', ENDPOINT)
+    document.head.appendChild(s)
+  }
+
+  function count(tries = 0) {
+    if (location.hostname !== PROD_HOST) return
+    if (w.goatcounter && typeof w.goatcounter.count === 'function') {
+      w.goatcounter.count({
+        path: location.pathname + location.search,
+        title: document.title,
+      })
+    } else if (tries < 25) {
+      // count.js still loading on first paint — retry briefly
+      setTimeout(() => count(tries + 1), 150)
+    }
+  }
+
+  inject()
+  document.addEventListener('astro:page-load', () => count())
+</script>
