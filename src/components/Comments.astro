@@ -6,28 +6,10 @@ interface Props {
 const { lang = 'en' } = Astro.props
 ---
 
-<div class="comments">
+<div class="comments" data-giscus-lang={lang}>
   <div class="loading" id="giscus-loading">
     <div class="spinner"></div>
   </div>
-  <script
-    is:inline
-    src="https://giscus.app/client.js"
-    data-repo="antlis/antlis.github.io"
-    data-repo-id="R_kgDOMrXAEQ"
-    data-category="General"
-    data-category-id="DIC_kwDOMrXAEc4C87ly"
-    data-mapping="pathname"
-    data-strict="0"
-    data-reactions-enabled="1"
-    data-emit-metadata="0"
-    data-input-position="top"
-    data-theme="preferred_color_scheme"
-    data-lang={lang}
-    data-loading="lazy"
-    crossorigin="anonymous"
-    async
-  ></script>
 </div>
 
 <style>
@@ -62,10 +44,23 @@ const { lang = 'en' } = Astro.props
 </style>
 
 <script is:inline>
-  (function() {
+  (function () {
+    var GISCUS = {
+      'data-repo': 'antlis/antlis.github.io',
+      'data-repo-id': 'R_kgDOMrXAEQ',
+      'data-category': 'General',
+      'data-category-id': 'DIC_kwDOMrXAEc4C87ly',
+      'data-mapping': 'pathname',
+      'data-strict': '0',
+      'data-reactions-enabled': '1',
+      'data-emit-metadata': '0',
+      'data-input-position': 'top',
+      'data-theme': 'preferred_color_scheme',
+      'data-loading': 'lazy',
+    }
+
     function getGiscusTheme() {
-      var theme = document.documentElement.getAttribute('data-theme')
-      return theme === 'dark' ? 'dark' : 'light'
+      return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light'
     }
 
     function setGiscusTheme() {
@@ -82,36 +77,41 @@ const { lang = 'en' } = Astro.props
       if (loader) loader.classList.add('hidden')
     }
 
-    function initGiscusTheme() {
-      var observer = new MutationObserver(function() { setGiscusTheme() })
-      observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['data-theme']
-      })
-
-      var iframe = document.querySelector('iframe.giscus-frame')
-      if (iframe) {
-        iframe.addEventListener('load', function() {
-          hideLoading()
-          setGiscusTheme()
-        })
-      } else {
-        var interval = setInterval(function() {
-          var iframe = document.querySelector('iframe.giscus-frame')
-          if (iframe) {
-            clearInterval(interval)
-            iframe.addEventListener('load', function() {
-              hideLoading()
-              setGiscusTheme()
-            })
-            setGiscusTheme()
-          }
-        }, 500)
-        setTimeout(function() { clearInterval(interval) }, 10000)
+    // Load (or reload) the giscus embed for the current page. Runs on every
+    // navigation, because the static <script src> tag would not re-execute
+    // after a View Transitions swap — leaving the loader spinning forever.
+    function loadGiscus() {
+      var container = document.querySelector('.comments')
+      if (!container) return
+      if (container.querySelector('iframe.giscus-frame')) {
+        hideLoading()
+        return
       }
+
+      var script = document.createElement('script')
+      script.src = 'https://giscus.app/client.js'
+      script.async = true
+      script.crossOrigin = 'anonymous'
+      for (var key in GISCUS) script.setAttribute(key, GISCUS[key])
+      script.setAttribute('data-lang', container.getAttribute('data-giscus-lang') || 'en')
+      container.appendChild(script)
     }
 
-    initGiscusTheme()
-    document.addEventListener('astro:after-swap', initGiscusTheme)
+    // Register global listeners once (this inline script runs a single time).
+    new MutationObserver(setGiscusTheme).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    })
+
+    // Any message from giscus means the frame is alive — safest signal to
+    // stop the spinner (more reliable than the iframe 'load' event).
+    window.addEventListener('message', function (event) {
+      if (event.origin === 'https://giscus.app') {
+        hideLoading()
+        setGiscusTheme()
+      }
+    })
+
+    document.addEventListener('astro:page-load', loadGiscus)
   })()
 </script>
