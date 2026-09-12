@@ -28,6 +28,11 @@ pnpm-debug.log*
 .claude/*
 !.claude/*.md
 
+# impeccable skill installs + generated output (keep .github/workflows tracked)
+.agents/
+.github/skills/
+.impeccable/
+
 .mimocode
 
 # serena
