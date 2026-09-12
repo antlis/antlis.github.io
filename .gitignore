@@ -24,7 +24,9 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
-.claude
+# Track .claude project docs (*.md); keep local settings + installed skills out
+.claude/*
+!.claude/*.md
 
 .mimocode
 

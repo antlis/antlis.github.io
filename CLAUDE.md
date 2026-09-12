@@ -6,10 +6,11 @@ Deeper docs — tracked at repo root:
 - `DESIGN.md` — design tokens, spacing, color
 - `PRODUCT.md` — brand voice, product framing
 
-Local working notes in `.claude/` (gitignored, present on this machine):
+Project docs in `.claude/` (tracked; `settings.local.json` and `skills/` stay ignored):
 - `.claude/CONTEXT.md` — what the site is, audience, key decisions
 - `.claude/ARCHITECTURE.md` — stack, structure, conventions
 - `.claude/authoring-articles.md` — full flow for adding a blog post (read before writing one)
+- `.claude/dev-setup.md`, `.claude/TODO.md` — local dev + running notes
 
 ## Gotchas that bite
 
