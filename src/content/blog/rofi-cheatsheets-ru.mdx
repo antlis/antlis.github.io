@@ -1,0 +1,649 @@
+---
+title: "Исполняемые шпаргалки: which-key для всего рабочего стола Linux на rofi"
+description: "Шпаргалка на rofi, которая не просто показывает горячие клавиши — она их выполняет. Для оконного менеджера она парсится вживую из конфига i3; для приложений — читает раскладку оттуда, где приложение её прячет (JSON Telegram/Zen, Brave через CDP, mpv через IPC), и запускает. Вдохновлено which-key.nvim."
+pubDate: 2026-09-13
+category: "Linux"
+tags: ["rofi", "i3wm", "bash", "xdotool", "telegram", "ayugram", "mpv", "brave", "discord", "zen", "neovim", "linux", "open-source"]
+imgSrc: "/blog/rofi-cheatsheets.png"
+imgAlt: "Полноэкранное меню rofi со списком горячих клавиш i3: каждая строка — сочетание и его действие"
+locale: "ru"
+---
+
+Я постоянно забываю собственные горячие клавиши. Не те десять, что жму каждый час, —
+а *остальные* сорок: комбинацию для перемещения окон, настроенную полгода назад,
+переключатель «не беспокоить», хоткей записи экрана, который добавил на прошлой неделе
+и уже не могу вспомнить. Конфиг помнит их все. Моя память — нет.
+
+В Neovim эту проблему мне решил
+**[which-key.nvim](https://github.com/folke/which-key.nvim)**: начинаешь аккорд — и
+всплывает панель со всеми клавишами, которыми его можно продолжить, и что они делают, —
+и ты дожимаешь аккорд *прямо там*, из панели. Это одновременно шпаргалка и лаунчер. Мне
+захотелось того же для всего рабочего стола, а не только для редактора. Вот как я почти
+добрался до этого с помощью rofi, немного `awk` и `xdotool`.
+
+<dl className="project-meta" aria-label="Метаданные проекта">
+  <div>
+    <dt>Стек</dt>
+    <dd>bash, rofi, i3-msg, awk, jq, xdotool, nc, node (CDP)</dd>
+  </div>
+  <div>
+    <dt>Применение</dt>
+    <dd>Глобальные, всегда актуальные шпаргалки по хоткеям на i3, которые ещё и *выполняют* действие</dd>
+  </div>
+  <div>
+    <dt>Статус</dt>
+    <dd>Работает-у-меня</dd>
+  </div>
+</dl>
+
+## Идея: шпаргалка, на которой можно нажать Enter
+
+Статичный список шорткатов — это PDF, который ты никогда не открываешь. Фишка which-key
+в том, что список *действенный*: увидеть горячую клавишу и вызвать её — один и тот же
+жест. Поэтому цель — чтобы всё было в одном нажатии:
+
+- <kbd>Super</kbd>+<kbd>/</kbd> открывает выбор: какую шпаргалку? (i3, AyuGram, mpv,
+  Discord, Brave, Zen)
+- Выбираешь одну — получаешь полноэкранный список *всех* привязок с нечётким поиском.
+- Жмёшь <kbd>Enter</kbd> на строке — и она **выполняет** действие, а не просто
+  показывает клавишу.
+
+За этими строками стоят два вида привязок, и чтобы реально их «выстрелить», нужен
+совершенно разный механизм. Вся суть — именно в этом различии.
+
+## Вид первый: привязки WM, парсятся вживую из i3
+
+У шпаргалки i3 есть правило, которое мне важно: она никогда не должна расходиться с
+реальностью. Если я добавлю привязку и забуду обновить шпаргалку, шпаргалка становится
+хуже, чем бесполезной — она врёт. Поэтому она не читает список, поддерживаемый вручную.
+Она читает **работающий конфиг** i3:
+
+```bash title="rofi-i3-cheatsheet (схема)"
+mapfile -t rows < <(i3-msg -t get_config | awk '
+  # раскрыть `set $var value`, пропустить блоки `mode { … }`,
+  # затем для каждого `bindsym KEY command…` вывести:  <исполняемая команда>\t<красивая метка>
+  … ')
+```
+
+`i3-msg -t get_config` возвращает живой, полностью загруженный конфиг, так что шпаргалка
+каждый раз генерируется из источника истины — переименуй привязку, и строка
+переименуется сама. Проход `awk` делает три полезные вещи: раскрывает переменные вида
+`$mod`, отбрасывает привязки режимов (они имеют смысл только *внутри* режима
+`resize`/`sysmenu`) и разбивает каждую строку на **пару, разделённую табом**: слева —
+настоящая команда, справа — красивая метка.
+
+Именно это разделение табом делает «нажми Enter, чтобы выполнить» безопасным. rofi
+показывает красивую половину; скрипт сохраняет сырую команду целиком — кавычки, `$`,
+всё — и никогда не делает `eval` строки, которую сам же сгенерировал. По выбору он
+диспетчеризует по типу:
+
+```bash title="диспетчеризация на Enter"
+# exec-привязки запускаются отдельно; всё остальное уходит обратно в i3.
+setsid bash -c "${real[$sel]}" >/dev/null 2>&1 &
+```
+
+`exec`-привязка запускается в отсоединённом шелле; голая команда i3 (`focus left`,
+`layout tabbed`) отправляется через `i3-msg`. Один список, два пути диспетчеризации, и
+оба — от конфига, который реально загружен.
+
+### Косметическая заминка: пути Nix store
+
+На NixOS мои цели `exec` — это деривации `writeShellScript`, поэтому «командой» привязки
+оказывается путь вида `/nix/store/w0…3k-i3-dnd-toggle`. В шпаргалке смотрится уродливо.
+Парсер срезает префикс `/nix/store/…/bin/`, а для горстки привязок-скриптов сопоставляет
+имя деривации чему-то человеческому:
+
+```bash title="дружелюбные метки"
+if      (pcmd ~ /i3-dnd-toggle/)     pcmd = "🔕 Toggle notifications (Do Not Disturb)"
+else if (pcmd ~ /ssr-record-toggle/) pcmd = "⏺ Toggle screen recording (start/stop)"
+…
+```
+
+Мелочь, но это разница между шпаргалкой, которую читаешь, и стеной хешей, которую
+пролистываешь.
+
+## Вид второй: шорткаты приложения, которые нельзя «выполнить»
+
+Шпаргалка AyuGram/Telegram — зверь другой природы. Её строки — не команды i3, это
+*собственные* шорткаты приложения: <kbd>Ctrl</kbd>+<kbd>F</kbd> — поиск по чату,
+<kbd>Delete</kbd> — удалить сообщение, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> —
+реакция. Никакой shell-команды для вызова нет; единственный способ «выполнить» шорткат —
+сделать ровно то, что сделал бы человек: сфокусировать приложение и нажать клавишу.
+
+Сами строки достаются почти даром — клиент хранит свою раскладку в
+`shortcuts-default.json` (плюс `shortcuts-custom.json` для переопределений), так что
+шпаргалка вычитывает реальные сочетания из JSON через `jq` и вручную перечисляет лишь ту
+горстку, которой там нет. Чтобы Enter *выстреливал* строку, нужны ещё две вещи:
+превратить отображаемое сочетание в то, что понимает `xdotool`, и доставить нажатие в
+нужное окно.
+
+Преобразование сочетания — небольшой `case`: разбить по `+`, привести модификаторы к
+нижнему регистру и сопоставить имена клавиш X-keysym'ам.
+
+```bash title="Ctrl+Shift+R → ctrl+shift+r"
+# модификаторы: Ctrl→ctrl, Shift→shift, Alt→alt
+# клавиши:      Esc→Escape, Enter→Return, Space→space, Del→Delete, F→f, 1→1, …
+```
+
+Строки, которые не могут быть одним нажатием — заголовки секций, пустые разделители,
+`Left/Right` («перемотка в медиа»), — пропускаются, потому что отправлять нечего.
+
+## История про фокус (её я уже проходил)
+
+Дальше — само нажатие. Наивный вариант очевиден:
+
+```bash title="очевидный вариант — который молча ничего не делает"
+wid=$(xdotool search --class AyuGram | tail -1)
+xdotool windowactivate --sync "$wid"
+xdotool key --clearmodifiers ctrl+f
+```
+
+Отработал чисто, код возврата 0, и *ничего не произошло*. Отладка показала почему:
+`xdotool search --class AyuGram` возвращает **три** окна, а не одно —
+
+```text
+wid=…569  type=_KDE_NET_WM_WINDOW_TYPE_OVERRIDE  name=Media viewer
+wid=…159  type=_KDE_NET_WM_WINDOW_TYPE_OVERRIDE  name=elevatingToEleventhFloor (…)
+wid=…651  type=_KDE_NET_WM_WINDOW_TYPE_OVERRIDE  name=AyuGramDesktop
+```
+
+— и все помечены как override-redirect-помощники. `windowactivate --sync` выбирает одно,
+ругается `XGetWindowProperty[_NET_WM_DESKTOP] failed` и ничего не делает: активное окно
+не меняется, поэтому клавиша уходит туда, где фокус уже был (то есть в никуда).
+`windowactivate` из `xdotool` опирается на `_NET_WM_DESKTOP`, который **i3 не
+проставляет**, — так что на i3 он просто ненадёжен.
+
+Я узнал это мгновенно, потому что уже сталкивался и решал это, разрабатывая
+**[telepad](/ru/blog/telepad)** — мой быстрый переход к чатам Telegram в стиле Discord,
+которому тоже приходится фокусировать клиент снаружи, чтобы вставить клавишу
+переключения аккаунта. Решение то же, что использует telepad: не проси `xdotool`
+фокусировать. Попроси оконный менеджер — *по критерию* — и дай ему самому найти
+настоящее управляемое окно:
+
+```bash title="решение: пусть фокусирует i3"
+xdotool search --class AyuGram >/dev/null 2>&1 \
+  || { notify-send "AyuGram keys" "No AyuGram window found"; exit 1; }
+
+i3-msg '[class="AyuGramDesktop"] focus' >/dev/null 2>&1
+sleep 0.15
+xdotool key --clearmodifiers "$keyspec"
+```
+
+`i3-msg [class="…"] focus` совпадает с реальным верхнеуровневым окном и игнорирует
+override-redirect-мусор, обманувший `xdotool`; и только *после* этого нажатие уходит в
+то, что теперь в фокусе. `xdotool` остаётся в игре ради единственного, что он тут умеет
+хорошо (синтезировать нажатие), и не занимается управлением окнами. Это разделение —
+**фокусирует WM, печатает xdotool** — и есть несущая идея, и именно к ней пришёл telepad
+по той же причине.
+
+Одна честная оговорка, потому что инструмент острый: эта шпаргалка *выполняет реальное
+действие*. Enter на <kbd>Delete</kbd> удаляет сфокусированное сообщение; на сочетании
+«отправить без звука» — отправляет. Шпаргалка, способная удалять сообщения, — это грабли;
+я гоняю свою в режиме «стреляй-по-всему» осознанно, но «только-справка для
+разрушительных клавиш» — это правка на две строки, если хочется страховки.
+
+## Каждое приложение прячет свою раскладку в своём месте
+
+AyuGram оказался щедрым: он отдаёт тебе JSON-файл. Большинство приложений — нет. Когда
+механизм «сфокусируй и воспроизведи» заработал, я направил его ещё на четыре приложения —
+Zen, Discord, Brave и mpv — и каждое превратило «просто прочитай его шорткаты» в
+отдельную маленькую головоломку. Правило, которое я держал всё время: **читай настоящую
+раскладку приложения, а не поддерживай вручную копию, которая протухнет.** Вот они,
+примерно от самого простого к самому противному, с самым интересным в конце.
+
+### Zen — файл, как у AyuGram (простой случай)
+
+Zen основан на Firefox и хранит свои горячие клавиши — *включая твои переназначения* — в
+JSON в профиле (`zen-keyboard-shortcuts.json`). Так что, как и у AyuGram, шпаргалка — это
+чтение файла: никакого ковыряния окон, никакого скрейпинга. Вся работа — перевод, в один
+проход `jq`. У каждой записи есть объект `modifiers`, где `accel` означает «платформенную
+клавишу accel» (на Linux это Ctrl), а `meta` — Super; ключ — это либо символ, либо
+`keycode` вроде `VK_F5`; а метка де-слагается из `l10nId`:
+
+```jq title="zen-keyboard-shortcuts.json → keyspec + метка"
+# accel/control → ctrl, meta → super;  VK_F5 → F5,  "^" → asciicircum
+# метка: "zen-full-zoom-enlarge-shortcut" → "Full zoom enlarge"
+# несколько привязок к одному действию группируются:  Full zoom enlarge → Ctrl++ / Ctrl+=
+```
+
+Единственная мина: у пары записей `id` **и** `l10nId` оба null (внутренняя привязка
+Backspace), а jq'шный `ltrimstr` под капотом вызывает `startswith` — так что
+`null | ltrimstr(…)` кидает `startswith() requires string inputs`. Фолбэк `// "unnamed"`
+это чинит. 71 шорткат, всегда актуальны, выстреливаются как в AyuGram
+(`i3-msg [class="zen-beta"] focus`, затем `xdotool`).
+
+### Discord — раскладки нет вовсе (случай с ручным списком)
+
+Discord — это Electron-приложение, которое держит шорткаты вкомпилированными, а
+немногочисленные пользовательские — в непрозрачном leveldb; читаемой раскладки, которую
+можно распарсить, нет. Так что это единственный список в наборе, собранный вручную. Я
+пытался хотя бы *отскрейпить* официальную страницу шорткатов Discord, чтобы его наполнить;
+страница **отдаёт 403 за Cloudflare**, даже с браузерным User-Agent. Поэтому строки взяты
+из документированного набора Discord и выстреливаются точно как у AyuGram. Одна приятная
+случайность: окна-помощники с классом `Discord` (с большой буквы) — override-redirect и не
+управляются WM, так что `[class="discord"]` чисто попадает в настоящее окно — тот же
+override-redirect-подвох из истории про фокус, но на этот раз работающий *на нас*.
+
+### Brave — скрейпить страницу настроек через CDP (противный случай)
+
+У Chromium нет файла с шорткатами, но `brave://settings/system/shortcuts` *рендерит*
+полную настраиваемую таблицу. Brave у меня и так запущен с `--remote-debugging-port`, так
+что шпаргалка читает эту страницу через DevTools-протокол (CDP). Звучало просто, но не
+было — три отдельные стены:
+
+- **На PATH запуска нет WebSocket-клиента.** CDP работает только через WebSocket, а
+  `socat`/`websocat` нет в окружении, из которого i3 запускает скрипты. А node — есть, и
+  Node 22 поставляется со встроенным глобальным `WebSocket`, так что CDP-клиент — без
+  зависимостей.
+- **Страница не рендерится в фоне.** Открой вкладку настроек в фоне — её лениво-загружаемая
+  подстраница так и не наполнится; вывод её на передний план работает, но *крадёт твою
+  вкладку*. Фикс — `Emulation.setFocusEmulationEnabled` +
+  `Page.setWebLifecycleState('active')`: рендерит за кадром, без кражи вида, потом вкладка
+  закрывается.
+- **Суп из Shadow DOM.** Таблица — это дерево Brave на Nala/styled-components; парсер
+  ходит по `Grid → div с именем` + `Column → Row → чипы Kbd`, чтобы вытащить команду и её
+  акселераторы.
+
+Это даёт 74 живые команды (кэшируются, ведь скрейп ~5 с). А потом был F11.
+
+#### F11, которого не было
+
+«Полный экран» (F11) из шпаргалки ничего не делал. Очевидная догадка — i3 перехватывает
+клавишу — оказалась неверной; привязки F11 нет. `xev` доказал, что синтетический F11
+*доставляется* (`keysym 0xffc8` попадает в сфокусированное окно), и что обычный Ctrl+T
+воспроизводится нормально. **Brave просто не реагирует на F11 под i3.** Собственный
+полноэкранный режим i3 лишь убирает рамку окна, а не панель Brave — не то, что нужно.
+Настоящий фикс переиспользует CDP-канал: `Browser.setWindowBounds` с
+`windowState: "fullscreen"` — подлинный эквивалент F11 в Brave, вместе с панелью. За этим
+прятались ещё две ловушки: при включённом экономителе памяти большинство вкладок
+*выгружены*, и `getWindowForTarget` на них падает — поэтому я открываю одноразовый
+`about:blank`, чтобы получить окно; а выходят из полноэкранного через `"normal"`, потому
+что `"maximized"` его не снимает.
+
+### mpv — говорить с ним напрямую, фокус не нужен (интересный случай)
+
+mpv — тот, кто ломает весь паттерн «сфокусируй, потом печатай», и он мой любимый. mpv
+умеет слушать JSON-сокет IPC (`input-ipc-server=/tmp/mpvsocket` в `mpv.conf`). Так что эта
+шпаргалка ничего не скрейпит и не хардкодит: она **спрашивает у mpv его живую раскладку**
+(свойство `input-bindings`) и по Enter шлёт `keypress` обратно в *тот же сокет*. mpv
+выполняет действие внутри процесса — без фокуса окна, вообще без `xdotool`.
+
+Это свойство важно для того, как я реально работаю. mpv постоянно живёт на моём
+**выделенном 10-м воркспейсе**. С этой шпаргалкой я могу читать что-то в браузере на
+воркспейсе 2, нажать <kbd>Super</kbd>+<kbd>/</kbd> → mpv → *Pause*, и видео поставится на
+паузу *там, на воркспейсе 10* — без переключения воркспейсов и без фокуса на окно mpv.
+Шпаргалка, которая дотягивается через всю сессию и тыкает приложение, которого ты даже не
+видишь, — это по-настоящему другая штука, чем распечатанный список.
+
+```bash title="mpv: читаем раскладку, стреляем в тот же сокет — без фокуса"
+ipc() { printf '%s\n' "$1" | nc -U -N -w1 "$SOCK"; }
+# читаем: {"command":["get_property","input-bindings"]}  → jq в строки keyspec\tметка
+# стреляем: {"command":["keypress","<key>"]}             → mpv действует, где бы он ни был
+```
+
+Препятствия тут были «транспортные». Первая версия использовала `socat` и молча ничего не
+делала — потому что, та же история, что с Brave, `socat` нет на PATH, с которого i3
+запускает скрипты (я проверил через `/proc/<pid>/environ`). Переход на `nc -U` из LibreSSL
+это починил, со своими причудами: нет `-q`, а `-W1` обрезает многопакетные ответы, так что
+`-N -w1` — та комбинация, что читает полный ответ и выходит. Другая ловушка — живость:
+осиротевший *файл* сокета проходит `-S`, но мёртвый mpv не отвечает ничего — поэтому
+шпаргалка сначала запрашивает и судит по ответу, а не по самому факту существования сокета.
+
+### Паттерн под всем этим
+
+Четыре приложения, четыре совершенно разных источника раскладки — JSON-файл, ручной
+список, отрендеренная через CDP страница настроек, живой IPC-запрос — и два способа
+выстрелить: воспроизвести нажатие в перефокусированное окно (Zen, Discord, Brave) или
+говорить на собственном протоколе приложения, так что фокус неважен (mpv). Связующая ткань
+одна и та же в каждом случае: **найди, где приложение хранит истину, переведи её в строку
+и сделай так, чтобы Enter действовал.**
+
+## Где это по сравнению с which-key
+
+Это не полный клон which-key — нет живого оверлея «ты нажал Super, вот что дальше»,
+собирающего аккорд клавиша за клавишей. Это остальные 80%: **одна привязка, список всего
+с поиском и Enter для вызова.** Для WM-половины это, пожалуй, *лучше* which-key, потому
+что список генерируется из работающего конфига и не может устареть. А для половины
+приложения делается то, за что which-key вовсе не берётся — дотянуться *наружу*
+редактора и управлять другим GUI, перефокусируя его и воспроизводя его же шорткаты.
+
+Обычная честность в силе: это приколочено к **Linux + i3 + X11 + rofi + xdotool**. Трюк
+с фокусом специфичен для i3 (у `swaymsg`/`hyprctl` свои аналоги), а вставка клавиш —
+только X11. Но форма переносима, и урок обобщается за пределы этого стека: **шпаргалка,
+которая не умеет действовать, — документ; шпаргалка, которая умеет, — инструмент.**
+which-key понял это для одного приложения. rofi позволяет вынести это на весь рабочий
+стол.
+
+## Полные скрипты
+
+Все они лежат в моём [репозитории dotfiles](https://github.com/antlis/dotfiles/tree/master/rofi/cheatsheets) (ссылка под каждым). Ниже — три ключевых куска: выбор, живая шпаргалка i3 и шпаргалка AyuGram, — плюс mpv, потому что его трюк с IPC без фокуса интереснее всего читать.
+
+**Выбор.** <kbd>Super</kbd>+<kbd>/</kbd> открывает это; он лишь маршрутизирует к
+конкретной шпаргалке.
+
+```bash title="rofi-keybindings"
+#!/usr/bin/env bash
+# Universal keybindings cheatsheet launcher
+# Select which keybindings to view, then browse & optionally execute them.
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+labels=(
+  "i3"
+  "AyuGram"
+  "mpv"
+  "Discord"
+  "Brave"
+  "Zen"
+)
+
+selected=$(printf '%s\n' "${labels[@]}" | rofi \
+  -dmenu -i -p 'Keybindings' \
+  -mesg 'Select a cheatsheet to view')
+
+[[ -z "$selected" ]] && exit 0
+
+case "$selected" in
+  i3)      exec "${SCRIPT_DIR}/rofi-i3-cheatsheet" ;;
+  AyuGram) exec "${SCRIPT_DIR}/rofi-ayugram-keybindings" ;;
+  mpv)     exec "${SCRIPT_DIR}/rofi-mpv-keybindings" ;;
+  Discord) exec "${SCRIPT_DIR}/rofi-discord-keybindings" ;;
+  Brave)   exec "${SCRIPT_DIR}/rofi-brave-keybindings" ;;
+  Zen)     exec "${SCRIPT_DIR}/rofi-zen-keybindings" ;;
+  *)       notify-send "keybindings" "Unknown: $selected"; exit 1 ;;
+esac
+```
+
+<small>Полный скрипт — <a href="https://github.com/antlis/dotfiles/blob/master/rofi/cheatsheets/rofi-keybindings">dotfiles</a></small>
+
+**Шпаргалка i3.** Генерируется вживую из работающего конфига; Enter запускает выбранную
+привязку.
+
+```bash title="rofi-i3-cheatsheet"
+#!/usr/bin/env bash
+# rofi-i3-cheatsheet — fullscreen i3 keybinding cheatsheet that ALSO acts:
+# selecting an entry performs its binding (exec commands run in a detached
+# shell; i3 commands are dispatched via i3-msg).
+#
+# Source of truth is the LIVE i3 config (i3-msg -t get_config), so it's always
+# in sync. Mode bindings (resize / sysmenu) are intentionally omitted — they
+# only make sense inside their mode. Approach after budlabs' keybindings-rofi.
+
+# Each row: <runnable command>\t<pretty display>. Tab-splitting keeps the real
+# command intact (quotes, $, etc.) without eval-ing generated code.
+mapfile -t rows < <(i3-msg -t get_config | awk '
+  $1 == "set" {
+    name = $2; sub(/^\$/, "", name)
+    $1 = $2 = ""; sub(/^[[:space:]]+/, "", $0)
+    vars[name] = $0; next
+  }
+  $1 == "mode" { inmode = 1 }
+  $1 == "}"    { inmode = 0 }
+
+  $1 == "bindsym" && !inmode {
+    line = $0
+    for (k in vars) gsub("[$]" k, vars[k], line)         # resolve $variables
+    sub(/^bindsym[[:space:]]+/, "", line)
+
+    key  = line; sub(/[[:space:]].*/, "", key)           # first token = key
+    rest = line; sub(/^[^[:space:]]+[[:space:]]+/, "", rest)
+
+    if (rest ~ /^exec([[:space:]]|$)/) {                 # exec -> run directly
+      run = rest
+      sub(/^exec[[:space:]]+/, "", run)
+      sub(/^--no-startup-id[[:space:]]+/, "", run)
+      realcmd = run
+    } else {                                             # else -> i3-msg
+      realcmd = "i3-msg " rest
+    }
+
+    pkey = key                                           # pretty key
+    gsub(/Mod4/, "Super", pkey); gsub(/Mod1/, "Alt", pkey)
+    gsub(/Control/, "Ctrl", pkey); gsub(/\+/, " + ", pkey)
+
+    pcmd = rest                                          # pretty command
+    sub(/^exec[[:space:]]+(--no-startup-id[[:space:]]+)?/, "", pcmd)
+    gsub(/\/nix\/store\/[^ ]*\/bin\//, "", pcmd)
+
+    # friendly labels for commands that read cryptically in the sheet
+    if      (pcmd ~ /i3-dnd-toggle/)        pcmd = "🔕 Toggle notifications (Do Not Disturb)"
+    else if (pcmd ~ /dunstctl history-pop/) pcmd = "🔔 Show last notification"
+    else if (pcmd ~ /dunstctl close-all/)   pcmd = "🔕 Dismiss all notifications"
+    else if (pcmd ~ /ssr-record-toggle/)    pcmd = "⏺ Toggle screen recording (start/stop)"
+
+    printf "%s\t%-34s  %s\n", realcmd, pkey, pcmd
+  }
+')
+
+(( ${#rows[@]} == 0 )) && exit 0
+
+real=(); disp=()
+for r in "${rows[@]}"; do
+  real+=( "${r%%$'\t'*}" )
+  disp+=( "${r#*$'\t'}" )
+done
+
+sel=$(printf '%s\n' "${disp[@]}" | rofi \
+  -theme-str 'window { fullscreen: true; } mainbox { padding: 2%; } listview { columns: 2; }' \
+  -dmenu -i -format i -p 'i3 keys' \
+  -mesg '⌨  i3 keybindings — Enter runs the selected action, Esc to close')
+
+[[ $sel =~ ^[0-9]+$ ]] || exit 0
+setsid bash -c "${real[$sel]}" >/dev/null 2>&1 &
+```
+
+<small>Полный скрипт — <a href="https://github.com/antlis/dotfiles/blob/master/rofi/cheatsheets/rofi-i3-cheatsheet">dotfiles</a></small>
+
+**Шпаргалка AyuGram.** Читает JSON шорткатов клиента, затем на Enter фокусирует
+приложение по критерию i3 и воспроизводит клавишу через `xdotool`.
+
+```bash title="rofi-ayugram-keybindings"
+#!/usr/bin/env bash
+# AyuGram / Telegram Desktop keybindings cheatsheet
+# Reads from AyuGramDesktop or TelegramDesktop shortcuts JSON.
+# Also includes hardcoded Telegram shortcuts not in the JSON.
+# On Enter: focus the AyuGram window and replay the shortcut with xdotool
+# (these are app-internal keys, not exec/i3 commands). Rows with no single
+# replayable key — section headers, blanks, "(not bound)", "Left/Right" — are
+# skipped. NB: this fires the real action, including Delete / send / schedule.
+
+TDATA_DIRS=(
+  "${HOME}/.local/share/AyuGramDesktop/tdata"
+  "${HOME}/.local/share/TelegramDesktop/tdata"
+)
+
+DEFAULTS=""
+CUSTOM=""
+for dir in "${TDATA_DIRS[@]}"; do
+  if [[ -f "$dir/shortcuts-default.json" ]]; then
+    DEFAULTS="$dir/shortcuts-default.json"
+    CUSTOM="$dir/shortcuts-custom.json"
+    break
+  fi
+done
+
+if [[ -z "$DEFAULTS" ]]; then
+  notify-send "keybindings" "No Telegram/Ayugram shortcuts config found"
+  exit 1
+fi
+
+strip_json_comments() {
+  perl -pe 's{//.*}{}' | perl -0777 -pe 's/,\s*([}\]])/\1/g'
+}
+
+# command → human label (elided here for length: ~80 entries like
+# [search]="Search", [delete_message]="Delete Message", … — see the full script).
+declare -A cmd_desc=( … )
+
+rows=()
+
+# ── Configurable shortcuts from JSON (defaults + custom overrides) ──
+while IFS=$'\t' read -r keys cmd; do
+  desc="${cmd_desc[$cmd]:-$cmd}"
+  if [[ "$keys" == "null" ]]; then
+    pretty="(not bound)"
+  else
+    pretty="${keys^^}"
+    pretty="${pretty//CTRL+/Ctrl+}"
+  fi
+  rows+=("$(printf '%-24s %s' "$pretty" "$desc")")
+done < <(
+  merged=$(mktemp)
+  trap "rm -f $merged" RETURN
+
+  strip_json_comments < "$DEFAULTS" | jq '[.[] | select(.command)]' > "$merged"
+
+  # Apply custom overrides if they exist
+  if [[ -n "$CUSTOM" && -f "$CUSTOM" ]]; then
+    strip_json_comments < "$CUSTOM" | jq -r '
+      .[] | select(.command and .keys != null)
+      | "\(.command)\t\(.keys)"
+    ' | while IFS=$'\t' read -r cmd keys; do
+      jq --arg cmd "$cmd" --arg keys "$keys" '
+        map(if .command == $cmd then .keys = $keys else . end)
+      ' "$merged" > "$merged.tmp" && mv "$merged.tmp" "$merged"
+    done
+  fi
+
+  jq -r '.[] | select(.command) | "\(.keys)\t\(.command)"' "$merged"
+)
+
+# ── Hardcoded shortcuts not in the JSON, always active (elided: the same
+# printf-row pattern for Text Formatting / Editing / Navigation / Messages /
+# Media — see the full script). ──
+
+(( ${#rows[@]} == 0 )) && exit 0
+
+sel=$(printf '%s\n' "${rows[@]}" | rofi \
+  -theme-str 'window { fullscreen: true; } mainbox { padding: 2%; } listview { columns: 2; }' \
+  -dmenu -i -p 'AyuGram keys' \
+  -mesg 'AyuGram / Telegram keybindings')
+
+# The key is always the first column (keys never contain spaces); the rest is the
+# description. Skip rows that aren't a single replayable keypress.
+key="${sel%% *}"
+case "$key" in
+  ''|'──'* | '(not') exit 0 ;;   # blank / section header / "(not bound)"
+esac
+[[ "$key" == *"/"* ]] && exit 0  # e.g. Left/Right — not one keypress
+
+# Convert a display combo ("Ctrl+Shift+R") to an xdotool keyspec ("ctrl+shift+r").
+to_keyspec() {
+  local part out=()
+  local IFS='+'
+  read -ra parts <<< "$1"
+  for part in "${parts[@]}"; do
+    case "${part,,}" in
+      ctrl|control)       out+=("ctrl") ;;
+      shift)              out+=("shift") ;;
+      alt)               out+=("alt") ;;
+      super|win|meta|cmd) out+=("super") ;;
+      *)
+        case "$part" in
+          Del|Delete)         out+=("Delete") ;;
+          Backspace)          out+=("BackSpace") ;;
+          Enter|Return)       out+=("Return") ;;
+          Esc|Escape)         out+=("Escape") ;;
+          Space)              out+=("space") ;;
+          Tab)                out+=("Tab") ;;
+          PageUp)             out+=("Prior") ;;
+          PageDown)           out+=("Next") ;;
+          Up|Down|Left|Right|Home|End|Insert) out+=("$part") ;;
+          F[0-9]|F1[0-2])     out+=("$part") ;;
+          [0-9])              out+=("$part") ;;
+          [A-Za-z])           out+=("${part,,}") ;;
+          *)                  return 1 ;;   # unknown token → not fireable
+        esac ;;
+    esac
+  done
+  echo "${out[*]}"
+}
+
+keyspec=$(to_keyspec "$key") || { notify-send "AyuGram keys" "Can't replay: $key"; exit 0; }
+
+# Bail if AyuGram isn't running (i3-msg focus reports success even on zero matches,
+# so check for a window first).
+xdotool search --class AyuGram >/dev/null 2>&1 \
+  || { notify-send "AyuGram keys" "No AyuGram window found"; exit 1; }
+
+# Focus via i3 criteria (matches the real managed window) — xdotool windowactivate
+# is unreliable on i3 and picks AyuGram's override-redirect helper windows. Same
+# approach telepad uses.
+i3-msg '[class="AyuGramDesktop"] focus' >/dev/null 2>&1
+sleep 0.15
+xdotool key --clearmodifiers "$keyspec"
+```
+
+<small>Полный скрипт — <a href="https://github.com/antlis/dotfiles/blob/master/rofi/cheatsheets/rofi-ayugram-keybindings">dotfiles</a></small>
+
+**Шпаргалка mpv.** Читает живую раскладку mpv через его JSON-сокет IPC и стреляет
+выбранной клавишей обратно в тот же сокет — так что mpv действует внутри процесса, без
+фокуса окна, даже когда он припаркован на другом воркспейсе.
+
+```bash title="rofi-mpv-keybindings"
+#!/usr/bin/env bash
+# rofi-mpv-keybindings — cheatsheet for the RUNNING mpv, driven over its JSON IPC
+# socket. It reads mpv's live key map (the `input-bindings` property) as the
+# source of truth, and on Enter fires the binding by sending a `keypress` back
+# through the same socket — so mpv performs the action in-process. No window
+# focus, no xdotool: the key name round-trips exactly (mpv's own naming).
+#
+# Requires mpv started with an IPC socket. Set it once in ~/.config/mpv/mpv.conf:
+#     input-ipc-server=/tmp/mpvsocket
+# (override here with MPV_SOCKET=/path rofi-mpv-keybindings).
+
+SOCK="${MPV_SOCKET:-/tmp/mpvsocket}"
+
+# Talk to mpv's IPC socket. Uses nc (on the i3/rofi launch PATH; socat is not) —
+# libressl nc: -N shuts the write side after our line, -w1 bounds the reply read.
+ipc() { printf '%s\n' "$1" | nc -U -N -w 1 "$SOCK" 2>/dev/null; }
+
+# Query first, then judge liveness by the actual reply — a leftover socket file
+# passes -S but a dead mpv answers nothing, which must NOT look like "no bindings".
+reply=""
+[[ -S "$SOCK" ]] && reply=$(ipc '{"command":["get_property","input-bindings"]}')
+if [[ -z "$reply" ]]; then
+  notify-send "mpv keys" "No live mpv on $SOCK — start mpv with input-ipc-server (mpv.conf), or the socket is stale."
+  exit 1
+fi
+
+# Rows: <mpv key>\t<key padded>  <comment or command>. select(.data) skips any
+# non-reply object; drop no-ops and pointer/gesture keys; keep first per key.
+mapfile -t rows < <(
+  printf '%s' "$reply" | jq -r '
+    select(.data) | .data[]
+    | select(.cmd != "ignore" and .cmd != "")
+    | select(.key | test("MBTN|WHEEL|MOUSE|AXIS|CLOSE_WIN") | not)
+    | [.key, (.comment // .cmd)] | @tsv
+  ' | awk -F '\t' '!seen[$1]++ { printf "%s\t%-20s  %s\n", $1, $1, $2 }'
+)
+
+(( ${#rows[@]} == 0 )) && { notify-send "mpv keys" "mpv reported no bindings"; exit 1; }
+
+real=(); disp=()
+for r in "${rows[@]}"; do
+  real+=( "${r%%$'\t'*}" )
+  disp+=( "${r#*$'\t'}" )
+done
+
+sel=$(printf '%s\n' "${disp[@]}" | rofi \
+  -theme-str 'window { fullscreen: true; } mainbox { padding: 2%; } listview { columns: 2; }' \
+  -dmenu -i -format i -p 'mpv keys' \
+  -mesg '🎬  mpv keybindings — Enter sends the key to mpv, Esc to close')
+
+[[ $sel =~ ^[0-9]+$ ]] || exit 0
+ipc "$(jq -nc --arg k "${real[$sel]}" '{command:["keypress",$k]}')" >/dev/null
+```
+
+<small>Полный скрипт — <a href="https://github.com/antlis/dotfiles/blob/master/rofi/cheatsheets/rofi-mpv-keybindings">dotfiles</a></small>
+
+**Шпаргалки приложений** (Discord, Brave, Zen) следуют той же схеме
+`keyspec → фокус → воспроизведение`, что описана выше; интересны в них источники
+раскладки, разобранные в разделе выше. Полные скрипты:
+
+- [rofi-discord-keybindings](https://github.com/antlis/dotfiles/blob/master/rofi/cheatsheets/rofi-discord-keybindings) — список вручную (читаемой раскладки нет)
+- [rofi-brave-keybindings](https://github.com/antlis/dotfiles/blob/master/rofi/cheatsheets/rofi-brave-keybindings) + [rofi-brave-cdp.mjs](https://github.com/antlis/dotfiles/blob/master/rofi/cheatsheets/rofi-brave-cdp.mjs) — скрейп вживую через CDP плюс переключение полного экрана
+- [rofi-zen-keybindings](https://github.com/antlis/dotfiles/blob/master/rofi/cheatsheets/rofi-zen-keybindings) — читается из JSON профиля Zen
+
+Это вся система. Если сделаешь трюк с живым конфигом для `swaymsg` или подключишь источник
+раскладки другого приложения — буду рад услышать, как вышло.

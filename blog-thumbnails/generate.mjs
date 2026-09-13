@@ -102,6 +102,18 @@ function term({ pal, path, lines, focus }) {
 
 const ARTICLES = [
   {
+    slug: "rofi-cheatsheets",
+    pal: "shellTeal",
+    path: "rofi-keybindings — i3 keys",
+    lines: [
+      { t: "⌨  i3 keys", c: "#2dd4bf", size: 36, bold: true },
+      { t: "▌ Super+Return   Terminal", c: "#e6edf3", size: 28 },
+      { t: "  Super+d        App launcher", dim: true, size: 28 },
+      { t: "  Super+f        Fullscreen", dim: true, size: 28 },
+      { t: "  Enter runs the selected action", dim: true, size: 25 },
+    ],
+  },
+  {
     slug: "telepad",
     pal: "telegram",
     path: "telepad — rofi",
