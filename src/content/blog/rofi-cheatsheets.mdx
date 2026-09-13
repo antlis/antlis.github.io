@@ -314,16 +314,25 @@ the CLI skips their confirmation, and a cheatsheet you fat-finger shouldn't nuke
 
 ### kitty — remote control, but only if it started that way
 
-kitty has a proper remote-control API, so firing is
-`kitten @ --to unix:@mykitty action next_tab` — no keys, no focus. It needs two lines in
-`kitty.conf`: `allow_remote_control socket-only` (a process holding the socket can drive
-kitty, but a TTY escape can't) and `listen_on unix:@mykitty`.
+kitty has a proper remote-control API, so firing is `kitten @ … action next_tab` — no
+keys, no focus. It needs two lines in `kitty.conf`: `allow_remote_control socket-only`
+(a process holding the socket can drive kitty, but a TTY escape can't) and
+`listen_on unix:@mykitty`.
 
-The trap is the word *start*. Those options are read **once, at kitty startup** —
-reloading the config, or an already-open window, never gains them. I enabled them,
-rebuilt, and spent a while confused why `kitten @ ls` still said "not reachable"; the
-fix was simply *close every kitty and open a fresh one*. And with a fixed socket name,
-only the first kitty owns it — later ones run fine but aren't controllable.
+Two traps, both about the socket. First, the word *start*: those options are read
+**once, at kitty startup** — reloading the config, or an already-open window, never
+gains them. I enabled them, rebuilt, and spent a while confused why `kitten @ ls` still
+said "not reachable"; the fix was simply *close every kitty and open a fresh one*.
+
+Second — and this one bit me *after* I'd shipped it — the address I hardcoded was a lie.
+You set `listen_on unix:@mykitty`, but kitty actually listens on **`@mykitty-<pid>`**: it
+appends the process id to keep instances distinct. So `--to unix:@mykitty` matches
+nothing and every fire quietly failed. The sheet has to *discover* the real socket at run
+time — and since it's an abstract socket, that means `ss -xlp | grep @mykitty-`, not a
+file on disk. The discovery is baked into each fired command, so it re-resolves every
+time and survives a kitty restart. Nice side effect: because each instance gets its own
+suffixed socket, several kittys coexist fine — the sheet just targets the first `ss`
+reports.
 
 ### yazi — the id you can't find, and the Python that isn't there
 
