@@ -3,7 +3,7 @@ title: "Executable Cheatsheets: which-key for your whole Linux desktop, in rofi"
 description: "A rofi cheatsheet that doesn't just list your keybindings — it runs them. Live-parsed from the i3 config for the WM; for apps it reads each keymap from wherever the app hides it (Telegram/Zen JSON, Brave over CDP, mpv over IPC) and fires it. Inspired by which-key.nvim."
 pubDate: 2026-09-13
 category: "Linux"
-tags: ["rofi", "i3wm", "bash", "xdotool", "telegram", "ayugram", "mpv", "brave", "discord", "zen", "neovim", "linux", "open-source"]
+tags: ["rofi", "i3wm", "bash", "xdotool", "telegram", "ayugram", "mpv", "brave", "discord", "zen", "tmux", "kitty", "yazi", "figma", "neovim", "linux", "open-source"]
 imgSrc: "/blog/rofi-cheatsheets.png"
 imgAlt: "A fullscreen rofi menu listing i3 keybindings, each row a key chord and its action"
 ---
@@ -289,6 +289,98 @@ CDP-rendered settings page, a live IPC query — and two ways to fire: replay a 
 into a refocused window (Zen, Discord, Brave), or speak the app's own protocol so focus
 is irrelevant (mpv). The connective tissue is the same in every case: **find where the
 app keeps the truth, translate it into a row, and make Enter act.**
+
+## Four more apps, and the wrinkles they brought
+
+After those five I kept going — **tmux, kitty, yazi, and Figma** — partly for coverage,
+partly because each one poked a new hole in the machinery. Three join mpv on the *good*
+side of the line (speak the app's own protocol, focus be damned); Figma lands with
+Zen/Discord/Brave (focus and replay). None went in clean.
+
+### tmux — fire the command, not the keystrokes
+
+tmux is the mpv lesson from another angle: it has a real control channel, so I don't
+replay `C-a` chords into a terminal — I run the equivalent `tmux` command
+(`tmux split-window -h`, `tmux next-window`, `tmux choose-tree`) against the running
+server. It acts on the currently attached client, so nothing needs focus, and even
+interactive overlays like the session tree open right where you're looking.
+
+The wrinkle was the socket. `tmux` finds its server via `$TMUX_TMPDIR`, and mine lives
+at `$XDG_RUNTIME_DIR` — set in my interactive shell, **absent from the environment i3
+launches scripts with** (the `/proc/<pid>/environ` trick, third time now). Every `tmux`
+call from the sheet reported "no server" until I re-exported it. The only inert rows are
+the ones that need typing (rename prompts, copy-mode) and `kill-pane`/`kill-window` —
+the CLI skips their confirmation, and a cheatsheet you fat-finger shouldn't nuke a pane.
+
+### kitty — remote control, but only if it started that way
+
+kitty has a proper remote-control API, so firing is
+`kitten @ --to unix:@mykitty action next_tab` — no keys, no focus. It needs two lines in
+`kitty.conf`: `allow_remote_control socket-only` (a process holding the socket can drive
+kitty, but a TTY escape can't) and `listen_on unix:@mykitty`.
+
+The trap is the word *start*. Those options are read **once, at kitty startup** —
+reloading the config, or an already-open window, never gains them. I enabled them,
+rebuilt, and spent a while confused why `kitten @ ls` still said "not reachable"; the
+fix was simply *close every kitty and open a fresh one*. And with a fixed socket name,
+only the first kitty owns it — later ones run fine but aren't controllable.
+
+### yazi — the id you can't find, and the Python that isn't there
+
+yazi's `ya emit` looked perfect, then failed: `No YAZI_ID environment variable found`.
+yazi hands each instance a random id via `$YAZI_ID`, but only to processes *it* spawns —
+from rofi there's nothing to target, and it's nowhere in the process's `/proc/environ`.
+The fix is to stop letting it be random: launch yazi with a fixed `--client-id 424242`
+(wired into the desktop entry, the `yazifloat` entry, and a `yazi()` zsh wrapper), then
+the sheet fires `ya emit-to 424242 <cmd>`. One instance holds that id at a time — fine.
+
+Then a dumber wall: I wrote the `keymap.toml` parser in Python (`tomllib` is stdlib and
+perfect for it), it worked in my shell, and produced **zero rows when launched from
+i3**. Same environment story yet again — `python3` is on my *interactive* PATH but not
+the one i3 exports; perl always is (the AyuGram sheet leans on it), so the parser is
+perl now. Lesson re-learned: a sheet that runs from a keybinding may only assume what
+i3's PATH actually has. Firing is generous here — navigation, tabs, sort, view, copy all
+go; only the destructive/session-ending commands (`remove`, `delete`, `quit`, `close`)
+stay display-only.
+
+### Figma — a web app, single letters, and the canvas problem
+
+Figma runs in the browser, so there's no keymap file and — despite the Figma MCP — no
+machine-readable shortcut list (the MCP reads *design data*, not the keymap). So it's
+curated, like Discord. Firing is focus-and-replay with a twist: I don't know *which*
+browser Figma is in (Brave? Zen?), so the sheet focuses whichever window has **"Figma"
+in its title** — Figma as the active tab — via `i3-msg [id=…] focus`, and if none does,
+it says so instead of firing blind.
+
+The honest caveat is Figma's own design: most of its shortcuts are *single letters* —
+`V` move, `R` rectangle, `T` text, `P` pen. Those only do the right thing when the
+**canvas** has focus; land in a text field or a panel and you'll just type the letter.
+It's the most context-sensitive sheet of the lot.
+
+## One binding to show them all
+
+The picker makes you choose an app first, which is fine when you know *where* a shortcut
+lives. Often I don't — I remember there's a "toggle notifications" key somewhere but not
+that it's i3's. So there's a second binding,
+**<kbd>Super</kbd>+<kbd>Shift</kbd>+<kbd>/</kbd>**, that flattens *every* sheet into one
+searchable list, each row tagged with its source:
+
+```text title="rofi-keybindings all"
+[i3      ] Super + Return        kitty
+[tmux    ] C-a |                 Split pane horizontally
+[Discord ] Ctrl+K               Quick switcher
+[yazi    ] G                    Move cursor to the bottom
+[Figma   ] R                    Rectangle
+```
+
+Making that fast and un-brittle needed one idea: every sheet grew an `--emit-sh` mode
+that prints **self-contained `command⇥label` rows** — the full shell command that
+performs the action, not a description of it. The aggregate launcher merges them (in
+parallel, so it's as slow as the *slowest* sheet, not the sum), tags each with
+`[source]`, and runs whatever the chosen row carries. There's no central "what does this
+action mean" layer — **each sheet stays the single source of truth for its own firing**,
+which is exactly the part that's easy to get subtly wrong. Apps that aren't running emit
+nothing and quietly drop out.
 
 ## Where this lands versus which-key
 
