@@ -46,6 +46,7 @@ const tagCounts = allTags.map((tag) => ({
             tagsAsFilters
             imgSrc={post.data.imgSrc}
             imgAlt={post.data.imgAlt}
+            imgPosition={post.data.imgPosition}
             date={post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           draft={post.data.draft}
           />

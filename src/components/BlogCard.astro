@@ -7,6 +7,7 @@ interface Props {
   href: string
   imgSrc?: string
   imgAlt?: string
+  imgPosition?: string
   category?: string
   tags?: string[]
   draft?: boolean
@@ -15,7 +16,7 @@ interface Props {
   tagHrefBase?: string
 }
 
-const { href, title, description, imgAlt, imgSrc, category, tags, date, tagsAsFilters = false, tagHrefBase } = Astro.props
+const { href, title, description, imgAlt, imgPosition, imgSrc, category, tags, date, tagsAsFilters = false, tagHrefBase } = Astro.props
 ---
 
 <article
@@ -55,7 +56,7 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date, tagsAsFi
     )}
   </div>
   {imgSrc && (
-    <a class="blog-card-img" href={href} aria-label={title}>
+    <a class="blog-card-img" href={href} aria-label={title} style={imgPosition ? `--img-position: ${imgPosition}` : undefined}>
       <HeroImage
         src={imgSrc}
         alt={imgAlt || title}
@@ -91,7 +92,7 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date, tagsAsFi
 
   .blog-card-with-img {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 180px;
+    grid-template-columns: minmax(0, 1fr) 220px;
     align-items: center;
     gap: 1.1rem;
     padding: 1rem;
@@ -203,7 +204,7 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date, tagsAsFi
     position: relative;
     z-index: 1;
     width: 100%;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 4 / 3;
     overflow: hidden;
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -211,10 +212,11 @@ const { href, title, description, imgAlt, imgSrc, category, tags, date, tagsAsFi
     display: block;
   }
 
-  .blog-card-img img {
+  .blog-card-img :global(img) {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
+    object-position: var(--img-position, 50% 50%);
     display: block;
   }
 
