@@ -1,0 +1,80 @@
+---
+interface Props {
+  heading: string
+  intro: string
+  imgSrc?: string
+  imgAlt?: string
+}
+
+const { heading, intro, imgSrc, imgAlt = '' } = Astro.props
+---
+
+<div class="page-intro">
+  <div class="page-intro-text">
+    <h1>{heading}</h1>
+    <p>{intro}</p>
+  </div>
+  {imgSrc ? (
+    <img class="page-intro-visual" src={imgSrc} alt={imgAlt} loading="eager" fetchpriority="high" />
+  ) : (
+    <div class="page-intro-visual page-intro-placeholder" aria-hidden="true">
+      <slot name="icon" />
+    </div>
+  )}
+</div>
+
+<style>
+  .page-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) clamp(150px, 24%, 260px);
+    align-items: start;
+    gap: 2.5rem;
+    margin-bottom: 2.25rem;
+  }
+
+  .page-intro-text {
+    min-width: 0;
+  }
+
+  h1 {
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.025em;
+  }
+
+  p {
+    margin: 0;
+    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.1rem);
+    line-height: 1.75;
+  }
+
+  .page-intro-visual {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+
+  .page-intro-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-bg);
+    border: 2px dashed var(--border);
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 560px) {
+    .page-intro {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .page-intro-visual {
+      max-width: 200px;
+    }
+
+    .page-intro-placeholder {
+      display: none;
+    }
+  }
+</style>

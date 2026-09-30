@@ -41,7 +41,7 @@ export const translations = {
       sections: {
         projects: {
           heading: 'Projects',
-          intro: 'Open-source tools, plugins, and bots — things I build for myself and share with others.',
+          intro: "Open-source tools, plugins, and bots — things I build first for myself and then share. Most start as an itch in my own daily setup: a Telegram bot that turns a spare Linux box into a media center, a Neovim extension for GitHub Gists, a quick-jump menu for i3, an MCP server that lets AI assistants query this site. They're small and practical, written to be used every day, and each one has a write-up in the blog if you want the story behind it.",
         },
         portfolio: {
           heading: 'Portfolio',
@@ -106,7 +106,7 @@ export const translations = {
       sections: {
         projects: {
           heading: 'Проекты',
-          intro: 'Open-source инструменты, плагины и боты — то, что я делаю для себя и делюсь с другими.',
+          intro: 'Open-source инструменты, плагины и боты — то, что я сначала делаю для себя, а потом выкладываю для всех. Большинство начинается с неудобства в моём повседневном окружении: Telegram-бот, который превращает запасной Linux-компьютер в медиацентр, расширение Neovim для GitHub Gists, меню быстрого перехода для i3, MCP-сервер, через который ИИ-ассистенты могут обращаться к этому сайту. Всё это небольшие практичные вещи, которыми я пользуюсь каждый день, и у каждой есть разбор в блоге, если интересна история за ними.',
         },
         portfolio: {
           heading: 'Портфолио',

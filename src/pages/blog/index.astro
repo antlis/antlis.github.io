@@ -1,5 +1,6 @@
 ---
 import Layout from '/src/layouts/Layout.astro'
+import PageIntro from '/src/components/PageIntro.astro'
 import BlogCard from '/src/components/BlogCard.astro'
 import { getCollection } from 'astro:content'
 import { t, localePath } from '/src/i18n/utils'
@@ -19,17 +20,7 @@ const tagCounts = allTags.map((tag) => ({
 
 <Layout title={i.blog.title} description={i.blog.description} pageType="blog-listing" image="https://res.cloudinary.com/dvbyognrh/image/upload/v1785081915/art/blog-cropped.png">
   <div class="blog-page">
-    <h1>{i.blog.heading}</h1>
-    <div class="intro-row">
-      <p class="intro">{i.blog.intro}</p>
-      <img
-        class="blog-hero"
-        src="https://res.cloudinary.com/dvbyognrh/image/upload/v1785081915/art/blog-cropped.png"
-        alt="Blog intro illustration"
-        loading="eager"
-        fetchpriority="high"
-      />
-    </div>
+    <PageIntro heading={i.blog.heading} intro={i.blog.intro} imgSrc="https://res.cloudinary.com/dvbyognrh/image/upload/e_trim/v1785081915/art/blog-cropped.png" imgAlt="Blog intro illustration" />
     <div class="filter-status">
       <p id="filter-summary" aria-live="polite">Showing all posts</p>
       <button class="clear-filters" type="button" data-clear-filters hidden>Clear filters</button>
@@ -98,54 +89,6 @@ const tagCounts = allTags.map((tag) => ({
 </Layout>
 
 <style>
-  .blog-page {
-    padding-top: 2rem;
-  }
-
-  @media (max-width: 640px) {
-    .blog-page {
-      padding-top: 1rem;
-    }
-  }
-
-  .blog-page h1 {
-    margin: 0 0 0.75rem;
-  }
-
-  .intro-row {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    margin-bottom: 2.25rem;
-  }
-
-  .intro {
-    flex: 1 1 0;
-    min-width: 0;
-    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.1rem);
-    line-height: 1.75;
-  }
-
-  .blog-hero {
-    flex: 0 0 40%;
-    width: 40%;
-    height: auto;
-    border-radius: 10px;
-  }
-
-  @media (max-width: 640px) {
-    .intro-row {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 1.25rem;
-    }
-
-    .blog-hero {
-      flex: none;
-      width: 100%;
-    }
-  }
-
   .search-box {
     display: block;
     max-width: 520px;
