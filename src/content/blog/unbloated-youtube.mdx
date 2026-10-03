@@ -1,0 +1,246 @@
+---
+title: "unbloated-youtube: I Wrote My Own YouTube Client to Stop Hoarding Tabs"
+description: "My browser was full of YouTube tabs I meant to watch later and never did. After a video about GPUI made me curious, I built a small desktop client in Rust with an AI assistant: mpv for playback, yt-dlp for data, a real Watch later tab, an Up next queue, and a settings page where every piece can be switched off."
+pubDate: 2026-10-03
+draft: true
+category: "Open Source"
+tags: ["rust", "gpui", "mpv", "yt-dlp", "youtube", "open-source", "ai", "linux"]
+imgSrc: "/blog/unbloated-youtube.png"
+imgAlt: "unbloated-youtube: History list on the left; the player, its action buttons and the Recommended, Watch later, Comments and Up next tabs on the right"
+---
+
+<figure className="article-photo">
+  <img
+    src="/blog/unbloated-youtube.png"
+    alt="unbloated-youtube: History list on the left; the player, its action buttons and the Recommended, Watch later, Comments and Up next tabs on the right"
+    width="1920"
+    height="1080"
+  />
+  <figcaption>unbloated-youtube: your lists on the left, the player and everything around it on the right.</figcaption>
+</figure>
+
+My browser is permanently polluted with YouTube tabs. Every time I see something I want to watch, I
+open it in a new tab "for later" instead of doing anything that would actually save it. The tabs
+pile up, and then I forget about most of them. Then I do it again.
+
+I also never liked the YouTube page itself. Whatever I came for, there is a feed, a sidebar and a
+row of suggestions competing for the same few square inches. So I did what I usually do with an
+annoyance that is small enough to fix: I wrote a tool for it.
+
+The result is **[unbloated-youtube](https://github.com/antlis/unbloated-youtube)**, a small
+desktop YouTube client for Linux. It shows your subscriptions, playlists and history, plays video
+in [mpv](https://mpv.io), and keeps "watch later" as an actual list instead of a graveyard of tabs.
+
+<dl className="project-meta" aria-label="Project metadata">
+  <div><dt>Stack</dt><dd>Rust, GPUI, mpv, yt-dlp</dd></div>
+  <div><dt>Platform</dt><dd>Linux (X11); Wayland untested</dd></div>
+  <div><dt>Source</dt><dd><a href="https://github.com/antlis/unbloated-youtube">github.com/antlis/unbloated-youtube</a></dd></div>
+  <div><dt>Install</dt><dd><a href="https://github.com/antlis/unbloated-youtube/releases">GitHub releases</a> · <a href="https://aur.archlinux.org/packages/unbloated-youtube-bin">AUR</a> · Nix</dd></div>
+  <div><dt>License</dt><dd>MIT</dd></div>
+</dl>
+
+## Where the idea came from
+
+It started with a video. I watched [I'm Using GPUI For Everything](https://youtu.be/SdJXHYuRr48)
+from Syntax. [GPUI](https://crates.io/crates/gpui) is the Rust UI framework behind the
+[Zed](https://zed.dev) editor, and I had only known it as "the thing Zed is made of". Watching
+someone use it for everything, not just an editor, made me curious enough to want to try it myself.
+
+A framework you have only watched a video about is not much use, so I needed a project. The tab
+problem was right there. I opened a repository, started a session with an AI coding assistant
+(Claude Code), and described what I wanted: a window where I can browse YouTube, play a video, and
+put things in a list instead of a tab.
+
+The first version was a window that could play a video. The part that turns a demo into
+something I actually use every day took many more sessions, and that is most of this article.
+
+## What it is
+
+The whole idea is to reuse what already exists instead of reimplementing it:
+
+- **GPUI** draws the interface.
+- **mpv** plays the video. It is embedded in the window, so playback feels like part of the app.
+- **yt-dlp** supplies the data: lists of videos, search results, stream URLs.
+- **YouTube's InnerTube API** handles actions that change your account: subscribe, like, save to a
+  playlist, Watch later. It uses your browser's cookies, so there is no separate login flow
+  (more on that below).
+
+Everything slow, whether it is yt-dlp, a network request or an mpv query, runs on a background
+thread, so the interface never waits. Lists are cached on disk and appear instantly the next time,
+then refresh behind the scenes. The release binary is a single file of about 25 MB.
+
+## Configure what you need, hide what you don't
+
+"Unbloated" here means something specific: the app does not decide for you which parts of YouTube
+you want to see. Nearly every element is a switch on the settings page, and there is a search
+field on that page too, because there are enough switches to need one.
+
+<figure className="article-photo">
+  <img
+    src="/blog/unbloated-youtube-settings.png"
+    alt="The settings page: toggles for Subscriptions, Playlists, History, Recommendations, Chapters, Comments and the Watch later tab"
+    width="1920"
+    height="1080"
+    loading="lazy"
+  />
+  <figcaption>The settings page: subscriptions, playlists, history, recommendations, chapters, comments and the Watch later tab can each be shown or hidden.</figcaption>
+</figure>
+
+Do you not want recommendations under the player? Turn them off. Comments are off by default and
+only load when you open their tab. Each action button (subscribe, like, dislike, share, download,
+open in browser) has its own switch, and so do view counts, upload dates and subscriber counts. If
+a part of the interface does not earn its place for you, it goes away.
+
+## Watch later instead of more tabs
+
+This is the feature the whole thing was built for.
+
+- **A Watch later tab** next to Recommended, Comments and Up next. It is your real YouTube Watch
+  later playlist, loaded when you open the tab, with a remove button on every row.
+- **A Watch later button on every video, in every list.** Hover a video in your subscriptions, in
+  search results, in recommendations or in history and click it. You don't have to open the video
+  first, and you never open a new tab. There is also a hotkey for the video that is playing.
+- **An Up next queue** for "this one next". Add anything with the `+` on its row, and autoplay
+  works through the queue before it falls back to the list you picked the video from.
+
+Two more buttons I use constantly: **Download**, which saves the video through yt-dlp, and
+**Open in browser**, for the rare video that really needs the YouTube page. Both are one click or
+one key, and neither changes anything else in the window.
+
+The same list-first approach goes further. Subscriptions are a plain channel list with the
+channels that have new uploads at the top and an unseen count next to each. You can sort channels
+into your own groups (Music, Tech) and filter the feed by group. Groups live only in the app, not
+on YouTube. History remembers where you stopped in every video and offers "Continue watching".
+
+## Built for the keyboard
+
+Much of my day is spent in a terminal, so the app had to work without a mouse. Playback has the keys you
+would expect (space, arrows, `j` and `l` for ten seconds, `f` for fullscreen, `m` to mute), `?`
+lists all of them, and the number keys switch tabs.
+
+There is also an optional **Vim mode**. It adds `j`/`k` movement in lists and a hint mode in the
+style of [Vimium](https://github.com/philc/vimium): press `f` and every clickable thing gets a
+short label. Type the label to click it.
+
+<figure className="article-photo">
+  <img
+    src="/blog/unbloated-youtube-hints.png"
+    alt="Hint mode: yellow two-letter labels over every tab, toggle, button and list item"
+    width="1920"
+    height="1080"
+    loading="lazy"
+  />
+  <figcaption>Hint mode: every tab, switch, button and list row gets a label. Type it to click.</figcaption>
+</figure>
+
+That makes anything reachable, including parts of the window I would never have bound a dedicated
+shortcut to.
+
+## Accessibility: a visible focus ring
+
+Hint mode is for people who like it. Focus handling is for everyone. `Tab` and `Shift+Tab` move a
+visible ring through every button, row and switch, and `Enter` or `Space` presses whatever has
+the ring. `Esc` clears it.
+
+<figure className="article-photo">
+  <img
+    src="/blog/unbloated-youtube-focus.png"
+    alt="The Tab focus ring: a red outline around the Subscriptions toggle on the settings page"
+    width="1920"
+    height="1080"
+    loading="lazy"
+  />
+  <figcaption>The focus ring on the settings page: Tab moves it, Enter or Space presses.</figcaption>
+</figure>
+
+I did not want a client that only works for someone who happens to like my keybindings, and a
+ring you can always see is the cheapest way to make sure a keyboard user is never lost.
+
+## Building it with an AI assistant
+
+I want to be straight about how this was made. Most of the Rust was written by the assistant. My
+part was deciding what the app should do, trying it in the real app and saying what was wrong.
+That workflow has some specific consequences:
+
+- **There are no automated tests.** The assistant checks UI changes by running the app on a private
+  X display, driving it with `xdotool` and taking screenshots, then looking at the screenshots.
+  That is slower than unit tests and catches things unit tests never would, such as a menu hanging
+  off the bottom of the window.
+- **My bug reports were screenshots.** Most of the fixes started with me pasting a picture and
+  saying "this is wrong".
+- **I had to keep deciding what the app is.** An assistant will happily add a feature for every
+  idea. The settings page exists because I kept asking for things to be optional.
+
+A few problems were instructive:
+
+- **The video is not my window.** mpv draws into its own native X11 window, placed over the video
+  area. GPUI cannot draw on top of it, so any menu or tooltip that reaches into the video is
+  hidden behind it. I kept finding new ones. Menus are now kept inside the left column, and the
+  save-to-playlist overlay hides the video while it is open, but tooltips over the video are still
+  a known limit.
+- **My window was bigger than my screen.** It opened at a fixed size, and with display scaling that
+  could be taller than the screen, which pushed the bottom of the right column (including a "Load
+  more comments" button) off the edge. It now opens no bigger than the screen.
+- **Comments are awkward.** yt-dlp cannot stream comments, so "Load more" refetches from the top
+  with a higher limit, and every click is slower than the last. A proper fix means talking to
+  InnerTube directly.
+- **Compile time.** The dependency tree has about 730 crates, mostly from GPUI. A clean Nix build
+  took 26 minutes on my machine. Nobody should have to wait for that, so a GitHub Actions workflow
+  builds the binary in about seven minutes whenever I push a tag.
+
+## Installing it
+
+You need `mpv`, `yt-dlp` and `deno` (yt-dlp uses it to solve YouTube's JavaScript challenges).
+Then pick one:
+
+```bash title="Arch / AUR"
+yay -S unbloated-youtube-bin
+```
+
+Or download the Linux x86_64 archive from the
+[releases page](https://github.com/antlis/unbloated-youtube/releases) and run the binary. A Nix
+package is in the repository too. Releases are cut by a tag: the workflow builds the binary,
+publishes the release and updates the AUR package, so the AUR copy tracks GitHub without me
+touching it.
+
+Subscriptions, playlists, history and the account buttons need a login. For now that means
+pointing the app at a browser that is already logged in to YouTube:
+
+```toml title="~/.config/unbloated-youtube/config.toml"
+cookies_from_browser = "brave+gnomekeyring"   # yt-dlp syntax: "firefox", "chromium", ...
+```
+
+Without it, search and playback still work.
+
+## Where it stands
+
+It is experimental. It only runs on Linux with X11 (Wayland is untested), the login is clumsy, and
+there are rough edges I have not found yet. I am still satisfied with it, which is the point: it
+already does the one job I built it for. I am going to stop watching YouTube in the browser. No
+more tabs I will never read, and no more feed fighting for my attention. I open the app, pick
+something, and the rest goes into Watch later.
+
+## What's next
+
+None of this is built yet. It is the list I am working from:
+
+- **A description tab** under the player, next to Comments and Chapters.
+- **Better comments**: replies, sorting by top or newest, clickable timestamps that seek the video,
+  loading more without refetching, and maybe posting.
+- **Casting.** Chromecast-style "play this on the TV" is the obvious idea. Closer to home, I already
+  run a homelab box connected to my TV with [tg-mpv-bot](/blog/tg-mpv-bot), and sending a video to
+  that mpv is the version I want most.
+- **Import and export.** Groups, settings and per-channel switches live in one folder on one
+  machine today, with no sync and no backup.
+- **A better login.** Reading cookies from a browser works but is fragile. I am looking at a
+  guided setup in the settings page and, later, an in-app login window.
+- **More ways to install it**: `.deb` and `.rpm` packages, an AppImage, a Flatpak, crates.io, and
+  maybe bundling yt-dlp and deno so there is less to install.
+- **Wayland, then Windows and macOS.** The embedded player is the main thing that ties it to X11,
+  though not the only Linux-specific piece.
+- **Smaller things**: a startup check that tells you which of mpv, yt-dlp or deno is missing, and
+  removing entries from YouTube's own history, not just the app's copy.
+
+If any of that sounds useful, or you try it and something breaks,
+[open an issue](https://github.com/antlis/unbloated-youtube/issues). The README lists every
+feature and shortcut.
