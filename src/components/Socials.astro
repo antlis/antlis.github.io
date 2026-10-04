@@ -1,45 +1,50 @@
 ---
+import { Icon } from 'astro-icon/components'
+
+// Icons are inlined at build time from @iconify-json/simple-icons, so they
+// render with currentColor (theme-aware, no CDN request) and can take their
+// service's brand color on hover (DESIGN.md → Borrowed Brand Rule).
 const socials = [
   {
     name: "GitHub",
     url: "https://github.com/antlis",
-    icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/github.svg",
+    icon: "simple-icons:github",
     brand: "github",
   },
   {
     name: "LinkedIn",
     url: "https://www.linkedin.com/in/antlis/",
-    icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/linkedin.svg",
+    icon: "simple-icons:linkedin",
     brand: "linkedin",
   },
   {
     name: "X",
     url: "https://x.com/antlis5",
-    icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/x.svg",
+    icon: "simple-icons:x",
     brand: "x",
   },
   {
     name: "GitLab",
     url: "https://gitlab.com/antlis",
-    icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/gitlab.svg",
+    icon: "simple-icons:gitlab",
     brand: "gitlab",
   },
   {
     name: "StackOverflow",
     url: "https://stackoverflow.com/users/2983061/antlis",
-    icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/stackoverflow.svg",
+    icon: "simple-icons:stackoverflow",
     brand: "stackoverflow",
   },
   {
     name: "Telegram",
     url: "https://t.me/Balkon1111",
-    icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/telegram.svg",
+    icon: "simple-icons:telegram",
     brand: "telegram",
   },
   {
     name: "Email",
     url: "mailto:antlis@protonmail.com",
-    icon: "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/protonmail.svg",
+    icon: "simple-icons:protonmail",
     brand: "email",
   },
 ];
@@ -48,7 +53,7 @@ const socials = [
 <div class="socials">
   {socials.map(social => (
     <a href={social.url} target="_blank" rel="noopener" aria-label={social.name} data-brand={social.brand}>
-      <img src={social.icon} alt={social.name} width="20" height="20" />
+      <Icon name={social.icon} width="20" height="20" aria-hidden="true" />
     </a>
   ))}
 </div>
@@ -62,55 +67,38 @@ const socials = [
   }
 
   .socials a {
+    --brand: var(--text-secondary);
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 32px;
     height: 32px;
     margin: -6px;
-    opacity: 1;
-    transition: opacity 0.2s, transform 0.2s;
+    color: var(--text);
+    transition: color 0.2s, transform 0.2s;
   }
 
-  .socials a:hover {
-    opacity: 1;
+  .socials a:hover,
+  .socials a:focus-visible {
+    color: var(--brand);
     transform: scale(1.1);
   }
 
-  .socials img {
+  .socials svg {
     width: 20px;
     height: 20px;
-    max-width: 20px;
-    max-height: 20px;
-    filter: brightness(0);
-    transition: filter 0.2s;
   }
 
-  :global([data-theme='dark']) .socials img {
-    filter: brightness(0) invert(1);
-  }
+  /* Brand colors tuned to clear 3:1 against the page background per theme */
+  .socials a[data-brand="linkedin"] { --brand: #0a66c2; }
+  .socials a[data-brand="gitlab"] { --brand: #e24329; }
+  .socials a[data-brand="stackoverflow"] { --brand: #c4600f; }
+  .socials a[data-brand="telegram"] { --brand: #1c8adb; }
+  .socials a[data-brand="email"] { --brand: #6d4aff; }
 
-  .socials a[data-brand]:hover img {
-    filter: brightness(0) invert(0.15);
-  }
-
-  .socials a[data-brand="linkedin"]:hover img {
-    filter: invert(39%) sepia(97%) saturate(547%) hue-rotate(184deg) brightness(94%) contrast(91%);
-  }
-
-  .socials a[data-brand="gitlab"]:hover img {
-    filter: invert(59%) sepia(91%) saturate(779%) hue-rotate(358deg) brightness(97%) contrast(101%);
-  }
-
-  .socials a[data-brand="stackoverflow"]:hover img {
-    filter: invert(55%) sepia(93%) saturate(813%) hue-rotate(8deg) brightness(101%) contrast(103%);
-  }
-
-  .socials a[data-brand="telegram"]:hover img {
-    filter: invert(58%) sepia(62%) saturate(490%) hue-rotate(176deg) brightness(93%) contrast(94%);
-  }
-
-  .socials a[data-brand="email"]:hover img {
-    filter: invert(42%) sepia(83%) saturate(585%) hue-rotate(228deg) brightness(98%) contrast(95%);
-  }
+  :global([data-theme='dark']) .socials a[data-brand="linkedin"] { --brand: #4d8fd6; }
+  :global([data-theme='dark']) .socials a[data-brand="gitlab"] { --brand: #fc6d26; }
+  :global([data-theme='dark']) .socials a[data-brand="stackoverflow"] { --brand: #f48024; }
+  :global([data-theme='dark']) .socials a[data-brand="telegram"] { --brand: #26a5e4; }
+  :global([data-theme='dark']) .socials a[data-brand="email"] { --brand: #9b85ff; }
 </style>

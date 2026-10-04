@@ -14,10 +14,10 @@ colors:
   surface-hover-dark: "#1d1d1d"
   hairline: "#e5e5e5"
   hairline-dark: "#2a2a2a"
-  signal-blue: "#2563eb"
-  signal-blue-dark: "#60a5fa"
-  signal-blue-hover: "#1d4ed8"
-  signal-blue-hover-dark: "#93bbfd"
+  signal-orange: "#c44a0a"
+  signal-orange-dark: "#F77814"
+  signal-orange-hover: "#a63d06"
+  signal-orange-hover-dark: "#f9a04f"
   error: "#b91c1c"
   error-dark: "#f87171"
   service-icon-orange: "#C25E0E"
@@ -91,7 +91,7 @@ The site reads like a well-kept engineering notebook: near-black ink on near-whi
 This system explicitly rejects the generic SaaS landing page (no gradient heroes, no hero-metric blocks, no eyebrow kickers dressing up every section) and the over-designed agency portfolio (no scroll-jacking, no oversized type stunts that outshine the work being shown). The work and the writing are the product; the chrome should recede.
 
 **Key Characteristics:**
-- Monochrome ink/paper base with a single signal-blue accent, never more
+- Monochrome ink/paper base with a single signal-orange accent, never more
 - Flat surfaces; shadow and lift exist only as hover feedback, never as default elevation
 - Full-pill (999px) buttons and badges; 8px cards; hairline 1px borders everywhere else
 - One typeface (Inter) carrying every register from hero display to body copy
@@ -102,7 +102,7 @@ This system explicitly rejects the generic SaaS landing page (no gradient heroes
 A near-monochrome ink-on-paper palette with one accent; the accent's scarcity is what makes it read as a signal rather than decoration.
 
 ### Primary
-- **Signal Blue** (`#2563eb` light / `#60a5fa` dark): the only chromatic UI color in the system. Used for links, focus rings, active nav state, and small accent tints (`color-mix` at 18–36% into borders/shadows on hover). Never a fill larger than a button or a focus ring. Tuned to clear 4.5:1 against `paper`/`surface` in light mode (the earlier `#3b82f6` only hit ~3.6:1 as text and was failing AA on every prose link/badge).
+- **Signal Orange** (`#c44a0a` light / `#F77814` dark): the only chromatic UI color in the system, taken from the fox logo. Used for links, focus rings, active nav/TOC state, category chips, and small accent tints (`color-mix` at 8–36% into borders/backgrounds). Never a fill larger than a button or a focus ring. Light mode is tuned to clear 4.5:1 against `paper` (4.65:1); the brighter logo orange `#E35206` only hit ~3.7:1 as text and failed AA on every prose link. Dark mode `#F77814` is 7.2:1 against `paper-dark`.
 
 ### Semantic (errors only)
 - **Error** (`#b91c1c` light / `#f87171` dark): form-validation error text only (`.error` spans on the contact form). Not part of the One Signal Rule — errors are a distinct semantic channel, not a brand accent, and are never used decoratively.
@@ -116,7 +116,7 @@ A near-monochrome ink-on-paper palette with one accent; the accent's scarcity is
 - **Hairline** (`#e5e5e5` light / `#2a2a2a` dark): the only border color in the system; never a colored or heavier border.
 
 ### Named Rules
-**The One Signal Rule.** Signal Blue is the only chromatic *brand* color anywhere in the UI. If a second brand accent is ever needed, that's a sign the design has drifted from "engineering notebook" toward "marketing site" — stop and reconsider before adding it.
+**The One Signal Rule.** Signal Orange is the only chromatic *brand* color anywhere in the UI. If a second brand accent is ever needed, that's a sign the design has drifted from "engineering notebook" toward "marketing site" — stop and reconsider before adding it.
 
 **The Borrowed Brand Rule.** Icons linking to a named external service (RSS, GitHub, LinkedIn, GitLab, StackOverflow, Telegram, email) may reveal *that service's own* canonical brand color on `:hover`/`:focus` (e.g. RSS `#C25E0E`, LinkedIn blue, Telegram blue) — this is a recognition aid for a third-party identity, not a second site accent, and does not violate the One Signal Rule. It must still clear 3:1 contrast against the surface it sits on.
 
@@ -146,7 +146,7 @@ Flat by default, shadow-on-hover. Cards, buttons, and tags carry a 1px hairline 
 - **Card hover** (`box-shadow: 0 14px 34px color-mix(in srgb, #000 8%, transparent)`): blog/projects card hover state.
 - **Accent CTA hover** (`box-shadow: 0 14px 30px color-mix(in srgb, var(--accent) 22%, transparent)`): primary projects CTA hover — the one place the accent tints a shadow.
 - **Popover / dropdown** (`box-shadow: 0 12px 34px color-mix(in srgb, #000 16%, transparent)`): tag filter dropdown, share menu.
-- **Media frame** (`box-shadow: 0 12px 32px color-mix(in srgb, #000 10%, transparent)`): hero images and code-block frames.
+- **Media frame** (`box-shadow: 0 12px 32px color-mix(in srgb, #000 10%, transparent)`): hero images only. Code-block frames stay flat with a hairline border.
 
 ### Named Rules
 **The Flat-By-Default Rule.** No element carries a shadow at rest. A shadow only appears as a transition response to `:hover` or an open/active state.
@@ -157,17 +157,18 @@ Flat by default, shadow-on-hover. Cards, buttons, and tags carry a 1px hairline 
 - **Shape:** full pill (`border-radius: 999px`), min-height 2.35rem, padding `0.48rem 0.9rem`.
 - **Primary:** `background: var(--text)` / `color: var(--bg)` (ink-on-paper inverted) — used once per view, for the single most important action (hero "View projects").
 - **Secondary / Ghost:** `border: 1px solid var(--border)`, `background: var(--card-bg)`, `color: var(--text)` — every other action (nav pills, "Read the blog", "View all", filter pills).
-- **Hover / Focus:** color/border/background transition at 0.2s; `:focus-visible` gets a 2px Signal Blue outline with 2px offset, independent of the button's own hover treatment.
+- **Hover / Focus:** color/border/background transition at 0.2s; `:focus-visible` gets a 2px Signal Orange outline with 2px offset, independent of the button's own hover treatment.
 
 ### Chips / Tags / Badges
 - **Style:** `border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--border))`, full pill, 0.68–0.76rem uppercase-ish weight-700 text. The accent only tints the border, never fills the chip.
 - **State:** tag filters toggle to a filled `var(--card-hover)` background when active.
+- **Density:** a blog card previews at most 4 tags followed by a muted `+N`; the full list lives on the post page. The blog sidebar shows tags used in 2+ posts and tucks single-use tags behind a "More tags" disclosure.
 
 ### Cards / Containers
 - **Corner Style:** 8px for blog/projects cards; 10px for the larger ProjectCard detail cards and code frames; 12px for hero images.
 - **Background:** `var(--card-bg)` — one step lighter (light mode) / lighter-than-page (dark mode) off `var(--bg)`.
 - **Shadow Strategy:** flat at rest, see Elevation.
-- **Border:** 1px `var(--border)` always; on hover, blends toward Signal Blue via `color-mix(... 36%, var(--border))`.
+- **Border:** 1px `var(--border)` always; on hover, blends toward Signal Orange via `color-mix(... 36%, var(--border))`.
 - **Internal Padding:** ~0.9rem–1rem.
 
 ### Inputs / Fields
@@ -183,7 +184,7 @@ Flat by default, shadow-on-hover. Cards, buttons, and tags carry a 1px hairline 
 ## 6. Do's and Don'ts
 
 ### Do:
-- **Do** keep Signal Blue as the only chromatic *brand* accent; everything else is ink/paper/hairline.
+- **Do** keep Signal Orange as the only chromatic *brand* accent; everything else is ink/paper/hairline.
 - **Do** keep buttons and badges full-pill (999px); keep cards at 8–12px depending on size.
 - **Do** keep shadows flat-at-rest, hover-triggered only.
 - **Do** keep the single Inter family; differentiate via weight and size, not a second font.
@@ -195,6 +196,6 @@ Flat by default, shadow-on-hover. Cards, buttons, and tags carry a 1px hairline 
 - **Don't** introduce a generic SaaS landing page move: gradient heroes, hero-metric blocks ("big number, small label"), or a tiny uppercase eyebrow above every section.
 - **Don't** add agency-portfolio flourishes: scroll-jacking, oversized type stunts, or motion that competes with the work being shown.
 - **Don't** use `border-left`/`border-right` colored accent stripes on cards or list items. Exception: a blog-post `<blockquote>` may keep a left accent rule — that's an editorial convention (long-form quote styling), not the dashboard-card "side-stripe" tell this rule targets.
-- **Don't** add a second *brand* accent color; route any new "needs emphasis" case through Signal Blue, weight, or size instead. (Borrowed third-party brand colors on external-service icons are the one sanctioned exception — see Borrowed Brand Rule.)
+- **Don't** add a second *brand* accent color; route any new "needs emphasis" case through Signal Orange, weight, or size instead. (Borrowed third-party brand colors on external-service icons are the one sanctioned exception — see Borrowed Brand Rule.)
 - **Don't** give a card or button a resting shadow — shadows only respond to `:hover`/`:focus`.
 - **Don't** color error text decoratively — `--error` is reserved for form-validation failures only.

@@ -17,6 +17,12 @@ interface Props {
 }
 
 const { href, title, description, imgAlt, imgPosition, imgSrc, category, tags, date, tagsAsFilters = false, tagHrefBase } = Astro.props
+
+// Cards show a short tag preview; the full list lives on the post page and
+// in data-tags (which the blog filters read).
+const MAX_VISIBLE_TAGS = 4
+const visibleTags = tags?.slice(0, MAX_VISIBLE_TAGS) ?? []
+const hiddenTagCount = (tags?.length ?? 0) - visibleTags.length
 ---
 
 <article
@@ -43,15 +49,16 @@ const { href, title, description, imgAlt, imgPosition, imgSrc, category, tags, d
     )}
     <h3><a class="blog-card-title-link" href={href}>{title}</a></h3>
     <p>{description}</p>
-    {tags && tags.length > 0 && (
+    {visibleTags.length > 0 && (
       <div class="blog-card-tags">
-        {tags.map((tag) =>
+        {visibleTags.map((tag) =>
           tagsAsFilters ? (
             <button class="blog-card-tag" type="button" data-tag={tag} aria-label={`Filter posts by tag ${tag}`}>{tag}</button>
           ) : (
             <a class="blog-card-tag" href={`${tagHrefBase || '/blog'}?tag=${encodeURIComponent(tag)}`}>{tag}</a>
           )
         )}
+        {hiddenTagCount > 0 && <span class="blog-card-tag-more">+{hiddenTagCount}</span>}
       </div>
     )}
   </div>
@@ -166,6 +173,11 @@ const { href, title, description, imgAlt, imgPosition, imgSrc, category, tags, d
   }
 
   .blog-card p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
     margin: 0;
     font-size: 0.9rem;
     line-height: 1.58;
@@ -198,6 +210,15 @@ const { href, title, description, imgAlt, imgPosition, imgSrc, category, tags, d
   .blog-card-tag:hover {
     color: var(--text);
     border-color: var(--text-secondary);
+  }
+
+  .blog-card-tag-more {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.18rem 0.2rem;
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-variant-numeric: tabular-nums;
   }
 
   .blog-card-img {

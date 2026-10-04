@@ -16,6 +16,9 @@ const tagCounts = allTags.map((tag) => ({
   tag,
   count: sortedPosts.filter((post) => post.data.tags?.includes(tag)).length,
 }))
+// Tags used once are noise in the default view; they stay one click away.
+const commonTags = tagCounts.filter(({ count }) => count > 1)
+const rareTags = tagCounts.filter(({ count }) => count === 1)
 ---
 
 <Layout title={i.blog.title} description={i.blog.description} pageType="blog-listing" image="https://res.cloudinary.com/dvbyognrh/image/upload/v1785081915/art/blog-cropped.png">
@@ -75,10 +78,20 @@ const tagCounts = allTags.map((tag) => ({
             <p class="sidebar-title">Tags</p>
           <div class="tag-filter">
               <button class="filter-btn active" data-filter="tag" data-tag="all" type="button">All <span>{sortedPosts.length}</span></button>
-              {tagCounts.map(({ tag, count }) => (
+              {commonTags.map(({ tag, count }) => (
                 <button class="filter-btn" data-filter="tag" data-tag={tag} type="button">{tag} <span>{count}</span></button>
               ))}
             </div>
+            {rareTags.length > 0 && (
+              <details class="more-tags">
+                <summary>More tags <span>{rareTags.length}</span></summary>
+                <div class="tag-filter">
+                  {rareTags.map(({ tag, count }) => (
+                    <button class="filter-btn" data-filter="tag" data-tag={tag} type="button">{tag} <span>{count}</span></button>
+                  ))}
+                </div>
+              </details>
+            )}
           </div>
         )}
       </aside>
@@ -254,6 +267,51 @@ const tagCounts = allTags.map((tag) => ({
   }
 
 
+  .more-tags {
+    margin-top: 0.6rem;
+  }
+
+  .more-tags summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .more-tags summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .more-tags summary::before {
+    content: '';
+    width: 0.4rem;
+    height: 0.4rem;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.2s;
+  }
+
+  .more-tags[open] summary::before {
+    transform: rotate(45deg);
+  }
+
+  .more-tags summary:hover {
+    color: var(--text);
+  }
+
+  .more-tags summary span {
+    font-size: 0.68rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .more-tags .tag-filter {
+    margin-top: 0.6rem;
+  }
+
   .tag-filter {
     display: flex;
     flex-wrap: wrap;
@@ -398,7 +456,8 @@ const tagCounts = allTags.map((tag) => ({
       cards.forEach(function(card) {
         var cardCategory = card.dataset.category || ''
         var cardTags = (card.dataset.tags || '').split(',')
-        var cardText = card.textContent.toLowerCase()
+        // data-tags carries the full list; the card itself only shows a preview
+        var cardText = (card.textContent + ' ' + (card.dataset.tags || '')).toLowerCase()
         var categoryMatch = activeCategory === 'all' || cardCategory === activeCategory
         var tagMatch = activeTags.length === 0 || activeTags.some(function(tag) {
           return cardTags.indexOf(tag) !== -1
@@ -433,6 +492,8 @@ const tagCounts = allTags.map((tag) => ({
         b.classList.toggle('active', isActive)
         b.setAttribute('aria-pressed', String(isActive))
       })
+      var moreTags = root.querySelector('.more-tags')
+      if (moreTags && moreTags.querySelector('.filter-btn.active')) moreTags.open = true
 
       var url = new URL(window.location.href)
       if (activeCategory !== 'all') url.searchParams.set('category', activeCategory)

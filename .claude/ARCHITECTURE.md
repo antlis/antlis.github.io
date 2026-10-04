@@ -65,7 +65,7 @@ Draft visibility is centralized in `src/utils/drafts.ts`: `showDrafts = import.m
 
 ## Design System
 
-Tokens and rules are authoritative in **`DESIGN.md`** (repo root) — "The Engineer's Notebook": monochrome ink/paper, a single signal-blue accent (the *One Signal Rule*), full-pill buttons/badges, hairline borders, flat-at-rest / shadow-on-hover elevation, single Inter typeface. Light/dark are token-for-token mirrors via `data-theme`. Product framing (audience, voice, anti-references) is in **`PRODUCT.md`**.
+Tokens and rules are authoritative in **`DESIGN.md`** (repo root) — "The Engineer's Notebook": monochrome ink/paper, a single signal-orange accent (the *One Signal Rule*), full-pill buttons/badges, hairline borders, flat-at-rest / shadow-on-hover elevation, single Inter typeface. Light/dark are token-for-token mirrors via `data-theme`. Product framing (audience, voice, anti-references) is in **`PRODUCT.md`**.
 
 ## Build & Deploy
 

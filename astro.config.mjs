@@ -44,6 +44,7 @@ export default defineConfig({
           'graphql',
           'linkedin',
           'nixos',
+          'protonmail',
           'stackoverflow',
           'telegram',
           'x'
