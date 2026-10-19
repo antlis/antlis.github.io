@@ -1,5 +1,6 @@
 ---
 import HeroImage from '/src/components/HeroImage.astro'
+import { showDrafts } from '../utils/drafts'
 
 interface Props {
   title: string
@@ -16,17 +17,20 @@ interface Props {
   tagHrefBase?: string
 }
 
-const { href, title, description, imgAlt, imgPosition, imgSrc, category, tags, date, tagsAsFilters = false, tagHrefBase } = Astro.props
+const { href, title, description, imgAlt, imgPosition, imgSrc, category, tags, date, draft, tagsAsFilters = false, tagHrefBase } = Astro.props
 ---
 
 <article
   class:list={['blog-card', { 'blog-card-with-img': Boolean(imgSrc) }]}
   data-tags={tags?.join(',') || ''}
   data-category={category || ''}
+  data-draft={draft ? 'true' : undefined}
+  style={draft && !showDrafts ? 'display: none' : undefined}
 >
   <div class="blog-card-content">
-    {(category || date) && (
+    {(category || date || draft) && (
       <div class="blog-card-meta">
+        {draft && <span class="blog-card-draft">Draft</span>}
         {category && <span class="blog-card-category">{category}</span>}
         {date && (
           <time class="blog-card-date">
@@ -110,6 +114,21 @@ const { href, title, description, imgAlt, imgPosition, imgSrc, category, tags, d
     align-items: center;
     gap: 0.45rem 0.65rem;
     margin-bottom: 0.55rem;
+  }
+
+  .blog-card-draft {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.35rem;
+    padding: 0.12rem 0.48rem;
+    color: #92400e;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.45);
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
   }
 
   .blog-card-category {

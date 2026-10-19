@@ -4,25 +4,26 @@ import PageIntro from '/src/components/PageIntro.astro'
 import BlogCard from '/src/components/BlogCard.astro'
 import { getCollection } from 'astro:content'
 import { t, localePath } from '/src/i18n/utils'
-import { isVisibleBlogPost } from '../../../utils/drafts'
+import { isVisibleBlogPost, showDrafts } from '../../../utils/drafts'
 
 const locale = 'ru'
 const i = t(locale)
-const posts = (await getCollection('blog', ({ data }) => data.locale === 'ru')).filter(isVisibleBlogPost)
+const posts = (await getCollection('blog', ({ data }) => data.locale === 'ru'))
 const sortedPosts = posts.sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
-const allCategories = [...new Set(sortedPosts.map((p) => p.data.category).filter(Boolean))].sort()
-const allTags = [...new Set(sortedPosts.flatMap((p) => p.data.tags || []))].sort()
+const publicPosts = sortedPosts.filter(isVisibleBlogPost)
+const allCategories = [...new Set(publicPosts.map((p) => p.data.category).filter(Boolean))].sort()
+const allTags = [...new Set(publicPosts.flatMap((p) => p.data.tags || []))].sort()
 const tagCounts = allTags.map((tag) => ({
   tag,
-  count: sortedPosts.filter((post) => post.data.tags?.includes(tag)).length,
+  count: publicPosts.filter((post) => post.data.tags?.includes(tag)).length,
 }))
 ---
 
 <Layout title={i.blog.title} description={i.blog.description} pageType="blog-listing" image="https://res.cloudinary.com/dvbyognrh/image/upload/v1785081915/art/blog-cropped.png">
-  <div class="blog-page">
+  <div class="blog-page" data-drafts-default={String(showDrafts)}>
     <PageIntro heading={i.blog.heading} intro={i.blog.intro} imgSrc="https://res.cloudinary.com/dvbyognrh/image/upload/e_trim/v1785081915/art/blog-cropped.png" imgAlt="Blog intro illustration" />
     <div class="filter-status">
-      <p id="filter-summary" aria-live="polite">Показаны все записи</p>
+      <p id="filter-summary" aria-live="polite" data-all="Показаны все записи: {n}" data-filtered="Показано записей: {n} — {parts}" data-plural="">Показаны все записи</p>
       <button class="clear-filters" type="button" data-clear-filters hidden>Сбросить фильтры</button>
     </div>
     <div class="blog-layout">
@@ -84,7 +85,7 @@ const tagCounts = allTags.map((tag) => ({
       </aside>
     </div>
 
-    {posts.length === 0 && <p class="empty">{i.blog.empty}</p>}
+    {publicPosts.length === 0 && <p class="empty">{i.blog.empty}</p>}
   </div>
 </Layout>
 
@@ -349,9 +350,23 @@ const tagCounts = allTags.map((tag) => ({
     var searchInput = document.getElementById('blog-search')
     var clearFiltersButton = document.querySelector('[data-clear-filters]')
     var tagButtons = document.querySelectorAll('[data-filter="tag"]')
-    var cards = document.querySelectorAll('.post-list .blog-card')
+    // Drafts are built (noindex) but only listed in dev or with ?draft=true.
+    var includeDrafts = root.dataset.draftsDefault === 'true' || new URLSearchParams(window.location.search).get('draft') === 'true'
+    var cards = Array.prototype.filter.call(document.querySelectorAll('.post-list .blog-card'), function(card) {
+      return includeDrafts || card.dataset.draft !== 'true'
+    })
     var activeCategory = 'all'
     var activeTags = []
+
+    // Summary strings live on #filter-summary (data-all / data-filtered) so the EN and
+    // RU pages run identical code: after a View Transition the other locale's
+    // astro:page-load listener may be the one that initializes this page.
+    function summaryText(template, count, parts) {
+      return template
+        .replace('{n}', count)
+        .replace('{s}', count === 1 ? '' : filterSummary.dataset.plural)
+        .replace('{parts}', parts)
+    }
 
     function uniqueTags(tags) {
       return tags.filter(function(tag, index) {
@@ -420,8 +435,8 @@ const tagCounts = allTags.map((tag) => ({
         if (activeCategory !== 'all') parts.push(activeCategory)
         if (activeTags.length) parts.push(activeTags.join(', '))
         filterSummary.textContent = parts.length
-          ? 'Показано записей: ' + visibleCount + ' — ' + parts.join(' + ')
-          : 'Показаны все записи: ' + visibleCount
+          ? summaryText(filterSummary.dataset.filtered, visibleCount, parts.join(' + '))
+          : summaryText(filterSummary.dataset.all, visibleCount, '')
       }
       if (clearFiltersButton) {
         clearFiltersButton.hidden = activeCategory === 'all' && activeTags.length === 0 && !searchTerm

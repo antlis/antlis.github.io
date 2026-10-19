@@ -2,8 +2,21 @@ import { defineConfig } from 'astro/config';
 
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
+import { readdirSync, readFileSync } from 'node:fs';
 import expressiveCode from 'astro-expressive-code';
 import icon from 'astro-icon';
+
+// Draft posts are built (so ?draft=true on the blog list can preview them) but must stay
+// out of the sitemap; the pages themselves carry noindex.
+const draftPaths = new Set(
+  readdirSync('src/content/blog')
+    .filter((f) => /\.mdx?$/.test(f))
+    .filter((f) => /^draft:\s*true\s*$/m.test((readFileSync(`src/content/blog/${f}`, 'utf8').split(/^---$/m)[1]) ?? ''))
+    .map((f) => {
+      const slug = f.replace(/\.mdx?$/, '');
+      return slug.endsWith('-ru') ? `/ru/blog/${slug.slice(0, -3)}` : `/blog/${slug}`;
+    }),
+);
 
 // https://astro.build/config
 export default defineConfig({
@@ -59,6 +72,7 @@ export default defineConfig({
     }),
     mdx(),
     sitemap({
+      filter: (page) => !draftPaths.has(new URL(page).pathname.replace(/\/$/, '')),
       i18n: {
         defaultLocale: 'en',
         locales: { en: 'en', ru: 'ru' },
