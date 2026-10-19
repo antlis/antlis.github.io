@@ -1,0 +1,309 @@
+---
+title: "GitHub и GitLab CLI для AI-ревью кода"
+description: "Один раз авторизуйте gh и glab — и любой агент для кода сможет читать ваши pull request'ы, merge request'ы, диффы и CI, а потом проверить их раньше коллег. Плюс обходной путь для self-hosted GitLab за HTTP Basic Auth."
+pubDate: 2026-07-10
+draft: true
+category: "AI"
+tags: ["ai", "codex", "claude", "opencode", "github", "gitlab", "code-review", "ci"]
+imgSrc: "/blog/connect-github-gitlab-cli-ai-code-review.png"
+imgAlt: "Карточка в стиле терминала: glab mr diff передаётся агенту, который возвращает замечания по степени важности до ревью коллегами"
+locale: "ru"
+---
+
+Это не новый трюк. CLI для GitHub и GitLab существуют много лет, и агенты для кода давно умеют
+запускать команды в терминале. Но я до сих пор встречаю разработчиков, которые пользуются агентами
+только внутри редактора и забывают, что тот же агент может читать pull request'ы, открывать
+merge request'ы, комментировать их, смотреть CI и готовить ревью получше для людей.
+
+Привычка у меня простая: прежде чем отправить merge request коллегам, я отдаю его на ревью агенту.
+Не вместо них — до них. Агент ловит скучное: пропущенные тесты, подозрительные граничные случаи,
+непонятные имена, а иногда и настоящий баг. Тогда коллеги тратят внимание на продукт и
+архитектуру, а не на то, что я мог бы поймать сам.
+
+В идеале это живёт в CI. Локальный процесс полезен, но ревью в пайплайне повторяемо: тот же промпт,
+тот же охват, те же права, тот же след для аудита. А начинается и то и другое одинаково — с CLI,
+который агент может вызвать.
+
+## Установка CLI
+
+Для GitHub установите [GitHub CLI](https://cli.github.com/manual/):
+
+```bash
+# macOS
+brew install gh
+
+# Debian / Ubuntu
+sudo apt install gh
+
+# Fedora
+sudo dnf install gh
+
+# Arch Linux
+sudo pacman -S github-cli
+
+# Windows
+winget install --id GitHub.cli
+```
+
+Названия пакетов и репозитории в разных дистрибутивах отличаются. Если в вашем пакетном менеджере
+нет свежего `gh`, поставьте его по инструкции из официальной документации GitHub CLI.
+
+Затем авторизуйтесь:
+
+```bash
+gh auth login
+gh auth status
+```
+
+Без интерактивного окружения GitHub CLI может взять токен из переменной окружения:
+
+```bash
+export GH_TOKEN=github_pat_...
+gh pr view 123
+```
+
+`gh auth login --with-token` тоже умеет читать токен из stdin, но для автоматизации я предпочитаю
+переменную окружения: это явно и легко прокинуть в CI.
+
+Для GitLab установите [GitLab CLI](https://docs.gitlab.com/cli/):
+
+```bash
+# macOS
+brew install glab
+
+# Linux
+# Use your distribution package if available, or download a binary from GitLab CLI releases.
+
+# Windows
+winget install --id GitLab.glab
+```
+
+Официально GitLab поддерживает Homebrew на macOS, Linux и в WSL. В остальных случаях загляните на
+актуальную страницу установки — наличие пакетов зависит от дистрибутива.
+
+Затем авторизуйтесь:
+
+```bash
+glab auth login
+glab auth status
+```
+
+Для self-hosted GitLab укажите хост:
+
+```bash
+glab auth login --hostname gitlab.company.com
+```
+
+Можно обойтись и переменными окружения — для агентов и CI это обычно самый простой путь:
+
+```bash
+export GITLAB_HOST=https://gitlab.company.com
+export GITLAB_TOKEN=glpat-...
+
+glab mr view 123
+```
+
+Внутри GitLab CI переменная `GLAB_ENABLE_CI_AUTOLOGIN=true` позволяет `glab` использовать
+встроенные переменные CI (`CI_SERVER_FQDN`, `CI_JOB_TOKEN`) для команд, которые поддерживают
+авторизацию по job-токену, — отдельный секрет не нужен.
+
+## Дайте агенту нужные инструменты
+
+Как только `gh` или `glab` работает в вашем терминале, им может пользоваться и большинство агентов.
+Смысл не в том, что «ИИ видит мой репозиторий», а в том, что агент видит то же, что и ваша команда
+на ревью: описание, дифф, обсуждение, пайплайн.
+
+Для GitHub:
+
+```bash
+gh pr view 123 --comments
+gh pr diff 123
+gh pr checks 123
+gh pr review 123 --comment --body "Reviewed locally with an AI agent. See notes above."
+```
+
+Для GitLab:
+
+```bash
+glab mr view 123
+glab mr diff 123
+glab mr note 123 --message "Reviewed locally with an AI agent. See notes above."
+glab ci status
+```
+
+А потом попросите агента о чём-то конкретном:
+
+```text
+Review MR 123 using glab.
+Focus on regressions, missing tests, security issues, and behavior changes.
+Do not comment on style unless it can hide a bug.
+Return findings ordered by severity with file references.
+```
+
+Это лучше, чем «сделай ревью моего кода»: агенту сразу понятно, куда смотреть и какие замечания
+важны.
+
+## GitLab за Basic Auth
+
+В одной компании наш GitLab был self-hosted и стоял за дополнительным слоем HTTP Basic Auth.
+GitLab-токен был рабочим, но запросы не доходили до GitLab: reverse proxy сначала требовал свои
+учётные данные.
+
+Это не способ обойти защиту — для обоих слоёв всё равно нужны законные учётные данные:
+
+1. Логин и пароль HTTP Basic для прокси компании.
+2. Токен GitLab для GitLab API.
+
+Практичный обходной путь — вписать учётные данные Basic Auth прямо в URL GitLab, которым пользуется
+CLI:
+
+```bash
+export GITLAB_HOST="https://basic_user:basic_password@gitlab.company.com"
+export GITLAB_TOKEN="glpat-..."
+
+glab api user
+glab mr view 123
+```
+
+Для операций `git` может понадобиться то же самое в URL remote'а или в credential helper'е:
+
+```bash
+git remote set-url origin "https://basic_user:basic_password@gitlab.company.com/group/project.git"
+```
+
+Осторожнее с этим. URL с учётными данными утекают в историю shell, логи, список процессов,
+конфиги и скриншоты. Используйте короткоживущие учётные данные, храните их в менеджере паролей, а
+не прямо в remote'ах, а в CI кладите в masked-переменные и собирайте URL только внутри джобы.
+
+Вариант для CI выглядит так:
+
+```bash
+export GITLAB_HOST="https://${BASIC_AUTH_USER}:${BASIC_AUTH_PASSWORD}@gitlab.company.com"
+export GITLAB_TOKEN="${GITLAB_API_TOKEN}"
+
+glab mr view "$CI_MERGE_REQUEST_IID"
+```
+
+Если вашему прокси нужен не Basic Auth, а особый заголовок, этот приём не сработает. Проверьте,
+умеет ли CLI, прокси или CI-раннер добавлять заголовок; если нет, маленький внутренний прокси,
+который его добавляет, будет чище, чем раскладывать учётные данные по всем инструментам.
+
+## Пусть агент проверит MR
+
+Когда CLI работает, процесс становится простым:
+
+```text
+Use glab to review the current merge request.
+Check the MR description, diff, discussions, and pipeline status.
+Find only issues that could cause bugs, production regressions, security problems,
+missing tests, or confusing behavior for users.
+Do not approve or post comments until I confirm.
+```
+
+Сначала я прошу отчёт локально. Если замечания по делу, исправляю их до того, как MR увидит кто-то
+ещё. Если хочу, чтобы агент оставил комментарий в MR, прошу об этом явно и читаю текст перед
+отправкой.
+
+Хорошие промпты для ревью узкие:
+
+- «Проверь только дифф относительно `main`.»
+- «Сосредоточься на регрессиях в авторизации и правах доступа.»
+- «Проверь, покрывают ли тесты изменённое поведение.»
+- «Сравни реализацию с описанием задачи.»
+- «Перечисли нерешённые комментарии ревьюеров.»
+- «Найди минимальное безопасное исправление для упавшего пайплайна.»
+
+Плохие — расплывчатые:
+
+- «Проверь всё.»
+- «Сделай лучше.»
+- «Исправь все проблемы.»
+
+Агент полезнее всего, когда у него чёткие границы.
+
+## Сталкивайте разных агентов
+
+Ещё один приём — разделить написание и ревью между разными агентами или моделями.
+
+Например:
+
+1. Попросить Claude реализовать фичу.
+2. Попросить OpenCode с моделью DeepSeek проверить дифф.
+3. Передать замечания обратно Claude.
+4. Попросить Claude исправить только подтверждённые проблемы.
+5. Самому просмотреть итоговый дифф, прежде чем звать коллег.
+
+Это даёт разнообразие: вторая модель может заметить допущения, которые заложила первая. Гарантии
+нет — два агента вполне могут сойтись на одной и той же ошибке, — но на практике независимый
+проход лучше, чем просить автора проверить себя сразу после написания.
+
+Для агента-ревьюера:
+
+```text
+Review this diff as if it was written by another AI agent.
+Do not assume the implementation is correct.
+Look for hidden regressions, missing tests, incorrect edge cases,
+security problems, and behavior that does not match the MR description.
+Return only actionable findings.
+```
+
+И обратно агенту-автору:
+
+```text
+Here is an external review of your change.
+Fix only the valid issues.
+If you disagree with a finding, explain why before changing code.
+Keep the scope minimal.
+```
+
+Особенно этот цикл важен, когда большую часть кода написал агент. Я не хочу, чтобы один и тот же
+инструмент был и единственным автором, и единственным ревьюером.
+
+## CI — версия получше
+
+Локальное ревью хорошо для вас. Ревью в CI лучше для команды.
+
+Джоба в CI может:
+
+- запускаться только на pull request'ах или merge request'ах;
+- использовать зафиксированный промпт из репозитория;
+- хранить учётные данные в секретах CI;
+- публиковать результат обратно в PR или MR;
+- не зависеть от настроек чьего-то ноутбука;
+- оставлять след для аудита.
+
+У OpenCode есть документированная [интеграция с GitLab](https://opencode.ai/docs/gitlab/): она
+работает через GitLab CI и проверяет merge request по комментарию
+`@opencode review this merge request`. У Codex есть документация по
+[ревью кода на GitHub](https://learn.chatgpt.com/docs/third-party/github) и
+[Codex GitHub Action](https://learn.chatgpt.com/docs/github-action), включая автоматическое ревью
+PR и CI-сценарии. У Claude Code — по [GitHub Actions](https://code.claude.com/docs/en/github-actions)
+и [GitLab CI/CD](https://code.claude.com/docs/en/gitlab-ci-cd).
+
+У других агентов похожие инструкции, и схема почти всегда одна:
+
+1. Положить ключи модели/API в секреты CI.
+2. Дать джобе доступ на чтение к репозиторию и метаданным MR/PR.
+3. Получить дифф.
+4. Запустить агента со строгим промптом для ревью.
+5. Оставить комментарий к ревью или ронять джобу только на замечаниях, в которых агент уверен.
+
+С жёсткими блокировками поначалу аккуратнее. Начните с комментариев; когда промпт устоится и
+сигнал станет хорошим, можно ронять пайплайн на определённых классах замечаний.
+
+## Моё правило
+
+Не «ИИ проверяет вместо людей», а так:
+
+1. Я сам смотрю свой код.
+2. Прошу агента сделать ревью.
+3. Если код написал один агент, могу попросить другого агента или модель проверить его.
+4. Исправляю очевидное.
+5. И только потом зову коллег.
+
+Такой порядок бережёт чужое время и делает человеческое ревью лучше: коллеги не тратят внимание на
+то, что поймал бы один лишний проход.
+
+Настройка небольшая: авторизуйте `gh` или `glab`, проверьте, что агент умеет ими пользоваться, и
+начните с промптов только на чтение. В награду каждый MR получает ещё один внимательный взгляд,
+прежде чем попасть к команде.

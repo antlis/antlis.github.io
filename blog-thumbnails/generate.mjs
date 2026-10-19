@@ -102,6 +102,42 @@ function term({ pal, path, lines, focus }) {
 
 const ARTICLES = [
   {
+    slug: "invisible-ai",
+    pal: "hermes",
+    path: "invisible-ai — niri",
+    lines: [
+      { t: "$ invisible-ai ask", c: "#a78bfa", size: 32, bold: true },
+      { t: "  streaming answer…", dim: true, size: 26 },
+      { t: "block-out-from \"screen-capture\"", c: "#e6edf3", size: 25 },
+      { t: "  you: overlay visible", c: "#39d353", size: 26 },
+      { t: "  zoom: desktop underneath_", dim: true, size: 26 },
+    ],
+  },
+  {
+    slug: "connect-github-gitlab-cli-ai-code-review",
+    pal: "dockerBlue",
+    path: "glab mr — review",
+    lines: [
+      { t: "$ glab mr diff 123 | agent", c: "#38bdf8", size: 30, bold: true },
+      { t: "  reading diff, notes, pipeline…", dim: true, size: 25 },
+      { t: "▌ high  missing test: auth.ts:42", c: "#e6edf3", size: 26 },
+      { t: "  med   unhandled null: api.ts:88", dim: true, size: 26 },
+      { t: "✓ ready for human review", c: "#39d353", size: 28, bold: true },
+    ],
+  },
+  {
+    slug: "mouseless",
+    pal: "shellTeal",
+    path: "hints — Super+;",
+    lines: [
+      { t: "⌨  type a label, not a path", c: "#2dd4bf", size: 32, bold: true },
+      { t: "▌ af  Save           bf  Open link", c: "#e6edf3", size: 26 },
+      { t: "  dj  Tab 2            gg  Chat", dim: true, size: 26 },
+      { t: "  drag: dragon-drop", dim: true, size: 25 },
+      { t: "  no mouse required_", dim: true, size: 25 },
+    ],
+  },
+  {
     slug: "rofi-cheatsheets",
     pal: "shellTeal",
     path: "rofi-keybindings — i3 keys",

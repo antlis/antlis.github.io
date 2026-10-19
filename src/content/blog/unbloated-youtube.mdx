@@ -1,11 +1,11 @@
 ---
-title: "unbloated-youtube: I Wrote My Own YouTube Client to Stop Hoarding Tabs"
+title: "UnbloatedTube: I Wrote My Own YouTube Client to Stop Hoarding Tabs"
 description: "My browser was full of YouTube tabs I meant to watch later and never did. After a video about GPUI made me curious, I built a small desktop client in Rust with an AI assistant: mpv for playback, yt-dlp for data, a real Watch later tab, an Up next queue, and a settings page where every piece can be switched off."
 pubDate: 2026-10-03
 category: "Open Source"
 tags: ["rust", "gpui", "mpv", "yt-dlp", "youtube", "open-source", "ai", "linux"]
 imgSrc: "/blog/unbloated-youtube.png"
-imgAlt: "unbloated-youtube: History list on the left; the player, its action buttons and the Recommended, Watch later, Comments and Up next tabs on the right"
+imgAlt: "UnbloatedTube: History list on the left; the player, its action buttons and the Recommended, Watch later, Comments and Up next tabs on the right"
 draft: true
 ---
 
@@ -17,15 +17,16 @@ I also never liked the YouTube page itself. Whatever I came for, there is a feed
 row of suggestions competing for the same few square inches. So I did what I usually do with an
 annoyance that is small enough to fix: I wrote a tool for it.
 
-The result is **[unbloated-youtube](https://github.com/antlis/unbloated-youtube)**, a small
-desktop YouTube client for Linux. It shows your subscriptions, playlists and history, plays video
+The result is **[UnbloatedTube](https://github.com/antlis/UnbloatedTube)** (it started out as
+*unbloated-youtube*), a small desktop YouTube client for Linux. It shows your subscriptions, playlists and history, plays video
 in [mpv](https://mpv.io), and keeps "watch later" as an actual list instead of a graveyard of tabs.
 
 <dl className="project-meta" aria-label="Project metadata">
   <div><dt>Stack</dt><dd>Rust, GPUI, mpv, yt-dlp</dd></div>
-  <div><dt>Platform</dt><dd>Linux (X11); Wayland untested</dd></div>
-  <div><dt>Source</dt><dd><a href="https://github.com/antlis/unbloated-youtube">github.com/antlis/unbloated-youtube</a></dd></div>
-  <div><dt>Install</dt><dd><a href="https://github.com/antlis/unbloated-youtube/releases">GitHub releases</a> · <a href="https://aur.archlinux.org/packages/unbloated-youtube-bin">AUR</a> · Nix</dd></div>
+  <div><dt>Platform</dt><dd>Linux (X11 and Wayland); Windows and macOS planned</dd></div>
+  <div><dt>Status</dt><dd>Alpha — my daily driver, but expect rough edges</dd></div>
+  <div><dt>Source</dt><dd><a href="https://github.com/antlis/UnbloatedTube">github.com/antlis/UnbloatedTube</a></dd></div>
+  <div><dt>Install</dt><dd><a href="https://github.com/antlis/UnbloatedTube/releases">GitHub releases</a> (tarball, AppImage) · <a href="https://aur.archlinux.org/packages/unbloatedtube-bin">AUR</a> · Nix flake</dd></div>
   <div><dt>License</dt><dd>MIT</dd></div>
 </dl>
 
@@ -52,12 +53,12 @@ The whole idea is to reuse what already exists instead of reimplementing it:
 - **mpv** plays the video. It is embedded in the window, so playback feels like part of the app.
 - **yt-dlp** supplies the data: lists of videos, search results, stream URLs.
 - **YouTube's InnerTube API** handles actions that change your account: subscribe, like, save to a
-  playlist, Watch later. It uses your browser's cookies, so there is no separate login flow
-  (more on that below).
+  playlist, Watch later. It signs in with your browser's YouTube session, so the app never sees a
+  password (more on that below).
 
 Everything slow, whether it is yt-dlp, a network request or an mpv query, runs on a background
 thread, so the interface never waits. Lists are cached on disk and appear instantly the next time,
-then refresh behind the scenes. The release binary is a single file of about 25 MB.
+then refresh behind the scenes.
 
 ## Configure what you need, hide what you don't
 
@@ -163,8 +164,8 @@ That workflow has some specific consequences:
 
 A few problems were instructive:
 
-- **The video is not my window.** mpv draws into its own native X11 window, placed over the video
-  area. GPUI cannot draw on top of it, so any menu or tooltip that reaches into the video is
+- **The video is not my window.** On X11, mpv draws into its own native child window, placed over
+  the video area. GPUI cannot draw on top of it, so any menu or tooltip that reaches into the video is
   hidden behind it. I kept finding new ones. Menus are now kept inside the left column, and the
   save-to-playlist overlay hides the video while it is open, but tooltips over the video are still
   a known limit.
@@ -180,57 +181,71 @@ A few problems were instructive:
 
 ## Installing it
 
-You need `mpv`, `yt-dlp` and `deno` (yt-dlp uses it to solve YouTube's JavaScript challenges).
-Then pick one:
+You need `mpv` and a recent `yt-dlp` (YouTube breaks old ones quickly); `deno` too, which yt-dlp
+uses to solve YouTube's JavaScript challenges. Then pick one:
 
 ```bash title="Arch / AUR"
-yay -S unbloated-youtube-bin
+yay -S unbloatedtube-bin
 ```
 
-Or download the Linux x86_64 archive from the
-[releases page](https://github.com/antlis/unbloated-youtube/releases) and run the binary. A Nix
-package is in the repository too. Releases are cut by a tag: the workflow builds the binary,
-publishes the release and updates the AUR package, so the AUR copy tracks GitHub without me
-touching it.
-
-Subscriptions, playlists, history and the account buttons need a login. For now that means
-pointing the app at a browser that is already logged in to YouTube:
-
-```toml title="~/.config/unbloated-youtube/config.toml"
-cookies_from_browser = "brave+gnomekeyring"   # yt-dlp syntax: "firefox", "chromium", ...
+```bash title="Nix"
+nix run github:antlis/UnbloatedTube
 ```
 
-Without it, search and playback still work.
+Or grab the Linux x86_64 tarball or the AppImage from the
+[releases page](https://github.com/antlis/UnbloatedTube/releases). The AppImage carries its own
+yt-dlp and deno as a fallback, so mpv is the only thing left to install. Releases are cut by a
+tag: the workflow builds everything, publishes the release and updates the AUR package, so the
+AUR copy tracks GitHub without me touching it.
 
-## Where it stands
+Search and playback work without an account. For subscriptions, playlists, history and the
+account buttons, the first run offers **Connect YouTube**: pick the browser you are signed in
+with, and the app reads that browser's YouTube session and checks it. No password is asked for or
+stored, and you stay signed in in the browser.
 
-It is experimental. It only runs on Linux with X11 (Wayland is untested), the login is clumsy, and
-there are rough edges I have not found yet. I am still satisfied with it, which is the point: it
-already does the one job I built it for. I am going to stop watching YouTube in the browser. No
-more tabs I will never read, and no more feed fighting for my attention. I open the app, pick
-something, and the rest goes into Watch later.
+## What changed since the first version
+
+The first draft of this post ended with a wishlist. Most of it got built:
+
+- **Wayland.** X11 lets mpv draw into a child window; Wayland has no such thing. So on Wayland the
+  app runs mpv as a library (`libmpv`) inside its own process and draws the video into a
+  subsurface of its window with OpenGL. It notices which one it's on by itself.
+- **Casting.** Any command can be a cast target —
+  [`catt`](https://github.com/skorokithakis/catt) for a Chromecast is one line. But the version I
+  wanted most was my own TV box running [tg-mpv-bot](/blog/tg-mpv-bot): the app talks to its
+  HTTP API, sends the video (or a whole playlist, or the Up next queue), and then the usual keys
+  and the progress bar drive the TV instead of the local player.
+- **A real login flow** instead of a line in `config.toml` — the Connect YouTube screen above.
+- **Description and transcript tabs.** Timestamps in descriptions and comments seek the video;
+  the transcript is searchable, and clicking a line jumps there.
+- **Less noise, optionally.** Shorts can be switched off everywhere,
+  [SponsorBlock](https://sponsor.ajay.app) skips sponsor segments,
+  [DeArrow](https://dearrow.ajay.app) replaces clickbait titles and thumbnails, and
+  [Return YouTube Dislike](https://returnyoutubedislike.com) brings the dislike count back.
+- **More ways to install it**: the AppImage and the Nix flake joined the tarball and AUR.
+- **A new name.** *unbloated-youtube* became **UnbloatedTube** (`unbloatedtube`, or just `ubt`).
+  The old command, AUR package and Nix output still work as aliases.
+
+One feature I didn't plan for at all: in places where YouTube is throttled, videos just hang.
+Settings → Network has a **Bypass slowdown** mode that does what ByeDPI and zapret do, built in:
+the filter recognizes YouTube by the server name in the first packet of each TLS connection, so
+the app splits that packet right inside the name. The filter doesn't see it; YouTube's servers
+reassemble it and notice nothing. There's also a plain **Proxy** mode for Tor or ByeDPI, and a
+**Test connection** button that says *why* a route doesn't work.
 
 ## What's next
 
-None of this is built yet. It is the list I am working from:
+It's still alpha. Open items, roughly in order:
 
-- **A description tab** under the player, next to Comments and Chapters.
-- **Better comments**: replies, sorting by top or newest, clickable timestamps that seek the video,
-  loading more without refetching, and maybe posting.
-- **Casting.** Chromecast-style "play this on the TV" is the obvious idea. Closer to home, I already
-  run a homelab box connected to my TV with [tg-mpv-bot](/blog/tg-mpv-bot), and sending a video to
-  that mpv is the version I want most.
-- **Import and export.** Groups, settings and per-channel switches live in one folder on one
-  machine today, with no sync and no backup.
-- **A better login.** Reading cookies from a browser works but is fragile. I am looking at a
-  guided setup in the settings page and, later, an in-app login window.
-- **More ways to install it**: `.deb` and `.rpm` packages, an AppImage, a Flatpak, crates.io, and
-  maybe bundling yt-dlp and deno so there is less to install.
-- **Wayland, then Windows and macOS.** The embedded player is the main thing that ties it to X11,
-  though not the only Linux-specific piece.
-- **Smaller things**: a startup check that tells you which of mpv, yt-dlp or deno is missing, and
-  removing entries from YouTube's own history, not just the app's copy.
+- **Windows and macOS.** All OS-specific code already lives in one module, but the embedded
+  player is the hard part, and nothing has been attempted yet.
+- **Better comments**: replies, sorting, and paging through InnerTube instead of refetching from
+  the top on every "Load more".
+- **Playlist management**: creating, renaming and reordering playlists, not just adding to them.
+- **Export and import** of settings and channel groups, which today live in one folder on one
+  machine.
+- **Opening YouTube links from other programs** in the app instead of the browser.
 
-If any of that sounds useful, or you try it and something breaks,
-[open an issue](https://github.com/antlis/unbloated-youtube/issues). The README lists every
-feature and shortcut.
+I've stopped watching YouTube in the browser, which was the whole point. If you try it and
+something breaks, [open an issue](https://github.com/antlis/UnbloatedTube/issues) — the README
+lists every feature and shortcut.

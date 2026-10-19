@@ -1,6 +1,6 @@
 ---
 title: "tg-streaming-bot: Movie Nights in a Telegram Voice Chat"
-description: "A self-hosted Telegram bot that streams movies, music, internet radio and 50 000+ live TV channels straight into a group voice chat — so friends scattered across cities can watch the same thing, in sync, from a phone. Plus the war stories: why a bot literally can't do this alone, YouTube's download-or-nothing streaming, and the day I learned voice chats run on UDP."
+description: "A self-hosted Telegram bot that streams movies, music, internet radio and 50 000+ live TV channels straight into a group voice chat — so friends scattered across cities can watch the same thing, in sync, from a phone. Plus the war stories: why a bot literally can't do this alone, YouTube's download-or-nothing streaming, and a pause that kept resuming itself."
 pubDate: 2026-08-22
 category: "Homelab"
 tags: ["homelab", "telegram", "self-hosted", "pyrogram", "py-tgcalls", "yt-dlp", "ffmpeg", "open-source"]
@@ -63,7 +63,7 @@ instead of watching at home.
   </div>
   <div>
     <dt>Deploy</dt>
-    <dd><code>docker compose up -d</code> (optional Reality-VPN sidecar)</dd>
+    <dd><code>docker compose up -d</code></dd>
   </div>
   <div>
     <dt>License</dt>
@@ -90,7 +90,7 @@ instead of watching at home.
 <figure className="architecture-diagram">
   <img
     src="/blog/tg-streaming-bot-architecture.svg"
-    alt="Diagram of tg-streaming-bot: a Telegram group sends commands to the bot; the bot fetches media with yt-dlp, transcodes with ffmpeg, and an assistant user account driven by py-tgcalls pushes the stream into the group voice chat, where all the friends watch together. An optional Reality-VPN sidecar tunnels both signaling and voice."
+    alt="Diagram of tg-streaming-bot: a Telegram group sends commands to the bot; the bot fetches media with yt-dlp, transcodes with ffmpeg, and an assistant user account driven by py-tgcalls pushes the stream into the group voice chat, where all the friends watch together."
     loading="lazy"
   />
   <figcaption>Telegram is the room. The bot takes commands; a separate assistant account is what actually joins the call and streams — everyone in the group sees the same frames.</figcaption>
@@ -157,8 +157,10 @@ assistant's stream.
 The obvious design is to hand mpv-style URLs to the streamer and let it pull.
 YouTube killed that: direct stream URLs are blocked, and the "just give me the
 URL" path returns 403s that look like everything else. The path that actually
-holds is unglamorous — **download the file first (yt-dlp, `android_vr` client,
-H.264 + AAC mp4), then stream the local file into the call.** It costs a few
+holds is unglamorous — **download the file first (yt-dlp with a mobile player
+client, H.264 + AAC mp4), then stream the local file into the call.** Even the
+client is a moving target: `android_vr` worked until it started getting 403s
+too, and now it's `android`. It costs a few
 seconds of "Searching…" before playback, but it's the difference between
 reliable movie night and a spinner that never resolves. Non-YouTube URLs
 (Rutube, Vimeo, IPTV) *are* extracted and streamed live — no download wait —
@@ -167,14 +169,16 @@ those sometimes needs a nudge.
 
 ### 2. Radio that resolved on my laptop and nowhere else
 
-Internet radio looked trivial — feed the stream URL to ffmpeg. It worked in dev
-and failed in the container with `INTERDC` errors and dead air. The cause was
-DNS: some station hosts didn't resolve from inside the container's network the
-way they did on my host. The fix was to resolve the stream host explicitly
-against public resolvers (1.1.1.1 / 8.8.8.8) before handing ffmpeg an address,
-and to retry `play()` on the transient failures that are normal for flaky
-radio CDNs. "Works on my machine" is a DNS story more often than it has any
-right to be.
+Internet radio looked trivial — feed the stream URL to ffmpeg. It worked on my
+host and failed in the container with ffmpeg's "Failed to resolve hostname" for
+a handful of stations. The DNS answers themselves were fine. Docker's embedded
+resolver (`127.0.0.11`) mishandles CNAME-chained answers for some hosts, so
+glibc's `getaddrinfo()` came back with `EAI_NODATA` for names that resolved
+perfectly well outside. The fix is two lines of `dns:` in `docker-compose.yml`,
+pointing the container straight at 1.1.1.1 / 8.8.8.8 and skipping that layer.
+On top of that, `/radio` now retries `play()` once, because joining the call
+sometimes fails on its own with Telegram's transient `INTERDC_X_CALL_ERROR`.
+"Works on my machine" is a DNS story more often than it has any right to be.
 
 ### 3. IPTV master playlists and picky CDNs
 
@@ -190,35 +194,21 @@ channel that works in VLC won't play.
 ### 4. The pause that resumed itself
 
 The nastiest bug wasn't a crash — it was `/pause` un-pausing itself after about
-fifteen seconds. py-tgcalls emits an *idle* signal when a stream stops feeding
-frames, and the auto-DJ / self-healing logic treats idle as "the track ended,
-play the next thing." A deliberate pause looks exactly like an accidental
-stall. The fix was to track pause state **explicitly** and stop conflating it
-with the driver's `IDLE` status, so a paused stream stays paused until a human
-says otherwise. It took three point releases to fully corner it — the kind of
+fifteen seconds, and jumping back a little while it was at it. The bot has a
+stall watchdog: if the playback position stops moving for 15 seconds, it
+assumes the stream died and restarts it from the last saved position. It was
+supposed to skip paused streams by checking `call.status == PAUSED` — but
+py-tgcalls' call object has no `.status` (it's `.playback`), so the check
+silently never matched, and every pause looked like a stall.
+
+Fixing the attribute name wasn't enough. py-tgcalls reports a genuinely paused
+stream as `IDLE`, not `PAUSED` — the same status as a dropped one — so no
+attribute check can tell them apart. The real fix was to stop asking the driver
+and track pause state **explicitly**: `/pause` and `/resume` set a flag, and the
+watchdog leaves flagged streams alone. Two releases to corner it — the kind of
 bug where each fix reveals the next layer.
 
-### 5. The night I learned voice chats run on UDP
-
-Some of the people I want to watch with are behind networks where Telegram is
-throttled. A SOCKS proxy is the reflex fix, and it half-worked in the most
-confusing way possible: the bot connected, commands went through, the call
-started… and there was no video. Because a SOCKS proxy carries the
-**signaling** — the TCP control channel — but py-tgcalls streams the actual
-media over **UDP**, which SOCKS doesn't touch. The signaling said "we're in the
-call"; the media had nowhere to go.
-
-The answer is a full tunnel, not a proxy. `docker-compose.yml` ships an optional
-**Reality-VPN sidecar**: a [sing-box](https://sing-box.sagernet.org) container
-that raises a TUN and routes *everything* — signaling and voice UDP alike —
-through a [VLESS + Reality](https://github.com/XTLS/REALITY) server. The bot
-joins the sidecar's network namespace (`network_mode: "service:reality-vpn"`),
-so all of its traffic exits through the VPN with zero per-client proxy config,
-and nothing else on the host is affected. If you don't need it, skip the
-sidecar and the bot runs direct. That one distinction — signaling is TCP, media
-is UDP — is the whole reason the sidecar exists.
-
-### 6. A handler that dies quietly is the worst kind
+### 5. A handler that dies quietly is the worst kind
 
 Early on, a command that failed mid-stream just… stopped, leaving a "Searching…"
 card frozen on a thumbnail and no clue why. So every handler and every button
@@ -252,7 +242,6 @@ docker compose up -d --build
 
 Then add the bot to your group as an admin, start a voice chat, and `/vplay`
 something. The [README](https://github.com/antlis/tg-streaming-bot#readme)
-covers every env var, the local media library layout, VAAPI transcoding, and
-the Reality-VPN sidecar for networks where Telegram voice is filtered. Issues
+covers every env var, the local media library layout, and VAAPI transcoding. Issues
 and PRs welcome — especially if you find a source yt-dlp handles that I haven't
 wired a nice command around yet.
