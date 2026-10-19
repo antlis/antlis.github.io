@@ -1,0 +1,139 @@
+---
+interface Item {
+  label: string;
+  value: string | string[];
+  note?: string;
+}
+
+interface Props {
+  items: Item[];
+  ariaLabel?: string;
+}
+
+const { items, ariaLabel = 'Indicators' } = Astro.props;
+
+const MAX = 28;
+const short = (v: string) => (v.length > MAX ? `${v.slice(0, 12)}…${v.slice(-8)}` : v);
+const rows = items.map((i) => ({ ...i, values: Array.isArray(i.value) ? i.value : [i.value] }));
+---
+
+<dl class="ioc-list" aria-label={ariaLabel}>
+  {
+    rows.map((row) => (
+      <div class="ioc-row">
+        <dt>{row.label}</dt>
+        <dd>
+          {row.values.map((v) =>
+            v.length > MAX ? (
+              <details>
+                <summary title={v}>
+                  <code>{short(v)}</code>
+                </summary>
+                <code class="ioc-full">{v}</code>
+              </details>
+            ) : (
+              <code>{v}</code>
+            ),
+          )}
+          {row.note && <span class="ioc-note">{row.note}</span>}
+        </dd>
+      </div>
+    ))
+  }
+</dl>
+
+<style>
+  .ioc-list {
+    display: grid;
+    gap: 0.5rem;
+    margin: 1.75rem 0 2rem;
+    padding: 0;
+  }
+
+  .ioc-row {
+    display: grid;
+    grid-template-columns: minmax(7rem, 11rem) minmax(0, 1fr);
+    gap: 0.25rem 1rem;
+    align-items: start;
+    min-width: 0;
+    padding: 0.7rem 1rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  dt {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    text-transform: uppercase;
+  }
+
+  dd {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.6rem;
+    align-items: baseline;
+    margin: 0;
+    min-width: 0;
+    color: var(--text);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  code {
+    font-size: 0.78rem;
+    overflow-wrap: anywhere;
+  }
+
+  details {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  summary {
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::after {
+    content: ' ⤢';
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+  }
+
+  details[open] > summary::after {
+    content: ' ⤡';
+  }
+
+  summary:focus-visible {
+    outline: 2px solid var(--accent, currentColor);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .ioc-full {
+    display: block;
+    margin-top: 0.4rem;
+    word-break: break-all;
+    user-select: all;
+  }
+
+  .ioc-note {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+  }
+
+  @media (max-width: 640px) {
+    .ioc-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
