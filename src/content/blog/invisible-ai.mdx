@@ -109,15 +109,21 @@ A translucent panel over the desktop, driven entirely from the keyboard:
 
 ```
 # i3
-bindsym $mod+backslash       exec invisible-ai toggle
+bindsym $mod+backslash       exec invisible-ai toggle    # show / hide (starts it)
+bindsym $mod+Ctrl+backslash  exec invisible-ai prompt    # type a question
+bindsym $mod+Mod1+backslash  exec invisible-ai listen    # voice on / off
 bindsym $mod+Shift+backslash exec invisible-ai interact
 ```
 
 On X11 all of this works today: picom for transparency, GTK for the window tricks. A
 `UTILITY` window floats in i3; position and input shape are applied on map, because i3
 ignores anything requested before it manages the window; `focus_on_map` is off, so
-showing the overlay never steals focus. But on X11 the panel is see-through only *for
-you*. To a screen capture it's just another window — again, that's X11.
+showing the overlay never steals focus. invisible-ai also keeps the panel out of *its
+own* screenshots, so the model never reads its previous answers back: a compact panel's
+area is blanked out of the image, and a fullscreen one is faded to zero opacity through
+picom for ~150 ms while the screenshot is taken. But that only works because it's the
+app's own capture. To anyone else's capture — Zoom, OBS — the panel is just another
+window. Again, that's X11.
 
 ## Actually invisible: niri
 
@@ -126,15 +132,17 @@ surface** with the namespace `invisible-ai`, and hiding it is a single rule in t
 compositor config, next to my keybindings:
 
 ```kdl
-layer-rules {
+layer-rule {
     // invisible-ai overlay: hidden from screen sharing and screenshots.
-    matches [ { namespace = "^invisible-ai$"; } ]
+    match namespace="^invisible-ai$"
     block-out-from "screen-capture"
 }
 ```
 
 That's it. niri now blocks the layer out of every capture — Zoom, OBS, Discord, grim,
-whatever is on the other end of the pipe.
+whatever is on the other end of the pipe. Including invisible-ai's own screenshots,
+which it takes with grim over `wlr-screencopy`: the model never sees the panel, even in
+fullscreen, and nothing has to fade or flicker.
 
 Well, almost. **Stock niri draws a black rectangle** where the blocked-out surface is,
 just like KWin does. Viewers see an opaque box floating over your desktop, which for my
@@ -159,16 +167,43 @@ underneath, exactly like macOS and Windows. Carrying a patch on my compositor is
 deliberate trade: a dozen lines on top of stock niri, rebuilt by my NixOS config, in
 exchange for an overlay that is genuinely invisible on the other side of the call.
 
+## Why black, and what upstream is doing
+
+The black box isn't an accident. niri's docs pitch `block-out-from` for password
+managers and messengers, and there a visible rectangle is arguably the point: *you*
+can see on the preview that something is being held back. So my patch is fine for my
+machine but not something to send upstream as is — it silently changes what an
+existing option does for everyone who relies on that box.
+
+I'm far from the first to want the other behavior. In niri's Discussions (where its
+feature requests live) the same request shows up three times this year:
+[#3596](https://github.com/niri-wm/niri/discussions/3596) (a black box hints at
+*what* you hid — "that's a notification" — and looks shady in an interview),
+[#4339](https://github.com/niri-wm/niri/discussions/4339) (omit layer surfaces, i.e.
+exactly this overlay case) and
+[#4564](https://github.com/niri-wm/niri/discussions/4564) (an AI assistant window,
+"like `WDA_EXCLUDEFROMCAPTURE`"). The maintainer hasn't said no: he calls it "the
+discussion about making block-out-from able to omit windows", wants "something simple
+first", and wants to see how other systems handle it.
+
+And there's already code: PR [#3685](https://github.com/niri-wm/niri/pull/3685) adds a
+*separate* `hide-from` rule for windows and layers that leaves matched surfaces out of
+captures, with `block-out-from` untouched. That's the design that can actually land.
+It has been open since March without a review and now needs a rebase, so I added my
+use case there and in #4564, together with the answer to "how do other systems do it":
+Windows and macOS both omit the window rather than black it out.
+
 ## The caveats, because "invisible" deserves scare quotes
 
 - **It's a compositor rule, not an app feature.** invisible-ai can't hide itself; you
   have to add the layer rule. Without it, the overlay is as visible as any other window.
 - **X11 stays impossible.** On my i3 machines it's a good AI panel, not a private one.
   If invisibility is the requirement, the answer is niri, not X11.
-- **The patch is mine to carry.** Stock niri gets you everything except "desktop
-  underneath instead of a black box", and I'll be rebasing that patch across niri
-  updates. The universal fix would be an upstream option for blocked-out surfaces to
-  draw nothing.
+- **The patch is mine to carry — for now.** Stock niri gets you everything except
+  "desktop underneath instead of a black box", and I'll be rebasing that patch across
+  niri updates until something like `hide-from` from
+  [#3685](https://github.com/niri-wm/niri/pull/3685) is merged. Then it's one word in
+  the layer rule and no patch at all.
 - **Detect and degrade, don't promise and lie.** Next on the list: detect the
   compositor and say it in the panel — "hidden from capture" vs "visible: you're on
   X11/GNOME". An overlay that can't be sure shouldn't act sure.
