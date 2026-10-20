@@ -2,11 +2,32 @@
 title: "x2x: One Keyboard, Two Screens"
 description: "How to share your keyboard and mouse between two X11 displays using x2x — no KVM switch, no remote desktop, just edge-of-screen cursor sliding."
 pubDate: 2026-07-26
+modifiedDate: 2026-10-21
 category: "Homelab"
 tags: ["x2x", "x11", "homelab", "linux", "keyboard-sharing", "mouse-sharing", "kvm", "ssh"]
 imgSrc: "/blog/x2x-sharing-keyboard-mouse.png"
 imgAlt: "Two monitors side by side with cursor moving between them"
 ---
+
+> **UPD (2026-10-21):** the section [Wayland: No Drop-In Replacement (Yet)](#wayland-no-drop-in-replacement-yet) below says there is no replacement for x2x on Wayland. I have since found one that works for me: [lan-mouse](https://github.com/feschber/lan-mouse), a software KVM written in Rust. I run it on a Wayland laptop (niri) and it sends my keyboard and mouse to the X11 machine (the Archcraft box on the TV) — the same "push the cursor past the edge" feel as x2x, but from a Wayland desktop to an X11 server.
+>
+> Short setup:
+>
+> 1. Install lan-mouse on both machines, and make sure it is the **same version / commit**. The crates.io 0.11.0 release and git `main` speak different protocol revisions — mine failed with `invalid event id` until both sides matched.
+> 2. On the X11 machine run `lan-mouse daemon` (it picks the X11 emulation backend). I run it as a systemd user service with `DISPLAY=:0` and `XAUTHORITY=%h/.Xauthority` so it starts on boot.
+> 3. On the Wayland machine add the X11 machine to `~/.config/lan-mouse/config.toml`:
+>
+>    ```toml
+>    [[clients]]
+>    position = "right"
+>    hostname = "tv-box"
+>    activate_on_startup = true
+>    ```
+>
+> 4. Pair them: each side has to authorize the other's certificate with `lan-mouse cli authorize-key <name> <sha256-fingerprint>`, then `lan-mouse cli save-config`. The fingerprint comes from `openssl x509 -in ~/.config/lan-mouse/lan-mouse.pem -noout -fingerprint -sha256`. Use it in **lowercase** — the uppercase form did not work for me.
+> 5. Allow UDP port 4242 between the machines.
+>
+> **Getting back:** after the cursor has moved to the X11 machine, simply moving it back to the left does not always work for me. The reliable way is lan-mouse's release bind: press **Ctrl + Shift + Super + Alt** together and the cursor returns to the original screen.
 
 ## What x2x Does
 
